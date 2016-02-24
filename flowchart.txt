@@ -1,0 +1,5 @@
+1. insert an string in the E form and change it to operators
+2. insert a variable in the operator telling about the spin of the operator 
+3. when the cumulants are forming make certain that they change the spin of the contracted terms.
+4. when writing the expressions make a function to calculate the constants that should come before the terms 
+5. change the output to the format that is required
