@@ -82,6 +82,7 @@ def make_c(lim_cu, contracted, a, i, u, full, poss, f, store_for_repeat, full_po
 			x=x-1
 			    
         elif n==2:
+            '''
 	    poss = deque([])
     	    for operator in full:
     	        y = deque([])
@@ -119,6 +120,7 @@ def make_c(lim_cu, contracted, a, i, u, full, poss, f, store_for_repeat, full_po
                 	        y.append(item)
     			#if (y): remember that empty strings are also included
     	            poss.append(y) #list of list in dictionary order i.e 1st annhilation -> possible creation then 2nd ...   
+                    '''
 	    no = len(full)/2
             for lim_cnt in range(0, no+1):
                 if lim_cnt>0:

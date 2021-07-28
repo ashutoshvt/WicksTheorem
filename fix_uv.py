@@ -83,6 +83,9 @@ def fix_con(op_no, cnt, lim_cnt, t_list, matched, contracted, contracted_l, cont
 	    else :
 		const_of_expression=const_of_expression*(1.0/2.0)
 	    #!!!!!make the spin change of the operators here. Think 
+	    print 'contracted_l[index], contracted_r[index]'
+	    print contracted_l[index], contracted_r[index]
+	    print 'const_of_expression, contracted_l[index].spin, contracted_r[index].spin'
 	    print const_of_expression, contracted_l[index].spin, contracted_r[index].spin
 	flag=0
 	#append all the operators that are not contracted
@@ -119,12 +122,17 @@ def fix_con(op_no, cnt, lim_cnt, t_list, matched, contracted, contracted_l, cont
 		print "spin list u check : it should have all contracted ", spin_list_upper, lim_cnt 
 		print "spin list l check : it should have all contracted ", spin_list_lower 
 		    
-		if tmp_1.kind != 'ac':
-		    tmp_3 = '\delta_{'+tmp_1.name+tmp_2.name+'}'
-		elif tmp_1.dag=='1':
+		#if (tmp_1.kind == 'pa') or (tmp_2.kind=='pa') or (tmp_1.kind== 'ho') or (tmp_2.kind=='ho'):
+		##if tmp_1.kind != 'ac':
+		#    tmp_3 = '\delta_{'+tmp_1.name+tmp_2.name+'}'
+		#elif tmp_1.dag=='1':
+		if tmp_1.dag=='1':
 		    tmp_3 = '\Gamma^'+tmp_1.name+'_{'+tmp_2.name+'}'
+                    print(tmp_3)
 		elif tmp_1.dag=='0':
 		    tmp_3 = '\eta^'+tmp_2.name+'_{'+tmp_1.name+'}'
+	            const_of_expression *= 2.0 # No 1/2 in eta terms AK
+                    print(tmp_3)
 		else :
 		    print "!!!!not printing anywhere, if this occurs:there may be a problem"
 		new_list.append(tmp_3)

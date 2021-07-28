@@ -121,6 +121,7 @@ commutator=0
 a = deque([])
 i = deque([])
 u = deque([])
+g = deque([])
 full = []
 full1 = [] #first string
 full2 = [] #second string
@@ -142,7 +143,7 @@ for index in range(0, len(string1), 2):
 	full1.append(x)
 	full.append(x)
 	p=p+1
-    elif (string1[index] >= 'i') and (string1[index] < 'u') :
+    elif (string1[index] >= 'i') and (string1[index] < 'p') :
 	x = operator('ho', string1[index+1], p+1, string1[index],1, -1, 1)
 	i.append(x) 
 	full1.append(x)
@@ -151,6 +152,14 @@ for index in range(0, len(string1), 2):
     elif (string1[index] >='u' and string1[index]<='z'):
 	x = operator('ac', string1[index+1], p+1, string1[index], 1, -1, 1)
 	u.append(x) 
+	full1.append(x)
+	full.append(x)
+	p=p+1
+    elif (string1[index] >='p' and string1[index]<='s'):
+	x = operator('ge', string1[index+1], p+1, string1[index], 1, -1, 1)
+	i.append(x) 
+	u.append(x) 
+	a.append(x) 
 	full1.append(x)
 	full.append(x)
 	p=p+1
@@ -166,7 +175,7 @@ if string2:
 	    a.append(x) 
 	    full2.append(x)
 	    p=p+1
-        elif (string2[index] >= 'i') and (string2[index] < 'u') :
+        elif (string2[index] >= 'i') and (string2[index] < 'p') :
 	    x = operator('ho', string2[index+1], p+1, string2[index], 2, -1, 1)
 	    i.append(x) 
 	    full2.append(x)
@@ -176,7 +185,13 @@ if string2:
 	    u.append(x) 
 	    full2.append(x)
 	    p=p+1
-
+        elif (string2[index] >='p' and string2[index]<='s'):
+	    x = operator('ge', string2[index+1], p+1, string2[index], 2, -1, 1)
+	    i.append(x) 
+	    a.append(x) 
+	    u.append(x) 
+	    full2.append(x)
+	    p=p+1
 #make list for all possible contractions for any operator
 #The commutator here is 1 when menu=3, so 2 set of terms wille be needed (commutator +1)
 for i_c in range(commutator+1):
@@ -235,6 +250,20 @@ for i_c in range(commutator+1):
 	        for item in u:
 	            if operator.pos<item.pos and int(item.dag)!=int(operator.dag):
 		        y.append(item)
+
+            elif operator.kind == 'ge' and operator.dag=='0':
+	        for item in a:
+	            if operator.pos<item.pos and item.dag=='1':
+		        y.append(item)
+            elif operator.kind == 'ge' and operator.dag=='1':
+  	        for item in i:
+	            if operator.pos<item.pos and item.dag=='0':
+		        y.append(item)
+            if operator.kind == 'ge':  #because active states will have eta and gamma
+	        for item in u:
+	            if operator.pos<item.pos and int(item.dag)!=int(operator.dag) and item.kind!='ge':#ge operator already added in i and a case
+		        y.append(item)
+
             poss.append(y) #list of list in dictionary order i.e 1st annhilation -> possible creation then 2nd ...   
     else:
         for operator in full:
@@ -251,6 +280,18 @@ for i_c in range(commutator+1):
             elif operator.kind == 'ac':  #because active states will have eta and gamma
 	        for item in u:
 	            if operator.pos<item.pos and int(item.dag)!=int(operator.dag) and operator.string!=item.string:
+		        y.append(item)
+            elif operator.kind == 'ge' and operator.dag=='0':
+	        for item in a:
+	            if operator.pos<item.pos and item.dag=='1' and operator.string!=item.string:
+		        y.append(item)
+            elif operator.kind == 'ge' and operator.dag=='1':
+  	        for item in i:
+	            if operator.pos<item.pos and item.dag=='0' and operator.string!=item.string:
+		        y.append(item)
+            if operator.kind == 'ge':  #because active states will have eta and gamma
+	        for item in u:
+	            if operator.pos<item.pos and int(item.dag)!=int(operator.dag) and operator.string!=item.string  and item.kind!='ge':#ge operator already added in i and a case
 		        y.append(item)
     #if (y): remember that empty strings are also included
 
