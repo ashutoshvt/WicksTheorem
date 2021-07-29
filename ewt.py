@@ -71,6 +71,29 @@ elif menu == '3':
     string1 = list(raw_input("input the strings \n(i,j..-holes; u,v...-active; a,b...-excited; 1-daggered; 0-undaggered)\nExample : u1v0\nOperator 1: "))
     string2 = list(raw_input("Operator 2: "))
 
+### AK Start 
+String1=[]
+String2=[]
+for index in range(0, len(string1_upper),2):
+    String1.append([string1_upper[index], string1_upper[index+1]])
+    String1.append('1')
+for index in range(len(string1_lower)-1, -1, -2):
+    String1.append([string1_lower[index-1], string1_lower[index]])
+    String1.append('0')
+print 'My String1'
+print String1
+
+if menu=='2' or menu=='3' :
+    for index in range(0, len(string2_upper),2):
+        String2.append([string2_upper[index], string2_upper[index+1]])
+        String2.append('1')
+    for index in range(len(string2_lower)-1, -1, -2):
+        String2.append([string2_lower[index-1], string2_lower[index]])
+        String2.append('0')
+    print 'My String2'
+    print String2
+
+### AK done 
 
 for index in range(0, len(string1_upper)):
     string1.append(string1_upper[index])
@@ -78,6 +101,7 @@ for index in range(0, len(string1_upper)):
 for index in range(len(string1_lower)-1, -1, -1):
     string1.append(string1_lower[index])
     string1.append('0')
+print 'Original String1'
 print string1
 
 if menu=='2' or menu=='3' :
@@ -87,6 +111,7 @@ if menu=='2' or menu=='3' :
     for index in range(len(string2_lower)-1, -1, -1):
         string2.append(string2_lower[index])
         string2.append('0')
+    print 'Original String2'
     print string2
 
 '''
@@ -129,69 +154,157 @@ full_pos = [] #positions of full
 p = 0
 spin=0
 
+##make 3 lists : a-particle operators, i-hole operators, u-active state operators
+#for index in range(0, len(string1), 2):
+#    print('String1[index][0]')
+#    print(String1[index][0])
+#    print('String1[index+1]')
+#    print(String1[index+1])
+#    if (string1[index] == 'o' or string1[index] == 't'):
+#	x = operator('ac', string1[index+1], p+1, string1[index], 1, -1, 1)
+#	u.append(x) 
+#	full1.append(x)
+#	full.append(x)
+#	p=p+1
+#    elif (string1[index] >= 'a') and (string1[index] < 'h') :
+#	x = operator('pa', string1[index+1], p+1, string1[index], 1, -1, 1)
+#	a.append(x) 
+#	full1.append(x)
+#	full.append(x)
+#	p=p+1
+#    elif (string1[index] >= 'i') and (string1[index] < 'p') :
+#	x = operator('ho', string1[index+1], p+1, string1[index],1, -1, 1)
+#	i.append(x) 
+#	full1.append(x)
+#	full.append(x)
+#	p=p+1
+#    elif (string1[index] >='u' and string1[index]<='z'):
+#	x = operator('ac', string1[index+1], p+1, string1[index], 1, -1, 1)
+#	u.append(x) 
+#	full1.append(x)
+#	full.append(x)
+#	p=p+1
+#    elif (string1[index] >='p' and string1[index]<='s'):
+#	x = operator('ge', string1[index+1], p+1, string1[index], 1, -1, 1)
+#	i.append(x) 
+#	u.append(x) 
+#	a.append(x) 
+#	full1.append(x)
+#	full.append(x)
+#	p=p+1
+#if string2:
+#    for index in range(0, len(String2), 2):
+#        if (string2[index] == 'o' or string2[index] == 't'):
+#	    x = operator('ac', string2[index+1], p+1, string2[index], 2, -1, 1)
+#	    u.append(x) 
+#	    full2.append(x)
+#	    p=p+1
+#        elif (string2[index] >= 'a') and (string2[index] < 'h') :
+#	    x = operator('pa', string2[index+1], p+1, string2[index], 2, -1, 1)
+#	    a.append(x) 
+#	    full2.append(x)
+#	    p=p+1
+#        elif (string2[index] >= 'i') and (string2[index] < 'p') :
+#	    x = operator('ho', string2[index+1], p+1, string2[index], 2, -1, 1)
+#	    i.append(x) 
+#	    full2.append(x)
+#	    p=p+1
+#        elif (string2[index] >='u' and string2[index]<='z'):
+#	    x = operator('ac', string2[index+1], p+1, string2[index], 2, -1, 1)
+#	    u.append(x) 
+#	    full2.append(x)
+#	    p=p+1
+#        elif (string2[index] >='p' and string2[index]<='s'):
+#	    x = operator('ge', string2[index+1], p+1, string2[index], 2, -1, 1)
+#	    i.append(x) 
+#	    a.append(x) 
+#	    u.append(x) 
+#	    full2.append(x)
+#	    p=p+1
+
+# AK: Start
 #make 3 lists : a-particle operators, i-hole operators, u-active state operators
-for index in range(0, len(string1), 2):
-    if (string1[index] == 'o' or string1[index] == 't'):
-	x = operator('ac', string1[index+1], p+1, string1[index], 1, -1, 1)
+for index in range(0, len(String1), 2):
+    print('String1[index][0]')
+    print(String1[index][0])
+    print('String1[index+1]')
+    print(String1[index+1])
+    if (String1[index][0] == 'o' or String1[index][0] == 't'):
+        string = String1[index][0] + String1[index][1]
+	x = operator('ac', String1[index+1], p+1, string, 1, -1, 1)
 	u.append(x) 
 	full1.append(x)
 	full.append(x)
 	p=p+1
-    elif (string1[index] >= 'a') and (string1[index] < 'h') :
-	x = operator('pa', string1[index+1], p+1, string1[index], 1, -1, 1)
+    elif (String1[index][0] >= 'a') and (String1[index][0] < 'h') :
+        string = String1[index][0] + String1[index][1]
+	x = operator('pa', String1[index+1], p+1, string, 1, -1, 1)
 	a.append(x) 
 	full1.append(x)
 	full.append(x)
 	p=p+1
-    elif (string1[index] >= 'i') and (string1[index] < 'p') :
-	x = operator('ho', string1[index+1], p+1, string1[index],1, -1, 1)
+    elif (String1[index][0] >= 'i') and (String1[index][0] < 'p') :
+        string = String1[index][0] + String1[index][1]
+	x = operator('ho', String1[index+1], p+1, string,1, -1, 1)
 	i.append(x) 
 	full1.append(x)
 	full.append(x)
 	p=p+1
-    elif (string1[index] >='u' and string1[index]<='z'):
-	x = operator('ac', string1[index+1], p+1, string1[index], 1, -1, 1)
+    elif (String1[index][0] >='u' and String1[index][0]<='z'):
+        string = String1[index][0] + String1[index][1]
+	x = operator('ac', String1[index+1], p+1, string, 1, -1, 1)
 	u.append(x) 
 	full1.append(x)
 	full.append(x)
 	p=p+1
-    elif (string1[index] >='p' and string1[index]<='s'):
-	x = operator('ge', string1[index+1], p+1, string1[index], 1, -1, 1)
+    elif (String1[index][0] >='p' and String1[index][0]<='s'):
+        string = String1[index][0] + String1[index][1]
+	x = operator('ge', String1[index+1], p+1, string, 1, -1, 1)
 	i.append(x) 
 	u.append(x) 
 	a.append(x) 
 	full1.append(x)
 	full.append(x)
 	p=p+1
-if string2:
-    for index in range(0, len(string2), 2):
-        if (string2[index] == 'o' or string2[index] == 't'):
-	    x = operator('ac', string2[index+1], p+1, string2[index], 2, -1, 1)
+if String2:
+    for index in range(0, len(String2), 2):
+        if (String2[index][0] == 'o' or String2[index][0] == 't'):
+            string = String2[index][0] + String2[index][1]
+	    x = operator('ac', String2[index+1], p+1, string, 2, -1, 1)
 	    u.append(x) 
 	    full2.append(x)
 	    p=p+1
-        elif (string2[index] >= 'a') and (string2[index] < 'h') :
-	    x = operator('pa', string2[index+1], p+1, string2[index], 2, -1, 1)
+        elif (String2[index][0] >= 'a') and (String2[index][0] < 'h') :
+            string = String2[index][0] + String2[index][1]
+	    x = operator('pa', String2[index+1], p+1, string, 2, -1, 1)
 	    a.append(x) 
 	    full2.append(x)
 	    p=p+1
-        elif (string2[index] >= 'i') and (string2[index] < 'p') :
-	    x = operator('ho', string2[index+1], p+1, string2[index], 2, -1, 1)
+        elif (String2[index][0] >= 'i') and (String2[index][0] < 'p') :
+            string = String2[index][0] + String2[index][1]
+	    x = operator('ho', String2[index+1], p+1, string, 2, -1, 1)
 	    i.append(x) 
 	    full2.append(x)
 	    p=p+1
-        elif (string2[index] >='u' and string2[index]<='z'):
-	    x = operator('ac', string2[index+1], p+1, string2[index], 2, -1, 1)
+        elif (String2[index][0] >='u' and String2[index][0]<='z'):
+            string = String2[index][0] + String2[index][1]
+	    x = operator('ac', String2[index+1], p+1, string, 2, -1, 1)
 	    u.append(x) 
 	    full2.append(x)
 	    p=p+1
-        elif (string2[index] >='p' and string2[index]<='s'):
-	    x = operator('ge', string2[index+1], p+1, string2[index], 2, -1, 1)
+        elif (String2[index][0] >='p' and String2[index][0]<='s'):
+            string = String2[index][0] + String2[index][1]
+	    x = operator('ge', String2[index+1], p+1, string, 2, -1, 1)
 	    i.append(x) 
 	    a.append(x) 
 	    u.append(x) 
 	    full2.append(x)
 	    p=p+1
+
+# AK: Finished
+
+
+
 #make list for all possible contractions for any operator
 #The commutator here is 1 when menu=3, so 2 set of terms wille be needed (commutator +1)
 for i_c in range(commutator+1):
