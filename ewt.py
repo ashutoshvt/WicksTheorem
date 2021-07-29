@@ -236,7 +236,11 @@ for index in range(0, len(String1), 2):
 	full1.append(x)
 	full.append(x)
 	p=p+1
-    elif (String1[index][0] >= 'a') and (String1[index][0] < 'h') :
+        # Full CABS space A, B, C, D, E, F, G, H
+        # These are just full virtual space
+        # Breaking of A into pure virtual and pure CABS can be done later!
+    elif (((String1[index][0] >= 'a') and (String1[index][0] < 'h')) or 
+         ((String1[index][0] >= 'A') and (String1[index][0] < 'H'))) :
         string = String1[index][0] + String1[index][1]
 	x = operator('pa', String1[index+1], p+1, string, 1, -1, 1)
 	a.append(x) 
@@ -274,7 +278,11 @@ if String2:
 	    u.append(x) 
 	    full2.append(x)
 	    p=p+1
-        elif (String2[index][0] >= 'a') and (String2[index][0] < 'h') :
+        # Full CABS space A, B, C, D, E, F, G, H
+        # These are just full virtual space
+        # Breaking of A into pure virtual and pure CABS can be done later!
+        elif (((String2[index][0] >= 'a') and (String2[index][0] < 'h')) or 
+             ((String2[index][0] >= 'A') and (String2[index][0] < 'H'))) :
             string = String2[index][0] + String2[index][1]
 	    x = operator('pa', String2[index+1], p+1, string, 2, -1, 1)
 	    a.append(x) 
