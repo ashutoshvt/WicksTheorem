@@ -29,6 +29,7 @@ import make_c
 fix_temp = fix_uv
 func = func_ewt
 f = open("tec.txt", "w")
+fptr = open("AK.txt", "w")
 
 #class operator defined
 string2 = []
@@ -467,10 +468,14 @@ for i_c in range(commutator+1):
         tmp_l.append('\]')
         tmp_6 = "Equation : "+'$$'+''.join(tmp_l)+'\\\\'+'$$'+'\n'+"Answer :\n"
         f.write(tmp_6)
+        fptr.write(tmp_6)
     if not i_c and commutator:
         f.write("\nThis is where the first terms start\\\\\n")
+        fptr.write("\nThis is where the first terms start\\\\\n")
     elif commutator : 
         f.write("\nThis is where the second terms start\\\\\n")
-    make_c.make_c(len(full), contracted, a, i, u, full, poss, f, store_for_repeat, full_pos, i_c, menu)
+        fptr.write("\nThis is where the second terms start\\\\\n")
+    make_c.make_c(len(full), contracted, a, i, u, full, poss, f, fptr, store_for_repeat, full_pos, i_c, menu)
 print "\n-------------------------------------------------------------------------------------\n     ITS DONE :D Have a look at the tec.txt file !\n     !!CHEERS !!"
-
+f.close()
+fptr.close()

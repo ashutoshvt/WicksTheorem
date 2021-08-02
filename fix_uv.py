@@ -9,7 +9,7 @@ import copy
 import parity
 import func_ewt
 func=func_ewt
-def fix_con(op_no, cnt, lim_cnt, t_list, matched, contracted, contracted_l, contracted_r, a, i, u, full, f, g, full_pos, i_c):
+def fix_con(op_no, cnt, lim_cnt, t_list, matched, contracted, contracted_l, contracted_r, a, i, u, full, f, fptr, full_pos, i_c):
     cnt_tmp=cnt+1 # put condition of limiting cnt
     index = 0
     if cnt<lim_cnt and lim_cnt!=0:
@@ -37,7 +37,7 @@ def fix_con(op_no, cnt, lim_cnt, t_list, matched, contracted, contracted_l, cont
 	    contracted_r.append(t_list_tmp[0][0])
 	    matched.append(full[op_no])
 	    matched.append(t_list_tmp[0][0])
-            fix_con(copy.copy(op_no), cnt+1, lim_cnt, copy.deepcopy(t_list_tmp), matched, contracted, contracted_l, contracted_r, a, i, u, full, f, full_pos, i_c)
+            fix_con(copy.copy(op_no), cnt+1, lim_cnt, copy.deepcopy(t_list_tmp), matched, contracted, contracted_l, contracted_r, a, i, u, full, f, fptr, full_pos, i_c)
 	    matched.pop()
 	    matched.pop()
 	    t_list_tmp[0].popleft()
@@ -71,6 +71,7 @@ def fix_con(op_no, cnt, lim_cnt, t_list, matched, contracted, contracted_l, cont
 	    sign = -1
 	new_list = []
 	full_formed = [] # stores the positions of the string formed after all the contractions
+	full_formed_AK = [] # stores the positions of the string formed after all the contractions
 	#make th main_list from full
 	for item in full:
 	    main_list.append(item.pos)
@@ -179,8 +180,10 @@ def fix_con(op_no, cnt, lim_cnt, t_list, matched, contracted, contracted_l, cont
 	        #When you pop an element from output, make sure is position is stored in full_formed
 		tmp_1 = output.popleft()
 		full_formed.append(tmp_1.pos)
+		full_formed_AK.append(tmp_1.pos)
 		tmp_2 = output.popleft()
 		full_formed.append(tmp_2.pos)
+		full_formed_AK.append(tmp_2.pos)
 
 		#store spin in the list for checking the loop factor
 
@@ -211,6 +214,7 @@ def fix_con(op_no, cnt, lim_cnt, t_list, matched, contracted, contracted_l, cont
 		else :
 		    print "!!!!not printing anywhere, if this occurs:there may be a problem"
 		new_list.append(tmp_3)
+                new_list1 = copy.deepcopy(new_list) #AK
 	    #cumulant_present=0
 	    
 	    #formed cumulants being appended in new_list------------------------
@@ -225,7 +229,19 @@ def fix_con(op_no, cnt, lim_cnt, t_list, matched, contracted, contracted_l, cont
 	    #if not output and const_of_expression!=1.0 and not cumulant_present :
 	        print "loop function executed"
                 const_of_expression=const_of_expression*2.0
-	    
+	   
+            # AK: upper, lower and then reverse lower and append to full_formed_AK
+            lower=[]
+            for key in tensor_order_map:
+                full_formed_AK.append(key.pos) 
+            for key in tensor_order_map:
+                lower.append(tensor_order_map[key].pos) 
+            lower.reverse()
+            for item in lower:
+                full_formed_AK.append(item) 
+            print 'full_formed_AK'
+            print full_formed_AK
+ 
 	    #append all the normal ordered operators not contracted	
 	    for item in output:
 		full_formed.append(item.pos)
@@ -233,8 +249,7 @@ def fix_con(op_no, cnt, lim_cnt, t_list, matched, contracted, contracted_l, cont
 	    print 'full_formed, full_pos, contracted, output'
 	    print full_formed, full_pos, contracted, output
 	    if output:
-                new_list1 = copy.deepcopy(new_list)
-		func.write_normal_order_AK(new_list1, tensor_order_map) # tensor ordering!
+		func.write_normal_order_AK(new_list1, tensor_order_map) #AK tensor ordering!
 		func.write_normal_order(new_list, output)
 	except:
 	    print "The try statement in fix_uv did not work. Something wrong in the peice of code tin 'try'"
@@ -247,6 +262,20 @@ def fix_con(op_no, cnt, lim_cnt, t_list, matched, contracted, contracted_l, cont
 	else :
 	    tmp_5 = '$$'+"+"+str(const_of_expression)+''.join(new_list)+'\\\\'+'$$'+'\n'
 	    f.write(tmp_5)
+
+        # Parity function on my tensor ordered stuff!
+	if not i_c :
+	    sign = 1
+	else :
+	    sign = -1
+	if (parity.parity(full_formed_AK, full_pos)):
+		sign=sign*(-1)
+	if sign == (-1):
+	    tmp_5 = '$$'+"-"+str(const_of_expression)+''.join(new_list1)+"\\\\"+'$$'+'\n'
+	    fptr.write(tmp_5)
+	else :
+	    tmp_5 = '$$'+"+"+str(const_of_expression)+''.join(new_list1)+'\\\\'+'$$'+'\n'
+	    fptr.write(tmp_5)
 #--------------------------------------------------------------------------------------------------------------------
     #The case when no contractions are made, but cummulants are there/not there
     elif lim_cnt==0:
@@ -289,7 +318,9 @@ def fix_con(op_no, cnt, lim_cnt, t_list, matched, contracted, contracted_l, cont
 	if sign == (-1):
 	    tmp_5 = '$$'+"-"+str(const_of_expression)+''.join(new_list)+"\\\\"+'$$'+'\n'
 	    f.write(tmp_5)
+	    fptr.write(tmp_5)
 	else :
 	    tmp_5 = '$$'+"+"+str(const_of_expression)+''.join(new_list)+'\\\\'+'$$'+'\n'
 	    f.write(tmp_5)
+	    fptr.write(tmp_5)
 

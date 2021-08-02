@@ -4,7 +4,7 @@ from collections import deque
 import copy
 fix_temp = fix_uv
 func = func_ewt
-def make_c(lim_cu, contracted, a, i, u, full, poss, f, store_for_repeat, full_pos, i_c, menu):
+def make_c(lim_cu, contracted, a, i, u, full, poss, f, fptr, store_for_repeat, full_pos, i_c, menu):
     for n in range(2, lim_cu+1, 2):
         if n>2:
 	    u_copy = deque([])
@@ -58,7 +58,7 @@ def make_c(lim_cu, contracted, a, i, u, full, poss, f, store_for_repeat, full_po
 				p_2 = 1
 			if (flag1 ==0 and p_1==1 and p_2==1) or menu == '1':
 
-			    make_c(n, contracted, a, i, copy.deepcopy(u_2), copy.deepcopy(full_2), poss, f, store_for_repeat, full_pos, i_c, menu)#call the function again with smaller u
+			    make_c(n, contracted, a, i, copy.deepcopy(u_2), copy.deepcopy(full_2), poss, f, fptr, store_for_repeat, full_pos, i_c, menu)#call the function again with smaller u
 			    #if not u_2:
 			    store_for_repeat.append(copy.deepcopy(contracted))
 		    contracted.pop()
@@ -146,7 +146,7 @@ def make_c(lim_cu, contracted, a, i, u, full, poss, f, store_for_repeat, full_po
                 	    matched.append(full[op_no])
                 	    matched.append(temp_list[0][0])
                 	    temp_list[0].popleft()
-                	    fix_temp.fix_con(copy.copy(op_no), 1, lim_cnt, copy.deepcopy(temp_list), matched, contracted, contracted_l, contracted_r, a, i, u, full, f, full_pos, i_c)
+                	    fix_temp.fix_con(copy.copy(op_no), 1, lim_cnt, copy.deepcopy(temp_list), matched, contracted, contracted_l, contracted_r, a, i, u, full, f, fptr, full_pos, i_c)
                 	    matched.pop()
                 	    matched.pop()
     	        else :
@@ -155,5 +155,5 @@ def make_c(lim_cu, contracted, a, i, u, full, poss, f, store_for_repeat, full_po
         	    matched = []
         	    contracted_l = []
         	    contracted_r = []
-        	    fix_temp.fix_con(copy.copy(op_no), 1, lim_cnt, copy.deepcopy(temp_list), matched, contracted, contracted_l, contracted_r, a, i, u, full, f, full_pos, i_c)
+        	    fix_temp.fix_con(copy.copy(op_no), 1, lim_cnt, copy.deepcopy(temp_list), matched, contracted, contracted_l, contracted_r, a, i, u, full, f, fptr, full_pos, i_c)
 
