@@ -328,6 +328,22 @@ def write_normal_order(new_list, output):
             tmp_4 = item.name
 	    new_list.append(tmp_4)
     new_list.append('}\\}')
+
+def write_normal_order_AK(new_list, tensor_order_map):
+    new_list.append('\\{E^{') # upper
+    upper_indices=[]
+    lower_indices=[]
+    for key in tensor_order_map:
+        upper_indices.append(key.name)    
+        lower_indices.append(tensor_order_map[key].name)    
+    new_list.append(''.join(upper_indices)) 
+    new_list.append('}_{')
+    new_list.append(''.join(lower_indices)) 
+    new_list.append('}\\}') # lower
+    print 'new_list'
+    a = ''.join(new_list)
+    print a
+
 def normal_order_adv(full, output):
     for item1 in full:
         flag=0
@@ -357,6 +373,20 @@ def normal_order_adv(full, output):
                 flag=1
         if (not flag) and (item1.dag=='0') and item1.string==1:
             output.append(item1)
+
+def is_present_in_dict(item, parent_dict, output):
+    flag = False
+    for key in parent_dict:
+        #print type(key)
+        #print type(item)
+        #print key
+        #print key.pos 
+        #print item.pos 
+        if key.pos == item.pos:
+            flag = True
+            output.append(parent_dict[key])
+            break
+    return flag 
 
 def check_for_same_contraction(spin_list_upper, spin_list_lower, counter):
     if spin_list_lower[counter]==spin_list_upper[counter]:

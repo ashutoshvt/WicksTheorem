@@ -9,7 +9,7 @@ import copy
 import parity
 import func_ewt
 func=func_ewt
-def fix_con(op_no, cnt, lim_cnt, t_list, matched, contracted, contracted_l, contracted_r, a, i, u, full, f, full_pos, i_c):
+def fix_con(op_no, cnt, lim_cnt, t_list, matched, contracted, contracted_l, contracted_r, a, i, u, full, f, g, full_pos, i_c):
     cnt_tmp=cnt+1 # put condition of limiting cnt
     index = 0
     if cnt<lim_cnt and lim_cnt!=0:
@@ -88,8 +88,83 @@ def fix_con(op_no, cnt, lim_cnt, t_list, matched, contracted, contracted_l, cont
 	    print 'const_of_expression, contracted_l[index].spin, contracted_r[index].spin'
 	    print const_of_expression, contracted_l[index].spin, contracted_r[index].spin
 	flag=0
+        print'output before normal_order_adv'
+        print output
+        # AK: making contracted_pairs upper-bottom
+        contract_pairs=[]
+        map_contract_pairs={}
+        for i in range(0,len(output),2):
+            contract_pairs.append([output[i],output[i+1]])    
+        for item in contract_pairs:
+            if item[0].dag != '1':
+                 temp = item[0]
+                 item[0] = item[1]
+                 item[1] = temp
+        for item in contract_pairs:
+            map_contract_pairs[item[0]] = item[1]
+            map_contract_pairs[item[1]] = item[0]
+        
+        #print 'contract_pairs' 
+        #print contract_pairs 
+        print 'map_contract_pairs' 
+        print map_contract_pairs 
+ 
+        #for item in output:
+        #    print 'map_contract_pairs[item]'
+        #    print map_contract_pairs[item]
+
+       
+        # AK: making uncontracted upper indices
+        uncontract_upper=[]
+        for item in full:
+            flag = 0
+            for item1 in output:
+                if item.pos == item1.pos:
+                    flag = 1
+            if not flag and item.dag == '1':
+                uncontract_upper.append(item)
+        print 'uncontract_upper' 
+        print uncontract_upper
+
+        # AK: conserving the tensor ordering logic
+        tensor_order_map={}
+        output1=[]
+        for item in uncontract_upper:
+            flag = 1
+            item1 = item
+            while flag:
+               print 'item1' 
+               print item1 
+               print 'full[item1.pair-1]' 
+               print full[item1.pair-1]
+               #print 'type(full[item1.pair-1])' 
+               #print type(full[item1.pair-1])
+               if func.is_present_in_dict(full[item1.pair-1],map_contract_pairs, output1): 
+                   print 'map_contract_pairs'
+                   print map_contract_pairs
+                   #print 'full[item1.pair-1]' 
+                   #print full[item1.pair-1]
+                   print 'output1'
+                   print output1
+                   #item1 = map_contract_pairs[full[item1.pair-1]]
+                   item1 = output1[0]
+                   output1 = []
+               else:
+                   tensor_order_map[item] = full[item1.pair-1]
+                   flag = 0
+      
+        print 'tensor_order_map'      
+        print tensor_order_map      
+
+        print'full'
+        print full
+        print 'item.pair'
+        for item in full:
+            print item.pair
 	#append all the operators that are not contracted
 	func.normal_order_adv(full, output)
+        print'output'
+        print output
 	# make the output list in name and pos
 	for item in output:
 	    output_name.append(item.name)
@@ -155,8 +230,11 @@ def fix_con(op_no, cnt, lim_cnt, t_list, matched, contracted, contracted_l, cont
 	    for item in output:
 		full_formed.append(item.pos)
 	    #print all the normal ordered operators not contracted
-	    print full_formed, contracted, output
+	    print 'full_formed, full_pos, contracted, output'
+	    print full_formed, full_pos, contracted, output
 	    if output:
+                new_list1 = copy.deepcopy(new_list)
+		func.write_normal_order_AK(new_list1, tensor_order_map) # tensor ordering!
 		func.write_normal_order(new_list, output)
 	except:
 	    print "The try statement in fix_uv did not work. Something wrong in the peice of code tin 'try'"
