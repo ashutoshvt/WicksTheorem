@@ -62,15 +62,18 @@ if menu == '1':
 
     string1_upper = list(raw_input("Enter Operator :\nInput the upper indices of E E(a,b,c)_(e,f,g) \n(i,j..-holes; u,v...-active; a,b...-excited; 1-daggered; 0-undaggered)\nExample : uv\nOperator string: "))
     string1_lower = list(raw_input("input the lower indices of E E(a,b,c)_(e,f,g) \n(i,j..-holes; u,v...-active; a,b...-excited; 1-daggered; 0-undaggered)\nExample : uv\nOperator string: "))
-elif menu=='2':
+elif menu=='2' or menu=='3':
     string1_upper = list(raw_input("Enter Operator 1 : Input the upper indices of E E(a,b,c)_(e,f,g) \n(i,j..-holes; u,v...-active; a,b...-excited; 1-daggered; 0-undaggered)\nExample : uv\nOperator string: "))
     string1_lower = list(raw_input("input the lower indices of E E(a,b,c)_(e,f,g) \n(i,j..-holes; u,v...-active; a,b...-excited; 1-daggered; 0-undaggered)\nExample : uv\nOperator string: "))
     string2_upper = list(raw_input("Enter Operator 2 : Input the upper indices of E E(a,b,c)_(e,f,g) \n(i,j..-holes; u,v...-active; a,b...-excited; 1-daggered; 0-undaggered)\nExample : uv\nOperator string: "))
     string2_lower = list(raw_input("input the lower indices of E E(a,b,c)_(e,f,g) \n(i,j..-holes; u,v...-active; a,b...-excited; 1-daggered; 0-undaggered)\nExample : uv\nOperator string: "))
-elif menu == '3':
+else:
+    pass
+
+if menu == '3':
     commutator = 1
-    string1 = list(raw_input("input the strings \n(i,j..-holes; u,v...-active; a,b...-excited; 1-daggered; 0-undaggered)\nExample : u1v0\nOperator 1: "))
-    string2 = list(raw_input("Operator 2: "))
+    #string1 = list(raw_input("input the strings \n(i,j..-holes; u,v...-active; a,b...-excited; 1-daggered; 0-undaggered)\nExample : u1v0\nOperator 1: "))
+    #string2 = list(raw_input("Operator 2: "))
 
 ### AK Start 
 String1=[]
@@ -141,7 +144,7 @@ print string1
 '''
 
 #!!!!!!!! I am fixing the commutator to 0 by force here. Remember to remove this line when incorporating the menu !!!!
-commutator=0
+#commutator=0
 
 
 a = deque([])
@@ -309,7 +312,6 @@ if String2:
 	    u.append(x) 
 	    full2.append(x)
 	    p=p+1
-
 # AK: Finished
 
 
@@ -317,6 +319,9 @@ if String2:
 #make list for all possible contractions for any operator
 #The commutator here is 1 when menu=3, so 2 set of terms wille be needed (commutator +1)
 for i_c in range(commutator+1):
+    print '################################################'
+    print 'i_c'
+    print i_c
     full = []
     full_pos = []
     store_for_repeat = []
@@ -326,13 +331,16 @@ for i_c in range(commutator+1):
 	full.extend(full1)
 	full.extend(full2)
     else :
-
 	for item in full1:
 	    item.string=2
 	for item in full2:
 	    item.string=1
 	full.extend(full2)
 	full.extend(full1)
+        count = 1
+        for item in full:
+            item.pos = count 
+            count += 1
     for item in full:
         full_pos.append(item.pos)
     #----------------------------------------Pairing of the operators
@@ -362,17 +370,14 @@ for i_c in range(commutator+1):
 	        for item in a:
 	            if operator.pos<item.pos and item.dag=='1':
 		        y.append(item)
-    
             elif operator.kind == 'ho' and operator.dag=='1':
   	        for item in i:
 	            if operator.pos<item.pos and item.dag=='0':
 		        y.append(item)
-	
             elif operator.kind == 'ac':  #because active states will have eta and gamma
 	        for item in u:
 	            if operator.pos<item.pos and int(item.dag)!=int(operator.dag):
 		        y.append(item)
-
             elif operator.kind == 'ge' and operator.dag=='0':
 	        for item in a:
 	            if operator.pos<item.pos and item.dag=='1':
@@ -388,17 +393,33 @@ for i_c in range(commutator+1):
 
             poss.append(y) #list of list in dictionary order i.e 1st annhilation -> possible creation then 2nd ...   
     else:
+        #### Need to revise this logic after consulting with Ayush!
         for operator in full:
+            print 'operator.string'
+            print operator.string
             y = deque([])
-            if operator.kind == 'pa' and operator.dag=='0':
+            if operator.kind == 'pa' and operator.dag=='0': 
 	        for item in a:
 	            if operator.pos<item.pos and item.dag=='1' and operator.string!=item.string:
+		        y.append(item)
+            elif operator.kind == 'pa' and operator.dag=='1': # AK: assuming gamma_ai == 0, will document elsewhere!
+	        for item in a:
+                    print 'item.string'
+                    print item.string
+                    print 'operator.pos'
+                    print operator.pos 
+                    print 'item.pos'
+                    print item.pos 
+	            if operator.pos<item.pos and item.dag=='0' and operator.string!=item.string:
 		        y.append(item)
             elif operator.kind == 'ho' and operator.dag=='1':
   	        for item in i:
 	            if operator.pos<item.pos and item.dag=='0' and operator.string!=item.string:
 		        y.append(item)
-	
+            elif operator.kind == 'ho' and operator.dag=='0':
+  	        for item in i:
+	            if operator.pos<item.pos and item.dag=='1' and operator.string!=item.string:
+		        y.append(item)
             elif operator.kind == 'ac':  #because active states will have eta and gamma
 	        for item in u:
 	            if operator.pos<item.pos and int(item.dag)!=int(operator.dag) and operator.string!=item.string:
@@ -424,7 +445,6 @@ for i_c in range(commutator+1):
 
     #---------------------The first term of the PDF file is being printed here (not important)
 
-    tmp_l=[]
     tmp_lower=[]
     
     if not i_c:
@@ -475,6 +495,8 @@ for i_c in range(commutator+1):
     elif commutator : 
         f.write("\nThis is where the second terms start\\\\\n")
         fptr.write("\nThis is where the second terms start\\\\\n")
+    print 'a i u full poss full_pos'
+    print a, i, u, full, poss, full_pos
     make_c.make_c(len(full), contracted, a, i, u, full, poss, f, fptr, store_for_repeat, full_pos, i_c, menu)
 print "\n-------------------------------------------------------------------------------------\n     ITS DONE :D Have a look at the tec.txt file !\n     !!CHEERS !!"
 f.close()

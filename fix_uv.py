@@ -307,9 +307,10 @@ def fix_con(op_no, cnt, lim_cnt, t_list, matched, contracted, contracted_l, cont
 	    main_list.append(item.pos)
 	#make the normal ordered operators list in output
 	func.normal_order(full, output, output_pos, full_formed)
-	if output and not new_list and i_c:
-	    pass
-	elif output :
+	#if output and not new_list and i_c:
+	#    pass
+	#elif output : AK: lets visit this later!
+	if output :
 	    func.write_normal_order(new_list, output)#as the name suggest - writes the normal order in output file list
 	    #parity function at work ! Woaaa
  	if (parity.parity(full_formed, full_pos)):
