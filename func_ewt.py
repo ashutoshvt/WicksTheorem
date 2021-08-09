@@ -47,10 +47,22 @@ def arrange(cum_d, cum_n, cum_d_pos, cum_n_pos):
 		cum_n_pos[index]=item.pos
 		cum_n_pos[pos_item] = swap_p
 
-
-
-
-
+class contractedobj(object):
+    def __init__(self, kind, sign, const):
+        self.kind = kind
+        self.upper = []
+        self.lower = []
+        self.sign = sign
+        self.const = const
+	self.anti = 0
+        self.matrix = []
+        self.strings=[1,2]
+    def __repr__(self):
+        return str.upper(self.kind)+ '^'+str(self.upper)+'_'+str(self.lower)
+    def value(self, mat):
+        return 1
+    def __str__(self):
+        return str.upper(self.kind)+ '^'+str(self.upper)+'_'+str(self.lower)
 
 
 '''

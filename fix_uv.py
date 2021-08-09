@@ -9,7 +9,7 @@ import copy
 import parity
 import func_ewt
 func=func_ewt
-def fix_con(op_no, cnt, lim_cnt, t_list, matched, contracted, contracted_l, contracted_r, a, i, u, full, f, fptr, full_pos, i_c):
+def fix_con(op_no, cnt, lim_cnt, t_list, matched, contracted, contracted_l, contracted_r, a, i, u, full, f, fptr, full_pos, i_c, contr_obj, const_obj):
     cnt_tmp=cnt+1 # put condition of limiting cnt
     index = 0
     if cnt<lim_cnt and lim_cnt!=0:
@@ -37,7 +37,7 @@ def fix_con(op_no, cnt, lim_cnt, t_list, matched, contracted, contracted_l, cont
 	    contracted_r.append(t_list_tmp[0][0])
 	    matched.append(full[op_no])
 	    matched.append(t_list_tmp[0][0])
-            fix_con(copy.copy(op_no), cnt+1, lim_cnt, copy.deepcopy(t_list_tmp), matched, contracted, contracted_l, contracted_r, a, i, u, full, f, fptr, full_pos, i_c)
+            fix_con(copy.copy(op_no), cnt+1, lim_cnt, copy.deepcopy(t_list_tmp), matched, contracted, contracted_l, contracted_r, a, i, u, full, f, fptr, full_pos, i_c, contr_obj, const_obj)
 	    matched.pop()
 	    matched.pop()
 	    t_list_tmp[0].popleft()
@@ -50,6 +50,8 @@ def fix_con(op_no, cnt, lim_cnt, t_list, matched, contracted, contracted_l, cont
     #case when the number of contractions required are done. This we only have to print them
     elif lim_cnt!=0:
 	output = deque([]) #stores the position of the output string
+ 
+        full_con_term = []	
 	
 	#const_of_expression is the constant in case of a GWT
 	const_of_expression = 1.0 
@@ -127,7 +129,7 @@ def fix_con(op_no, cnt, lim_cnt, t_list, matched, contracted, contracted_l, cont
         print 'uncontract_upper' 
         print uncontract_upper
 
-        # AK: conserving the tensor ordering logic
+        # AK: conserving the tensor ordering logic for uncontrcated indices
         tensor_order_map={}
         output1=[]
         for item in uncontract_upper:
@@ -206,15 +208,24 @@ def fix_con(op_no, cnt, lim_cnt, t_list, matched, contracted, contracted_l, cont
 		#elif tmp_1.dag=='1':
 		if tmp_1.dag=='1':
 		    tmp_3 = '\Gamma^'+tmp_1.name+'_{'+tmp_2.name+'}'
+ 		    try_full_con = func.contractedobj('g', 1, 1)
+                    try_full_con.upper=[tmp_1]
+		    try_full_con.lower=[tmp_2]
                     print(tmp_3)
 		elif tmp_1.dag=='0':
 		    tmp_3 = '\eta^'+tmp_2.name+'_{'+tmp_1.name+'}'
+ 		    try_full_con = func.contractedobj('e', 1, 1)
+                    try_full_con.upper=[tmp_2]
+		    try_full_con.lower=[tmp_1]
 	            const_of_expression *= 2.0 # No 1/2 in eta terms AK
                     print(tmp_3)
 		else :
 		    print "!!!!not printing anywhere, if this occurs:there may be a problem"
 		new_list.append(tmp_3)
                 new_list1 = copy.deepcopy(new_list) #AK
+
+                full_con_term.append(try_full_con) #AK: full contracted product               
+ 
 	    #cumulant_present=0
 	    
 	    #formed cumulants being appended in new_list------------------------
@@ -248,6 +259,21 @@ def fix_con(op_no, cnt, lim_cnt, t_list, matched, contracted, contracted_l, cont
 	    #print all the normal ordered operators not contracted
 	    print 'full_formed, full_pos, contracted, output'
 	    print full_formed, full_pos, contracted, output
+
+            # AK: Need to convert un-contracted terms into contracted-objects
+            if tensor_order_map:
+                op_left=func_ewt.contractedobj('op', 1, 1) 
+                # populate upper and lower member variables 
+                up=[]
+                down=[]
+                for key in tensor_order_map:
+                    up.append(key) 
+                    down.append(tensor_order_map[key]) 
+                op_left.upper = up 
+                op_left.lower = down 
+                full_con_term.append(op_left)
+            
+
 	    if output:
 		func.write_normal_order_AK(new_list1, tensor_order_map) #AK tensor ordering!
 		func.write_normal_order(new_list, output)
@@ -276,6 +302,9 @@ def fix_con(op_no, cnt, lim_cnt, t_list, matched, contracted, contracted_l, cont
 	else :
 	    tmp_5 = '$$'+"+"+str(const_of_expression)+''.join(new_list1)+'\\\\'+'$$'+'\n'
 	    fptr.write(tmp_5)
+       
+        contr_obj.append(full_con_term) # AK
+	const_obj.append([sign, const_of_expression]) # AK
 #--------------------------------------------------------------------------------------------------------------------
     #The case when no contractions are made, but cummulants are there/not there
     elif lim_cnt==0:
@@ -290,6 +319,7 @@ def fix_con(op_no, cnt, lim_cnt, t_list, matched, contracted, contracted_l, cont
 	contracted_l = []#used to store the left part of a contracted string 
 	contracted_r = []
 	new_list = []
+        full_con_term=[] # AK
 	if not i_c: #when the string is 1st part of a commutator
 	    sign = 1
 	else :
@@ -324,4 +354,21 @@ def fix_con(op_no, cnt, lim_cnt, t_list, matched, contracted, contracted_l, cont
 	    tmp_5 = '$$'+"+"+str(const_of_expression)+''.join(new_list)+'\\\\'+'$$'+'\n'
 	    f.write(tmp_5)
 	    fptr.write(tmp_5)
+
+        op_left=func_ewt.contractedobj('op', 1, 1)
+        up=[]
+        down=[] 
+        print 'output lim_cnt==0'
+        print output
+        for item in output:
+            if item.dag == '1':
+                up.append(item)
+            else:
+                down.append(item) 
+        op_left.upper = up
+        op_left.lower = down[::-1]
+        full_con_term.append(op_left)  
+
+        contr_obj.append(full_con_term) # AK
+	const_obj.append([sign, const_of_expression]) # AK
 
