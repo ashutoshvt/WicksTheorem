@@ -15,6 +15,10 @@ import copy
 #import library as lib
 #import library.compare as cpre
 import multi_cont
+import change_terms as ct
+import print_terms as pt
+import special_conditions as cond
+#import class_term as class_terms
 #import library.compare_envelope as cpre_env
 #import library.compare_overall as cpre_env2
 #import library.special_conditions as cond
@@ -25,7 +29,7 @@ removed=0
 #1-> commutator on 2-> commutator off so only 1 term on-> whether commutator is on or it is just a product
 # last-> if its the outside last commutator or not (for taking the fully contracted terms)
 
-def comm(a,b,last):
+def comm(a,b,dict_add,last):
     on=1
     #????assume prefactor of the term to be 1
     fc=1.0
@@ -113,14 +117,14 @@ def comm(a,b,last):
 		for op in term:
 		    for op1 in t1.st[0]:
 			for op2 in t2.st[0]:
-                            print 'op'
-                            print op
-                            print 'op1'
-                            print op1
-                            print 'op2'
-                            print op2
+                            #print 'op'
+                            #print op
+                            #print 'op1'
+                            #print op1
+                            #print 'op2'
+                            #print op2
 		    	    if op.kind=='op' and op1.kind=='op' and op2.kind=='op' and len(op.upper)==(len(op1.upper)+len(op2.upper)):
-		                #print 'there is a problem here', op.kind, len(op.upper),len(op1.upper),len(op2.upper)
+		                print 'there is a problem here', op.kind, len(op.upper),len(op1.upper),len(op2.upper)
 				removed=1
 				stt.remove(term)
 				cot.remove(termco)
@@ -142,6 +146,10 @@ def comm(a,b,last):
 	    #print 'length of output string', len(stt)
 	    st1.extend(stt)
 	    co1.extend(cot)
+    print 'st1'
+    print st1
+    print 'co1'
+    print co1 
 
     #contract b,a and store in list_terms if on is 1 (commutator working)
     if on ==1:
@@ -161,8 +169,8 @@ def comm(a,b,last):
 		    for op in term:
 		        for op1 in t1.st[0]:
 			    for op2 in t2.st[0]:
-		                #print 'there is a problem here', op.kind, len(op.upper),len(t1.st[0][0].upper),len(t2.st[0][0].upper)
 		    	        if op.kind=='op' and op1.kind=='op' and op2.kind=='op' and len(op.upper)==(len(op1.upper)+len(op2.upper)):
+		                    print 'there is a problem here', op.kind, len(op.upper),len(op1.upper),len(op2.upper)
 				    stt.remove(term)
 				    cot.remove(termco)
 				
@@ -182,6 +190,10 @@ def comm(a,b,last):
 	        st2.extend(stt)
 	        co2.extend(cot)
         #lib.print_op.print_op(st2,co2)
+        print 'st2'
+        print st2
+        print 'co2'
+        print co2 
     elif on!=0:
 	print 'error in commutator input on switch-------------------'
     
@@ -200,12 +212,13 @@ def comm(a,b,last):
 ## Let me get the mult_cont function to return things correctly for now!
 
 
-'''
+
     list_terms=ct.change_terms1(st1,co1,last,dict_add, a[0].map_org+b[0].map_org)#Problem : how to make lou?
     print'list_terms after change_terms1 function called'
+    print list_terms 
     pt.print_terms(list_terms,'latex_terms.txt')
 
-
+    
 	#print len(list_terms)
     if on==1:
 	terms_tmp=ct.change_terms1(st2,co2,last,dict_add, b[0].map_org+a[0].map_org)
@@ -215,17 +228,24 @@ def comm(a,b,last):
 	list_terms.extend(terms_tmp)
 
 	pt.print_terms(list_terms,'latex_terms.txt')
+
+    
     for item in list_terms:
 	item.compress()
 	item.build_map_org()
 	#item.cond_cont(item.dict_ind) only for CCSD noy for general case
+    print 'after compress'
     pt.print_terms(list_terms,'latex_terms.txt')
+
     if last!=0:
         #Special condition- when there are atlaest three operators, atleast two are equivalent and one of them is not contracting with a previous
         #..chunk of operators (H in the case of 3 commutators.
         list_terms=cond.startequiv_cond(list_terms)
 
-
+    print 'after startequiv_cond'
+    pt.print_terms(list_terms,'latex_terms.txt')
+    
+    '''
     for term in list_terms:
             create_matrices(term)
     cpre_env2.compare_envelope(list_terms, fc, last)    

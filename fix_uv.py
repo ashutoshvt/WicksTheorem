@@ -208,13 +208,13 @@ def fix_con(op_no, cnt, lim_cnt, t_list, matched, contracted, contracted_l, cont
 		#elif tmp_1.dag=='1':
 		if tmp_1.dag=='1':
 		    tmp_3 = '\Gamma^'+tmp_1.name+'_{'+tmp_2.name+'}'
- 		    try_full_con = func.contractedobj('g', 1, 1)
+ 		    try_full_con = func.contractedobj('gamma', 1, 1)
                     try_full_con.upper=[tmp_1]
 		    try_full_con.lower=[tmp_2]
                     print(tmp_3)
 		elif tmp_1.dag=='0':
 		    tmp_3 = '\eta^'+tmp_2.name+'_{'+tmp_1.name+'}'
- 		    try_full_con = func.contractedobj('e', 1, 1)
+ 		    try_full_con = func.contractedobj('eta', 1, 1)
                     try_full_con.upper=[tmp_2]
 		    try_full_con.lower=[tmp_1]
 	            const_of_expression *= 2.0 # No 1/2 in eta terms AK

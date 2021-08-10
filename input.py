@@ -17,7 +17,8 @@ import operators as op
 import commutator as comm
 
 
-list_oper = []
+list_oper_A = []
+list_oper_B = []
 dict_index = {}
 
 # Define V2 Operator! wrap below in a function later!
@@ -34,7 +35,8 @@ dict_index['s0'] = 'V2'
 stp=[[opp]]
 co=[[1,1]]
 V2 = op.StOperator('V2',prefac, summ, coeff, stp, co)
-list_oper.append(V2)
+list_oper_A.append(V2)
+V2.map_org=list_oper_A
 
 
 # Define T1 Operator! 
@@ -49,8 +51,10 @@ dict_index['i0'] = 'T1'
 stp=[[opp]]
 co=[[1,1]]
 T1 = op.StOperator('T1',prefac, summ, coeff, stp, co)
-list_oper.append(T1)
+list_oper_B.append(T1)
+T1.map_org=list_oper_B
+
 
 # call commutator function now with V2,T1
 print'case of [V,T1]'
-list_terms=comm.comm([V2],[T1],1)
+list_terms=comm.comm([V2],[T1],dict_index,1)
