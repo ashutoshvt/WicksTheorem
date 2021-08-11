@@ -29,7 +29,7 @@ removed=0
 #1-> commutator on 2-> commutator off so only 1 term on-> whether commutator is on or it is just a product
 # last-> if its the outside last commutator or not (for taking the fully contracted terms)
 
-def comm(a,b,dict_add,last):
+def comm(a,b,dict_add,last, filename):
     on=1
     #????assume prefactor of the term to be 1
     fc=1.0
@@ -81,16 +81,16 @@ def comm(a,b,dict_add,last):
     print 'doing contraction through multi_cont'
     for t1 in a:
 	for t2 in b:
-            #print 't1.st'
-            #print t1.st 
-            #print 't1.co'
-            #print t1.co 
-            #print 't2.st'
-            #print t2.st 
-            #print 't2.co'
-            #print t2.co 
-            #print 'type(t1.st)'
-            #print type(t1.st)
+            print 't1.st'
+            print t1.st 
+            print 't1.co'
+            print t1.co 
+            print 't2.st'
+            print t2.st 
+            print 't2.co'
+            print t2.co 
+            print 'type(t1.st)'
+            print type(t1.st)
     	    stt,cot=multi_cont.multi_cont(t1.st,t2.st,t1.co,t2.co, f, fptr)
             print 'stt'
             print stt
@@ -216,10 +216,9 @@ def comm(a,b,dict_add,last):
     list_terms=ct.change_terms1(st1,co1,last,dict_add, a[0].map_org+b[0].map_org)#Problem : how to make lou?
     print'list_terms after change_terms1 function called'
     print list_terms 
-    pt.print_terms(list_terms,'latex_terms.txt')
-
+    #pt.print_terms(list_terms,'latex_terms.txt')
     
-	#print len(list_terms)
+    #print len(list_terms)
     if on==1:
 	terms_tmp=ct.change_terms1(st2,co2,last,dict_add, b[0].map_org+a[0].map_org)
         for item in terms_tmp:
@@ -227,23 +226,39 @@ def comm(a,b,dict_add,last):
 	    item.co[0][0]=item.co[0][0]*-1.0
 	list_terms.extend(terms_tmp)
 
-	pt.print_terms(list_terms,'latex_terms.txt')
+        #pt.print_terms(list_terms,'latex_terms.txt')
 
     
     for item in list_terms:
 	item.compress()
 	item.build_map_org()
 	#item.cond_cont(item.dict_ind) only for CCSD noy for general case
-    print 'after compress'
-    pt.print_terms(list_terms,'latex_terms.txt')
+    #print 'after compress'
+    #pt.print_terms(list_terms,'latex_terms.txt')
 
     if last!=0:
         #Special condition- when there are atlaest three operators, atleast two are equivalent and one of them is not contracting with a previous
         #..chunk of operators (H in the case of 3 commutators.
         list_terms=cond.startequiv_cond(list_terms)
 
-    print 'after startequiv_cond'
-    pt.print_terms(list_terms,'latex_terms.txt')
+    pt.print_terms(list_terms,filename)
+   
+   # this actually happens inside compare_envelope function,
+   # but since I am not using it right now, let me put that code 
+   # explicitly here!
+    for term in list_terms:
+        if len(term.coeff_list)==len(term.map_org)+1:
+            print 'deleting operator coeff'
+	    term.coeff_list.pop()
+
+    for term in list_terms:
+        #print type(term)
+        #print type(term.st[0][0])
+        #print type(term.st[0][1])
+        print (term.st)
+        print (term.sum_list)
+        print (term.coeff_list)
+        print (term.large_op_list)
     
     '''
     for term in list_terms:
@@ -258,9 +273,9 @@ def comm(a,b,dict_add,last):
 	term.co[0][0]=term.fac
     #pt.print_terms(list_terms,'latex_terms.txt')
     #print 'length of list_terms passed', len(list_terms)
+    '''
     return list_terms
 
-'''
 
 
 # Some examples below, I guess??

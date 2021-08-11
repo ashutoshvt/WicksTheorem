@@ -55,29 +55,34 @@ def multi_cont(st1, st2, const1, const2, f, fptr, menu=2):
     flag2=0
     final_terms=[]
     final_const=[]
-    #print('st1: {}'.format(st1))
-    #print('st2: {}'.format(st2))
-    #print('const1: {}'.format(const1))
-    #print('const2: {}'.format(const2))
+    print('st1: {}'.format(st1))
+    print('st2: {}'.format(st2))
+    print('const1: {}'.format(const1))
+    print('const2: {}'.format(const2))
 
     #print 'first operator string constant',const1
     for (term1, pre1) in zip(st1, const1):
-        #print('term1: {}'.format(term1))
-        #print('pre1: {}'.format(pre1))
+        print('term1: {}'.format(term1))
+        print('pre1: {}'.format(pre1))
         new_term_half=[]
         for op11 in term1:
+            print 'op11', op11
             if op11.kind!='op':
                 new_term_half.append(op11)
         for term2, pre2 in zip(st2, const2):
-            #print('term2: {}'.format(term2))
-            #print('pre2: {}'.format(pre2))
+            print('term2: {}'.format(term2))
+            print('pre2: {}'.format(pre2))
             for op22 in term2:
                 if op22.kind!='op':
                     new_term_half.append(op22)
                 elif op11.kind=='op':
                     flag2=1
                     new_const_half=sp_multi(pre1,pre2)
-                    
+                    print 'op11', op11
+                    print 'op11.upper', type(op11.upper[0])
+                    print 'op11.lower', type(op11.lower[0])
+                    print 'op22.upper', type(op22.upper[0])
+                    print 'op22.lower', type(op22.lower[0])
                     o,c=ewt.ewt(op11.upper, op11.lower, op22.upper, op22.lower, f, fptr)
                     print 'o'
                     print o

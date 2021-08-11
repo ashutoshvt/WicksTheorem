@@ -209,14 +209,14 @@ def fix_con(op_no, cnt, lim_cnt, t_list, matched, contracted, contracted_l, cont
 		if tmp_1.dag=='1':
 		    tmp_3 = '\Gamma^'+tmp_1.name+'_{'+tmp_2.name+'}'
  		    try_full_con = func.contractedobj('gamma', 1, 1)
-                    try_full_con.upper=[tmp_1]
-		    try_full_con.lower=[tmp_2]
+                    try_full_con.upper=[tmp_1.name] # AK
+		    try_full_con.lower=[tmp_2.name] # AK
                     print(tmp_3)
 		elif tmp_1.dag=='0':
 		    tmp_3 = '\eta^'+tmp_2.name+'_{'+tmp_1.name+'}'
  		    try_full_con = func.contractedobj('eta', 1, 1)
-                    try_full_con.upper=[tmp_2]
-		    try_full_con.lower=[tmp_1]
+                    try_full_con.upper=[tmp_2.name] # AK
+		    try_full_con.lower=[tmp_1.name] # AK
 	            const_of_expression *= 2.0 # No 1/2 in eta terms AK
                     print(tmp_3)
 		else :
@@ -267,8 +267,9 @@ def fix_con(op_no, cnt, lim_cnt, t_list, matched, contracted, contracted_l, cont
                 up=[]
                 down=[]
                 for key in tensor_order_map:
-                    up.append(key) 
-                    down.append(tensor_order_map[key]) 
+                    print 'type(key): ', type(key)
+                    up.append(key.name)  # AK
+                    down.append(tensor_order_map[key].name) # AK
                 op_left.upper = up 
                 op_left.lower = down 
                 full_con_term.append(op_left)

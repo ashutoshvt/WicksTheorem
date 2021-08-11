@@ -14,11 +14,12 @@
 import func_ewt
 func=func_ewt
 import operators as op
-import commutator as comm
+from commutator import comm
 
 
 list_oper_A = []
 list_oper_B = []
+list_oper_C = []
 dict_index = {}
 
 # Define V2 Operator! wrap below in a function later!
@@ -39,22 +40,40 @@ list_oper_A.append(V2)
 V2.map_org=list_oper_A
 
 
-# Define T1 Operator! 
+# Define R1 Operator (CABS SINGLES)! 
 prefac=1.0
-summ  =  ['a0','i0']
-coeff =  ['a0','i0']
+summ  =  ['A0','i0']
+coeff =  ['A0','i0']
 opp = func_ewt.contractedobj('op', 1, 1)
-opp.upper = ['a0']
+opp.upper = ['A0']
 opp.lower = ['i0']
-dict_index['a0'] = 'T1'
-dict_index['i0'] = 'T1'
+dict_index['A0'] = 'R1'
+dict_index['i0'] = 'R1'
 stp=[[opp]]
 co=[[1,1]]
-T1 = op.StOperator('T1',prefac, summ, coeff, stp, co)
-list_oper_B.append(T1)
-T1.map_org=list_oper_B
+R1 = op.StOperator('R1',prefac, summ, coeff, stp, co)
+list_oper_B.append(R1)
+R1.map_org=list_oper_B
 
 
-# call commutator function now with V2,T1
-print'case of [V,T1]'
-list_terms=comm.comm([V2],[T1],dict_index,1)
+# Define R11 Operator (CABS SINGLES)! 
+prefac=1.0
+summ  =  ['A1','i1']
+coeff =  ['A1','i1']
+opp = func_ewt.contractedobj('op', 1, 1)
+opp.upper = ['A1']
+opp.lower = ['i1']
+dict_index['A1'] = 'R11'
+dict_index['i1'] = 'R11'
+stp=[[opp]]
+co=[[1,1]]
+R11 = op.StOperator('R11',prefac, summ, coeff, stp, co)
+list_oper_C.append(R11)
+R11.map_org=list_oper_C
+
+# This seems to work!
+#print'case of [V2,R1]'
+#V2R1_SC=comm([V2],[R1],dict_index,1,'V2R1_SC.txt')
+
+#print'case of [[V2,R1],R1]'
+V2R1_DC=comm(comm([V2],[R1],dict_index,1,'V2R1_DC.txt'), [R11],dict_index,0,'V2R1_DC.txt')
