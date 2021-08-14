@@ -33,7 +33,14 @@ def comm(a,b,dict_add,last, filename):
     on=1
     #????assume prefactor of the term to be 1
     fc=1.0
-    #print a,b
+    #print 'a: ', a ,'b: ', b
+    a_st = []
+    a_co = []
+    for item in a:
+        a_st.append(item.st)
+        a_co.append(item.co)
+    print 'a.st: ', a_st
+    print 'a.co: ', a_co
     #develop dict_ind
     if a and b:
         print 'there are contractions in this commutator'
@@ -89,13 +96,13 @@ def comm(a,b,dict_add,last, filename):
             print t2.st 
             print 't2.co'
             print t2.co 
-            print 'type(t1.st)'
-            print type(t1.st)
+            #print 'type(t1.st)'
+            #print type(t1.st)
     	    stt,cot=multi_cont.multi_cont(t1.st,t2.st,t1.co,t2.co, f, fptr)
-            print 'stt'
-            print stt
-            print 'cot'
-            print cot 
+            #print 'stt'
+            #print stt
+            #print 'cot'
+            #print cot 
             #print 'type(t1.st[0][0])'
             #print type(t1.st[0][0])
             #print 'type(t1.co)'
@@ -146,20 +153,28 @@ def comm(a,b,dict_add,last, filename):
 	    #print 'length of output string', len(stt)
 	    st1.extend(stt)
 	    co1.extend(cot)
-    print 'st1'
-    print st1
-    print 'co1'
-    print co1 
+    #print 'st1'
+    #print st1
+    #print 'co1'
+    #print co1 
 
     #contract b,a and store in list_terms if on is 1 (commutator working)
     if on ==1:
         for t1 in b:
 	    for t2 in a:
+                print 't1.st'
+                print t1.st 
+                print 't1.co'
+                print t1.co 
+                print 't2.st'
+                print t2.st 
+                print 't2.co'
+                print t2.co 
     	        stt,cot=multi_cont.multi_cont(t1.st,t2.st,t1.co,t2.co, f, fptr)
-                print 'stt'
-                print stt
-                print 'cot'
-                print cot 
+                #print 'stt'
+                #print stt
+                #print 'cot'
+                #print cot 
 	        for (term,termco) in zip(stt,cot):
 		    #print 'new term'
 		    present_op=0
@@ -190,10 +205,10 @@ def comm(a,b,dict_add,last, filename):
 	        st2.extend(stt)
 	        co2.extend(cot)
         #lib.print_op.print_op(st2,co2)
-        print 'st2'
-        print st2
-        print 'co2'
-        print co2 
+        #print 'st2'
+        #print st2
+        #print 'co2'
+        #print co2 
     elif on!=0:
 	print 'error in commutator input on switch-------------------'
     
@@ -214,8 +229,8 @@ def comm(a,b,dict_add,last, filename):
 
 
     list_terms=ct.change_terms1(st1,co1,last,dict_add, a[0].map_org+b[0].map_org)#Problem : how to make lou?
-    print'list_terms after change_terms1 function called'
-    print list_terms 
+    #print'list_terms after change_terms1 function called'
+    #print list_terms 
     #pt.print_terms(list_terms,'latex_terms.txt')
     
     #print len(list_terms)
@@ -226,7 +241,7 @@ def comm(a,b,dict_add,last, filename):
 	    item.co[0][0]=item.co[0][0]*-1.0
 	list_terms.extend(terms_tmp)
 
-        #pt.print_terms(list_terms,'latex_terms.txt')
+    #pt.print_terms(list_terms,'latex_terms.txt')
 
     
     for item in list_terms:
@@ -248,17 +263,17 @@ def comm(a,b,dict_add,last, filename):
    # explicitly here!
     for term in list_terms:
         if len(term.coeff_list)==len(term.map_org)+1:
-            print 'deleting operator coeff'
+            #print 'deleting operator coeff'
 	    term.coeff_list.pop()
 
-    for term in list_terms:
-        #print type(term)
-        #print type(term.st[0][0])
-        #print type(term.st[0][1])
-        print (term.st)
-        print (term.sum_list)
-        print (term.coeff_list)
-        print (term.large_op_list)
+    #for term in list_terms:
+    #    #print type(term)
+    #    #print type(term.st[0][0])
+    #    #print type(term.st[0][1])
+    #    print (term.st)
+    #    print (term.sum_list)
+    #    print (term.coeff_list)
+    #    print (term.large_op_list)
     
     '''
     for term in list_terms:

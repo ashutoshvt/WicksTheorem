@@ -12,22 +12,22 @@ def change_terms1(a, b, fac,dict_ind, list_op_used):
 
     if fac!=0:
         for op in list_op_used:
-            print 'op: ', op
+            #print 'op: ', op
             fac=op.fac*fac
 	    #Only multiply op.fac when computing the outermost commutator
             sum_ind.extend(op.sum_ind)
             coeff.append(op.coeff)
-            print 'sum_ind: ', sum_ind
-            print 'coeff: ', coeff
+            #print 'sum_ind: ', sum_ind
+            #print 'coeff: ', coeff
 	print fac, 'fac is this for each term'
     else:
 	fac=1.0
 	for op in list_op_used:
             sum_ind.extend(op.sum_ind)
             coeff.append(op.coeff)
-            print 'op: ', op
-            print 'sum_ind: ', sum_ind
-            print 'coeff: ', coeff
+            #print 'op: ', op
+            #print 'sum_ind: ', sum_ind
+            #print 'coeff: ', coeff
 
 	
     for (t,c)  in zip(a,b):
@@ -52,8 +52,9 @@ def change_terms1(a, b, fac,dict_ind, list_op_used):
 	        temp.extend(item.lower)
 	if flag==1:#if there is an operator
 	    coeff.append(temp)
-        print 'coeff: ', coeff
-        x=class_term.term(copy.copy(fac*c[0][0]), copy.copy(sum_ind), copy.copy(coeff), list_op_used,t, c)
+        #print 'coeff: ', coeff
+        #x=class_term.term(copy.copy(fac*c[0][0]), copy.copy(sum_ind), copy.copy(coeff), list_op_used,t, c) 
+        x=class_term.term(copy.copy(fac*c[0][0]*c[0][1]), copy.copy(sum_ind), copy.copy(coeff), list_op_used,t, c) # AK c[0][1] was missing!!!
 	x.dict_ind=dict_ind
 	if flag==1:
 	    coeff.pop()

@@ -86,13 +86,13 @@ def fix_con(op_no, cnt, lim_cnt, t_list, matched, contracted, contracted_l, cont
 	    else :
 		const_of_expression=const_of_expression*(1.0/2.0)
 	    #!!!!!make the spin change of the operators here. Think 
-	    print 'contracted_l[index], contracted_r[index]'
-	    print contracted_l[index], contracted_r[index]
-	    print 'const_of_expression, contracted_l[index].spin, contracted_r[index].spin'
-	    print const_of_expression, contracted_l[index].spin, contracted_r[index].spin
+	    #print 'contracted_l[index], contracted_r[index]'
+	    #print contracted_l[index], contracted_r[index]
+	    #print 'const_of_expression, contracted_l[index].spin, contracted_r[index].spin'
+	    #print const_of_expression, contracted_l[index].spin, contracted_r[index].spin
 	flag=0
-        print'output before normal_order_adv'
-        print output
+        #print'output before normal_order_adv'
+        #print output
         # AK: making contracted_pairs upper-bottom
         contract_pairs=[]
         map_contract_pairs={}
@@ -109,8 +109,8 @@ def fix_con(op_no, cnt, lim_cnt, t_list, matched, contracted, contracted_l, cont
         
         #print 'contract_pairs' 
         #print contract_pairs 
-        print 'map_contract_pairs' 
-        print map_contract_pairs 
+        #print 'map_contract_pairs' 
+        #print map_contract_pairs 
  
         #for item in output:
         #    print 'map_contract_pairs[item]'
@@ -126,8 +126,8 @@ def fix_con(op_no, cnt, lim_cnt, t_list, matched, contracted, contracted_l, cont
                     flag = 1
             if not flag and item.dag == '1':
                 uncontract_upper.append(item)
-        print 'uncontract_upper' 
-        print uncontract_upper
+        #print 'uncontract_upper' 
+        #print uncontract_upper
 
         # AK: conserving the tensor ordering logic for uncontrcated indices
         tensor_order_map={}
@@ -136,19 +136,19 @@ def fix_con(op_no, cnt, lim_cnt, t_list, matched, contracted, contracted_l, cont
             flag = 1
             item1 = item
             while flag:
-               print 'item1' 
-               print item1 
-               print 'full[item1.pair-1]' 
-               print full[item1.pair-1]
+               #print 'item1' 
+               #print item1 
+               #print 'full[item1.pair-1]' 
+               #print full[item1.pair-1]
                #print 'type(full[item1.pair-1])' 
                #print type(full[item1.pair-1])
                if func.is_present_in_dict(full[item1.pair-1],map_contract_pairs, output1): 
-                   print 'map_contract_pairs'
-                   print map_contract_pairs
+                   #print 'map_contract_pairs'
+                   #print map_contract_pairs
                    #print 'full[item1.pair-1]' 
                    #print full[item1.pair-1]
-                   print 'output1'
-                   print output1
+                   #print 'output1'
+                   #print output1
                    #item1 = map_contract_pairs[full[item1.pair-1]]
                    item1 = output1[0]
                    output1 = []
@@ -156,18 +156,18 @@ def fix_con(op_no, cnt, lim_cnt, t_list, matched, contracted, contracted_l, cont
                    tensor_order_map[item] = full[item1.pair-1]
                    flag = 0
       
-        print 'tensor_order_map'      
-        print tensor_order_map      
+        #print 'tensor_order_map'      
+        #print tensor_order_map      
 
-        print'full'
-        print full
-        print 'item.pair'
+        #print'full'
+        #print full
+        #print 'item.pair'
         for item in full:
             print item.pair
 	#append all the operators that are not contracted
 	func.normal_order_adv(full, output)
-        print'output'
-        print output
+        #print'output'
+        #print output
 	# make the output list in name and pos
 	for item in output:
 	    output_name.append(item.name)
@@ -191,16 +191,16 @@ def fix_con(op_no, cnt, lim_cnt, t_list, matched, contracted, contracted_l, cont
 
 		if tmp_1.dag=='1':
 
-		    print "In the spin formation dag if case: spin :", tmp_1.dag, tmp_1.spin, tmp_2.dag, tmp_2.spin
+		    #print "In the spin formation dag if case: spin :", tmp_1.dag, tmp_1.spin, tmp_2.dag, tmp_2.spin
     		    spin_list_upper.append(tmp_1.spin)
 		    spin_list_lower.append(tmp_2.spin)
 		else:
     		   
-		    print "In the spin formation dag else case : spin :", tmp_1.dag, tmp_1.spin, tmp_2.dag, tmp_2.spin
+		    #print "In the spin formation dag else case : spin :", tmp_1.dag, tmp_1.spin, tmp_2.dag, tmp_2.spin
 		    spin_list_upper.append(tmp_2.spin)
 		    spin_list_lower.append(tmp_1.spin)
-		print "spin list u check : it should have all contracted ", spin_list_upper, lim_cnt 
-		print "spin list l check : it should have all contracted ", spin_list_lower 
+		#print "spin list u check : it should have all contracted ", spin_list_upper, lim_cnt 
+		#print "spin list l check : it should have all contracted ", spin_list_lower 
 		    
 		#if (tmp_1.kind == 'pa') or (tmp_2.kind=='pa') or (tmp_1.kind== 'ho') or (tmp_2.kind=='ho'):
 		##if tmp_1.kind != 'ac':
@@ -250,15 +250,15 @@ def fix_con(op_no, cnt, lim_cnt, t_list, matched, contracted, contracted_l, cont
             lower.reverse()
             for item in lower:
                 full_formed_AK.append(item) 
-            print 'full_formed_AK'
-            print full_formed_AK
+            #print 'full_formed_AK'
+            #print full_formed_AK
  
 	    #append all the normal ordered operators not contracted	
 	    for item in output:
 		full_formed.append(item.pos)
 	    #print all the normal ordered operators not contracted
-	    print 'full_formed, full_pos, contracted, output'
-	    print full_formed, full_pos, contracted, output
+	    #print 'full_formed, full_pos, contracted, output'
+	    #print full_formed, full_pos, contracted, output
 
             # AK: Need to convert un-contracted terms into contracted-objects
             if tensor_order_map:
@@ -267,7 +267,7 @@ def fix_con(op_no, cnt, lim_cnt, t_list, matched, contracted, contracted_l, cont
                 up=[]
                 down=[]
                 for key in tensor_order_map:
-                    print 'type(key): ', type(key)
+                    #print 'type(key): ', type(key)
                     up.append(key.name)  # AK
                     down.append(tensor_order_map[key].name) # AK
                 op_left.upper = up 
@@ -360,7 +360,7 @@ def fix_con(op_no, cnt, lim_cnt, t_list, matched, contracted, contracted_l, cont
         up=[]
         down=[] 
         print 'output lim_cnt==0'
-        print output
+        #print output
         for item in output:
             if item.dag == '1':
                 up.append(item)
