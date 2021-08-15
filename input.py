@@ -108,13 +108,30 @@ R11 = op.StOperator('R11',prefac, summ, coeff, stp, co)
 list_oper_C.append(R11)
 R11.map_org=list_oper_C
 
+# Define R2 Operator 
+'''
+prefac=1.0
+summ  =  ['A0','i0']
+coeff =  ['A0','i0']
+opp = func_ewt.contractedobj('op', 1, 1)
+opp.upper = ['A0']
+opp.lower = ['i0']
+dict_index['A0'] = 'R1'
+dict_index['i0'] = 'R1'
+stp=[[opp]]
+co=[[1,1]]
+R1 = op.StOperator('R1',prefac, summ, coeff, stp, co)
+list_oper_B.append(R1)
+R1.map_org=list_oper_B
+'''
 
 # This seems to work!
 #print'case of [V2,R1]'
 #V2R1_SC=comm([V2],[R1],dict_index,1,'V2R1_SC.txt')
 
+# outermost commutator must be 1
 print'case of [[V2,R1],R11]'
-V2R1_DC=comm(comm([V2],[R1],dict_index,1,'V2R1_DC.txt'), [R11],dict_index,0,'V2R1_DC.txt')
+V2R1_DC=comm(comm([V2],[R1],dict_index,0,'V2R1_DC.txt'), [R11],dict_index,1,'V2R1_DC.txt')
 
 #print'case of [F1,R1]'
 #F1R1_SC=comm([F1],[R1],dict_index,1,'F1R1_SC.txt')
@@ -123,4 +140,4 @@ V2R1_DC=comm(comm([V2],[R1],dict_index,1,'V2R1_DC.txt'), [R11],dict_index,0,'V2R
 #F1R1_SC=comm([F1],[F11],dict_index,1,'F1F11_SC.txt')
 
 #print'case of [[F1,R1],R1]'
-#F1R1_DC=comm(comm([F1],[R1],dict_index,1,'F1R1_DC.txt'), [R11],dict_index,0,'F1R1_DC.txt')
+#F1R1_DC=comm(comm([F1],[R1],dict_index,0,'F1R1_DC.txt'), [R11],dict_index,1,'F1R1_DC.txt')
