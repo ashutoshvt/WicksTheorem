@@ -17,7 +17,8 @@ class operator(object):
 
 # Standard Operator (with amplitudes etc.)
 class StOperator(object):
-    def __init__(self,name, fac, sum_ind, coeff, st, co):
+    def __init__(self, name, fac, sum_ind, coeff, st, co):
+        self.kind='StOperator'
         self.name=name
         self.fac=fac
         self.sum_ind=sum_ind

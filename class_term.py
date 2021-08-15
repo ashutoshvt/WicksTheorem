@@ -4,6 +4,7 @@ import numpy as np
 import copy
 class term(object):
     def __init__(self, fac, sum_list, coeff_list,lol, st, co):
+        self.kind='term'
         self.fac=fac
         self.sum_list=sum_list
         self.coeff_list=copy.deepcopy(coeff_list)

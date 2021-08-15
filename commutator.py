@@ -24,12 +24,27 @@ import special_conditions as cond
 #import library.special_conditions as cond
 #from library.compare_test import create_matrices
 removed=0
+dict_ind={}
+
+def populate_dict(a,b):
+    print type(a[0])
+    print type(b[0])
+    if a[0].kind=='StOperator':
+        for item in a[0].coeff:
+            dict_ind[item] = a[0].name
+    if b[0].kind=='StOperator':
+        for item in b[0].coeff:
+            dict_ind[item] = b[0].name
+    return dict_ind
+
+
 
 #comm should accept a list of terms/Alphabet operator and list of terms/Alphabet operator.
 #1-> commutator on 2-> commutator off so only 1 term on-> whether commutator is on or it is just a product
 # last-> if its the outside last commutator or not (for taking the fully contracted terms)
 
-def comm(a,b,dict_add,last, filename):
+#def comm(a,b,dict_ind,last):
+def comm(a,b,last):
     on=1
     #????assume prefactor of the term to be 1
     fc=1.0
@@ -227,15 +242,19 @@ def comm(a,b,dict_add,last, filename):
 ## Let me get the mult_cont function to return things correctly for now!
 
 
+    # AK: lets populate dict_ind here!
+    dict_ind = populate_dict(a,b)
+    print '--------------------------------------------------------'
+    print dict_ind
+    list_terms=ct.change_terms1(st1,co1,last,dict_ind, a[0].map_org+b[0].map_org)#Problem : how to make lou?
 
-    list_terms=ct.change_terms1(st1,co1,last,dict_add, a[0].map_org+b[0].map_org)#Problem : how to make lou?
     #print'list_terms after change_terms1 function called'
     #print list_terms 
     #pt.print_terms(list_terms,'latex_terms.txt')
     
     #print len(list_terms)
     if on==1:
-	terms_tmp=ct.change_terms1(st2,co2,last,dict_add, b[0].map_org+a[0].map_org)
+	terms_tmp=ct.change_terms1(st2,co2,last,dict_ind, b[0].map_org+a[0].map_org)
         for item in terms_tmp:
 	    item.fac=item.fac*-1.0
 	    item.co[0][0]=item.co[0][0]*-1.0
@@ -256,7 +275,7 @@ def comm(a,b,dict_add,last, filename):
         #..chunk of operators (H in the case of 3 commutators.
         list_terms=cond.startequiv_cond(list_terms)
 
-    pt.print_terms(list_terms,filename)
+    #pt.print_terms(list_terms,filename)
    
    # this actually happens inside compare_envelope function,
    # but since I am not using it right now, let me put that code 
@@ -265,6 +284,9 @@ def comm(a,b,dict_add,last, filename):
         if len(term.coeff_list)==len(term.map_org)+1:
             #print 'deleting operator coeff'
 	    term.coeff_list.pop()
+
+    #pt.print_terms(list_terms,filename)
+
 
     #for term in list_terms:
     #    #print type(term)
