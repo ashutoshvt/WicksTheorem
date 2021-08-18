@@ -27,8 +27,8 @@ removed=0
 dict_ind={}
 
 def populate_dict(a,b):
-    print type(a[0])
-    print type(b[0])
+    print(type(a[0]))
+    print(type(b[0]))
     if a[0].kind=='StOperator':
         for item in a[0].coeff:
             dict_ind[item] = a[0].name
@@ -54,13 +54,13 @@ def comm(a,b,last):
     for item in a:
         a_st.append(item.st)
         a_co.append(item.co)
-    print 'a.st: ', a_st
-    print 'a.co: ', a_co
+    print('a.st: ', a_st)
+    print('a.co: ', a_co)
     #develop dict_ind
     if a and b:
-        print 'there are contractions in this commutator'
+        print('there are contractions in this commutator')
     else:
-        print 'there are no contractions in this commutator'
+        print('there are no contractions in this commutator')
         return []
 
     # AK: lets comment the code below!!!
@@ -100,132 +100,124 @@ def comm(a,b,last):
 
     f = open("tec.txt", "w")
     fptr = open("AK.txt", "w")
-    print 'doing contraction through multi_cont'
+    print('doing contraction through multi_cont')
     for t1 in a:
-	for t2 in b:
-            print 't1.st'
-            print t1.st 
-            print 't1.co'
-            print t1.co 
-            print 't2.st'
-            print t2.st 
-            print 't2.co'
-            print t2.co 
-            #print 'type(t1.st)'
-            #print type(t1.st)
-    	    stt,cot=multi_cont.multi_cont(t1.st,t2.st,t1.co,t2.co, f, fptr)
-            #print 'stt'
-            #print stt
-            #print 'cot'
-            #print cot 
-            #print 'type(t1.st[0][0])'
-            #print type(t1.st[0][0])
-            #print 'type(t1.co)'
-            #print type(t1.co)
-            #print 'type(t1.co[0][0])'
-            #print type(t1.co[0][0])
+        for t2 in b:
+            print('t1.st')
+            print(t1.st)
+            print('t1.co')
+            print(t1.co) 
+            print('t2.st')
+            print(t2.st)
+            print('t2.co')
+            print(t2.co) 
+            #print('type(t1.st)')
+            #print(type(t1.st))
+            stt,cot=multi_cont.multi_cont(t1.st,t2.st,t1.co,t2.co, f, fptr)
+            #print('stt')
+            #print(stt)
+            #print('cot')
+            #print(cot) 
+            #print('type(t1.st[0][0])')
+            #print(type(t1.st[0][0]))
+            #print('type(t1.co)')
+            #print(type(t1.co))
+            #print('type(t1.co[0][0])')
+            #print(type(t1.co[0][0]))
 
 	    #COMMUTATOR CONDITION : removing element where length of input operator strings =
 	    #length of output operator string
-	    for (term,termco) in zip(stt,cot):
-		#lib.print_op.print_op(term,termco)
-		
-              
-
-		present_op=0
-		present_op1=0
-		present_op2=0
-		removed=0
-		for op in term:
-		    for op1 in t1.st[0]:
-			for op2 in t2.st[0]:
+            for (term,termco) in zip(stt,cot):
+                #lib.print_op.print_op(term,termco)
+                present_op=0
+                present_op1=0
+                present_op2=0
+                removed=0
+                for op in term:
+                    for op1 in t1.st[0]:
+                        for op2 in t2.st[0]:
                             #print 'op'
                             #print op
                             #print 'op1'
                             #print op1
                             #print 'op2'
                             #print op2
-		    	    if op.kind=='op' and op1.kind=='op' and op2.kind=='op' and len(op.upper)==(len(op1.upper)+len(op2.upper)):
-		                print 'there is a problem here', op.kind, len(op.upper),len(op1.upper),len(op2.upper)
-				removed=1
-				stt.remove(term)
-				cot.remove(termco)
-
-
-			    if op2.kind=='op':
-				present_op2=1
-			if op1.kind=='op':
-		            present_op1=1
-		    if op.kind=='op':
-			present_op2=1
-		if present_op1==0 or present_op2==0:
-		    if removed==0:
-		        #print 'here in fully contracted'
-		        stt.remove(term)
-    		        cot.remove(termco)
-				
-		
-	    #print 'length of output string', len(stt)
-	    st1.extend(stt)
-	    co1.extend(cot)
-    #print 'st1'
-    #print st1
-    #print 'co1'
-    #print co1 
+                            if op.kind=='op' and op1.kind=='op' and op2.kind=='op' and len(op.upper)==(len(op1.upper)+len(op2.upper)):
+                                print('there is a problem here', op.kind, len(op.upper),len(op1.upper),len(op2.upper))
+                                removed=1
+                                stt.remove(term)
+                                cot.remove(termco)
+                            if op2.kind=='op':
+                                present_op2=1
+                        if op1.kind=='op':
+                            present_op1=1
+                    if op.kind=='op':
+                        present_op2=1
+                if present_op1==0 or present_op2==0:
+                    if removed==0:
+                        #print('here in fully contracted')
+                        stt.remove(term)
+                        cot.remove(termco)
+            #print('length of output string', len(stt))
+            st1.extend(stt)
+            co1.extend(cot)
+            #print('st1')
+            #print(st1)
+            #print('co1')
+            #print(co1) 
 
     #contract b,a and store in list_terms if on is 1 (commutator working)
     if on ==1:
         for t1 in b:
-	    for t2 in a:
-                print 't1.st'
-                print t1.st 
-                print 't1.co'
-                print t1.co 
-                print 't2.st'
-                print t2.st 
-                print 't2.co'
-                print t2.co 
-    	        stt,cot=multi_cont.multi_cont(t1.st,t2.st,t1.co,t2.co, f, fptr)
-                #print 'stt'
-                #print stt
-                #print 'cot'
-                #print cot 
-	        for (term,termco) in zip(stt,cot):
-		    #print 'new term'
-		    present_op=0
-		    present_op1=0
-		    present_op2=0
-		    removed=0
-		    for op in term:
-		        for op1 in t1.st[0]:
-			    for op2 in t2.st[0]:
-		    	        if op.kind=='op' and op1.kind=='op' and op2.kind=='op' and len(op.upper)==(len(op1.upper)+len(op2.upper)):
-		                    print 'there is a problem here', op.kind, len(op.upper),len(op1.upper),len(op2.upper)
-				    stt.remove(term)
-				    cot.remove(termco)
-				
-				    removed=1
-			        if op2.kind=='op':
-				    present_op2=1
-			    if op1.kind=='op':
-		                present_op1=1
-		        if op.kind=='op':
-			    present_op2=1
-		    if  present_op1==0 or present_op2==0:
-			if removed==0:	
-			    # print 'here in fully contracted'
-		            stt.remove(term)
-    		            cot.remove(termco)
-	        #print 'length of output string', len(stt)
-	        st2.extend(stt)
-	        co2.extend(cot)
+            for t2 in a:
+                print('t1.st')
+                print(t1.st) 
+                print('t1.co')
+                print(t1.co) 
+                print('t2.st')
+                print(t2.st) 
+                print('t2.co')
+                print(t2.co) 
+                stt,cot=multi_cont.multi_cont(t1.st,t2.st,t1.co,t2.co, f, fptr)
+                #print('stt')
+                #print(stt)
+                #print('cot')
+                #print(cot) 
+                for (term,termco) in zip(stt,cot):
+                    #print 'new term'
+                    present_op=0
+                    present_op1=0
+                    present_op2=0
+                    removed=0
+                    for op in term:
+                        for op1 in t1.st[0]:
+                            for op2 in t2.st[0]:
+                                if op.kind=='op' and op1.kind=='op' and op2.kind=='op' and len(op.upper)==(len(op1.upper)+len(op2.upper)):
+                                    print('there is a problem here', op.kind, len(op.upper),len(op1.upper),len(op2.upper))
+                                    stt.remove(term)
+                                    cot.remove(termco)
+                                    removed=1
+                                if op2.kind=='op':
+                                    present_op2=1
+                            if op1.kind=='op':
+                                present_op1=1
+                        if op.kind=='op':
+                            present_op2=1
+                    if  present_op1==0 or present_op2==0:
+                        if removed==0:	
+                            # print 'here in fully contracted'
+                            stt.remove(term)
+                            cot.remove(termco)
+                #print 'length of output string', len(stt)
+                st2.extend(stt)
+                co2.extend(cot)
         #lib.print_op.print_op(st2,co2)
-        #print 'st2'
-        #print st2
-        #print 'co2'
-        #print co2 
+        #print('st2')
+        #print(st2)
+        #print('co2')
+        #print(co2) 
     elif on!=0:
-	print 'error in commutator input on switch-------------------'
+        print('error in commutator input on switch-------------------')
     
     f.close()
     fptr.close()
@@ -233,10 +225,10 @@ def comm(a,b,last):
     #if last!=0:
 	#fc=last
     #make terms of st and co and list of terms
-    #print 'a[0].map_org[0]'
-    #print a[0].map_org[0]
-    #print 'b[0].map_org[0]'
-    #print b[0].map_org[0]
+    #print('a[0].map_org[0]')
+    #print(a[0].map_org[0])
+    #print('b[0].map_org[0]')
+    #print(b[0].map_org[0])
 
 ## AK : I am commenting out these terms for now!
 ## Let me get the mult_cont function to return things correctly for now!
@@ -244,30 +236,30 @@ def comm(a,b,last):
 
     # AK: lets populate dict_ind here!
     dict_ind = populate_dict(a,b)
-    print '--------------------------------------------------------'
-    print dict_ind
+    print('--------------------------------------------------------')
+    print(dict_ind)
     list_terms=ct.change_terms1(st1,co1,last,dict_ind, a[0].map_org+b[0].map_org)#Problem : how to make lou?
 
-    #print'list_terms after change_terms1 function called'
-    #print list_terms 
+    #print('list_terms after change_terms1 function called')
+    #print(list_terms) 
     #pt.print_terms(list_terms,'latex_terms.txt')
     
     #print len(list_terms)
     if on==1:
-	terms_tmp=ct.change_terms1(st2,co2,last,dict_ind, b[0].map_org+a[0].map_org)
+        terms_tmp=ct.change_terms1(st2,co2,last,dict_ind, b[0].map_org+a[0].map_org)
         for item in terms_tmp:
-	    item.fac=item.fac*-1.0
-	    item.co[0][0]=item.co[0][0]*-1.0
-	list_terms.extend(terms_tmp)
+            item.fac=item.fac*-1.0
+            item.co[0][0]=item.co[0][0]*-1.0
+        list_terms.extend(terms_tmp)
 
     #pt.print_terms(list_terms,'latex_terms.txt')
 
     
     for item in list_terms:
-	item.compress()
-	item.build_map_org()
-	#item.cond_cont(item.dict_ind) only for CCSD noy for general case
-    #print 'after compress'
+        item.compress()
+        item.build_map_org()
+        #item.cond_cont(item.dict_ind) only for CCSD noy for general case
+    #print('after compress')
     #pt.print_terms(list_terms,'latex_terms.txt')
 
     if last!=0:
@@ -283,19 +275,19 @@ def comm(a,b,last):
     for term in list_terms:
         if len(term.coeff_list)==len(term.map_org)+1:
             #print 'deleting operator coeff'
-	    term.coeff_list.pop()
+            term.coeff_list.pop()
 
     #pt.print_terms(list_terms,filename)
-
+    
 
     #for term in list_terms:
-    #    #print type(term)
-    #    #print type(term.st[0][0])
-    #    #print type(term.st[0][1])
-    #    print (term.st)
-    #    print (term.sum_list)
-    #    print (term.coeff_list)
-    #    print (term.large_op_list)
+    #    #print(type(term))
+    #    #print(type(term.st[0][0]))
+    #    #print(type(term.st[0][1]))
+    #    print ((term.st))
+    #    print ((term.sum_list))
+    #    print ((term.coeff_list))
+    #    print ((term.large_op_list))
     
     '''
     for term in list_terms:

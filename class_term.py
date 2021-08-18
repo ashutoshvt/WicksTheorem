@@ -19,7 +19,7 @@ class term(object):
 	for term in self.st:
             for op in term:
                 #print op
-                if op.kind=='d':
+                if op.kind=='delta':
                     if op.upper[0].name[0]>='p' and op.upper[0].name[0]<='s':
                         #find name in coeff
                         #self.coeff_list=[[w.replace(op.upper[0].name, op.lower[0].name) for w in l] for l in self.coeff_list]
@@ -240,6 +240,8 @@ class term(object):
                 print str(term)
             if term.kind == 'eta':
                 print str(term)
+            if term.kind == 'delta':
+                print str(term)
         # operator is in last position!
 	if self.st[0][-1].kind=='op':
 	    print 'E^',self.st[0][-1].upper,'_',self.st[0][-1].lower,
@@ -283,6 +285,8 @@ class term(object):
                 f.write(term.printlatex())
             if term.kind == 'eta':
                 f.write(term.printlatex())
+            if term.kind == 'delta':
+                f.write(term.printlatex())
 	if self.st[0][-1].kind=='op':
 	    f.write("E^{")
             for it1 in self.st[0][-1].upper:
@@ -302,6 +306,80 @@ class term(object):
 	    self.map_org.append(item)
 
 
+    # I would like to inplement all the rules for HF now!
+    # Rule 1: Density terms with CABS indices must be zero!
+    # Rule 2: Eta terms:
+    #         a) if eta term contains only general indices or occupied and virtual
+    #            in other words, no CABS indices  --> zero!
+    #         b) if eta term contains CABS indices --> replace 
+    #            eta by delta and then replace the corresponding 
+    #            general index to the CABS index --> second half in compress function!
+    #            or maybe mimic compress function here!  
+    # Rule 3: a) If an operator contains CABS index, replace by 
+    #            corresponding virtual: A0 ---> a0 
+    #         b) also if 2 CABS indices are present in operator,
+    #             remove that term!
+    # Rule 4: Remove 3 body operators
+    # Rule 5: Look for 3 kinds of patterns:
+    #            V == g^{pq}_{\alpha\beta} * G^{\alpha\beta}_{ij}      
+    #            X == G^{\alpha\beta}_{ij} * G^{\alpha\beta}_{kl}      
+    #            B == G^{\alpha\beta}_{ij} * f^{\alpha}_{\gamma} * G^{\gamma\beta}_{kl}      
+    #               + G^{\alpha\beta}_{ij} * f^{\beta}_{\gamma} * G^{\alpha\gamma}_{kl}      
+    #
+    # lets focus on removal of terms first!: Rule 1, Rule 2a, Rule 3b, Rule 4
 
-
-
+    def similify_for_HF_ref(self):
+        CABS_inds = ['A0','B0','A1','B1', 'A2', 'B2']
+        gen_inds  = ['p0','q0','r0','s0', 'p1','q1','r1','s1']
+        CABS_pairs = [['A0','B0'], ['A1','B1'], ['A2','B2']] 
+        flag = 0
+        for term in self.st:
+	    print 'term.sum:  ', term.sum
+            for op in term:
+                # Rule 1.
+                if op.kind=='gamma':
+                    if op.upper[0] in CABS_inds or op.lower[0] in CABS_inds:
+                        flag = 1
+                        return flag
+                if op.kind=='eta':
+                    # Rule 2a.
+                    if op.upper[0] not in CABS_inds and op.lower[0] not in CABS_inds:
+                        flag = 1
+                        return flag
+                    # Rule 2b.
+                    else:
+                       op.kind = 'delta' 
+                if op.kind=='op':
+                   # Rule 4
+                   if len(op.upper) >=3 :
+                       flag = 1 
+                       return flag
+                   # Rule 3b
+                   # upper
+                   count = 0
+                   cabs_list=[]
+                   for item in op.upper:
+                       if item in CABS_inds:
+                           cabs_list.append(item[1])
+                           count += 1
+                   # Need to fix the logic below!
+                   if count >=2:
+                       flag = 1 
+                       return flag
+                   # lower
+                   count = 0
+                   cabs_list=[]
+                   for item in op.lower:
+                       if item in CABS_inds:
+                           cabs_list.append(item)
+                           count += 1
+                   # Need to fix the logic below!
+                   if count >=2:
+                       flag = 1 
+                       return flag
+                   # Rule 3a --> need much more than that! 
+                   # (replace in sum_list, coeff_list, st as well!)
+                   # A0 --> a0
+                   
+                   
+        return flag  

@@ -66,7 +66,7 @@ def multi_cont(st1, st2, const1, const2, f, fptr, menu=2):
         #print('pre1: {}'.format(pre1))
         new_term_half=[]
         for op11 in term1:
-            #print 'op11', op11
+            #print('op11', op11)
             if op11.kind!='op':
                 new_term_half.append(op11)
         for term2, pre2 in zip(st2, const2):
@@ -78,31 +78,31 @@ def multi_cont(st1, st2, const1, const2, f, fptr, menu=2):
                 elif op11.kind=='op':
                     flag2=1
                     new_const_half=sp_multi(pre1,pre2)
-                    #print 'op11', op11
-                    #print 'op11.upper', type(op11.upper[0])
-                    #print 'op11.lower', type(op11.lower[0])
-                    #print 'op22.upper', type(op22.upper[0])
-                    #print 'op22.lower', type(op22.lower[0])
+                    #print('op11', op11)
+                    #print('op11.upper', type(op11.upper[0]))
+                    #print('op11.lower', type(op11.lower[0]))
+                    #print('op22.upper', type(op22.upper[0]))
+                    #print('op22.lower', type(op22.lower[0]))
                     o,c=ewt.ewt(op11.upper, op11.lower, op22.upper, op22.lower, f, fptr)
-                    print 'o'
-                    print o
-                    print 'c'
-                    print c
-                    #print 'type(c)'
-                    #print type(c)
-                    #print 'type(o)'
-                    #print type(o)
-                    ##print 'type(o[0][0])'
-                    ##print type(o[0][0])
-                    #print 'new_term_half'
-                    #print new_term_half
-                    #print 'new_const_half'
-                    #print new_const_half
+                    print('o')
+                    print(o)
+                    print('c')
+                    print(c)
+                    #print('type(c))'
+                    #print(type(c))
+                    #print('type(o)')
+                    #print(type(o))
+                    ##print('type(o[0][0]))'
+                    ##print(type(o[0][0]))
+                    #print('new_term_half')
+                    #print(new_term_half)
+                    #print('new_const_half')
+                    #print(new_const_half)
                     terms, const=arrange(o,c, new_term_half, new_const_half)
-                    #print 'terms'
-                    #print terms
-                    #print 'const'
-                    #print const
+                    #print('terms')
+                    #print(terms)
+                    #print('const')
+                    #print(const)
                     final_terms.extend(terms)
                     final_const.extend(const)
                     #p_op.print_op(final_terms,final_const)
@@ -111,7 +111,7 @@ def multi_cont(st1, st2, const1, const2, f, fptr, menu=2):
                     final_terms.append(new_term_half)
                     final_const.append(sp_multi(pre1,pre2))
                 else :
-                    print " there is a case in multi_cont file I am missing"
+                    print(" there is a case in multi_cont file I am missing")
             flag2=0
     return final_terms, final_const
 '''

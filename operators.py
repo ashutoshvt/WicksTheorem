@@ -25,6 +25,6 @@ class StOperator(object):
         self.coeff=coeff
         self.st=st
         self.co=co
-    	self.map_org=[]
+        self.map_org=[]
     def __repr__(self):
         return self.name

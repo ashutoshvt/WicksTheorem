@@ -3,6 +3,7 @@ func=func_ewt
 import operators as op
 from commutator import comm
 import print_terms as pt
+import copy
 
 def initialze_stoperator(name, prefac, summ_ind, coeff_ind=None):
     opp = func_ewt.contractedobj('op', 1, 1)
@@ -39,6 +40,18 @@ R22D=initialze_stoperator('R2',0.5,[['i1','j1'],['A1','B1']])
 
 F1R2=comm([F1],[R2],1)
 pt.print_terms(F1R2,'F1R2.txt')
+print('Simplification for HF:')
+terms_to_remove=[]
+for i, item in enumerate(F1R2):
+    remove = item.similify_for_HF_ref()
+    if remove:
+        print('removed') 
+        terms_to_remove.append(i) 
+print('terms_to_remove :', terms_to_remove) 
+print('len(F1R2) :', len(F1R2))
+for i in sorted(terms_to_remove, reverse=True):
+    F1R2.pop(i)
+pt.print_terms(F1R2,'F1R2_new.txt')
 '''
 # b)
 
@@ -81,3 +94,7 @@ pt.print_terms(V2R2,'V2R2.txt')
 V2R2D=comm([V2],[R2D],1)
 pt.print_terms(V2R2D,'V2R2D.txt')
 '''
+
+# Append all this in the einsum notation to
+# the main file final_hamiltonian.py
+# of course after resolving the CABS logic!!!
