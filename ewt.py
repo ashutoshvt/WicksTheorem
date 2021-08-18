@@ -381,13 +381,13 @@ def ewt(string1_upper, string1_lower, string2_upper, string2_lower, f, fptr, men
         is_pair=1
         spin_tracker=0
         if is_pair:
-            for index in range(len(full1)/2):
+            for index in range(int(len(full1)/2)):
     	        full1[index].pair=full1[len(full1)-index-1].pos
     	        full1[len(full1)-index-1].pair=full1[index].pos
     	        full1[index].spin=spin_tracker
     	        full1[len(full1)-index-1].spin=spin_tracker
     	        spin_tracker=spin_tracker+1
-            for index in range(len(full2)/2):
+            for index in range(int(len(full2)/2)):
                 full2[index].pair=full2[len(full2)-index-1].pos
                 full2[len(full2)-index-1].pair=full2[index].pos
                 full2[index].spin=spin_tracker
