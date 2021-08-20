@@ -2,4 +2,6 @@
 .idea
 *.txt
 .ipynb*
+*.swp
+*venv/
 
