@@ -30,7 +30,9 @@ def simplify_for_HF(list_terms):
             term_to_remove.append(index)
     for index in sorted(term_to_remove, reverse=True):
         list_terms.pop(index)
-
+    # want to call the compress function here!
+    for item in list_terms:
+        item.compress_AK()
 
 # let me try to reproduce the trans-correlated Hamiltonian
 # for ground state first (used in Shiozaki's paper!)
@@ -57,6 +59,7 @@ simplify_for_HF(F1R2)
 pt.print_terms(F1R2, 'F1R2_new.txt')
 
 # b)
+
 
 F1R2D = comm([F1], [R2D], 1)
 pt.print_terms(F1R2D, 'F1R2D.txt')
@@ -101,11 +104,11 @@ print('Simplification for HF ref:')
 simplify_for_HF(F1R2DR2D)
 pt.print_terms(F1R2DR2D, 'F1R2DR2D_new.txt')
 
-'''
+
 
 # 3.  [V2, R2-R2+] == [V2,R2] - [V2,R2+]
 #                       a)        b)
-
+'''
 # a)
 
 V2R2 = comm([V2], [R2], 1)
@@ -114,9 +117,9 @@ print('Simplification for HF ref:')
 simplify_for_HF(V2R2)
 pt.print_terms(V2R2, 'V2R2_new.txt')
 
-'''
-# b) 
 
+# b) 
+'''
 V2R2D = comm([V2], [R2D], 1)
 pt.print_terms(V2R2D, 'V2R2D.txt')
 print('Simplification for HF ref:')

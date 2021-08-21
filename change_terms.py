@@ -6,7 +6,7 @@ import print_op
 import copy
 
 
-def change_terms1(a, b, fac, dict_ind, list_op_used):
+def change_terms(a, b, fac, dict_ind, list_op_used):
 
     sum_ind = []
     coeff = []

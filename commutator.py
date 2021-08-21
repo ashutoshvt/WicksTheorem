@@ -193,7 +193,7 @@ def comm(a, b, last):
     dict_inds = populate_dict(a, b)
     print('--------------------------------------------------------')
     print(dict_inds)
-    list_terms = ct.change_terms1(st1, co1, last, dict_inds, a[0].map_org + b[0].map_org)
+    list_terms = ct.change_terms(st1, co1, last, dict_inds, a[0].map_org + b[0].map_org)
     # Problem : how to make lou?
 
     # print('list_terms after change_terms1 function called')
@@ -202,7 +202,7 @@ def comm(a, b, last):
     
     # print len(list_terms)
     if on == 1:
-        terms_tmp = ct.change_terms1(st2, co2, last, dict_inds, b[0].map_org + a[0].map_org)
+        terms_tmp = ct.change_terms(st2, co2, last, dict_inds, b[0].map_org + a[0].map_org)
         for item in terms_tmp:
             item.fac = item.fac*-1.0
             item.co[0][0] = item.co[0][0]*-1.0
@@ -210,7 +210,7 @@ def comm(a, b, last):
 
     # pt.print_terms(list_terms,'latex_terms.txt')
     for item in list_terms:
-        item.compress()
+        # item.compress() # AK: --> no delta term until now, so this is useless!
         item.build_map_org()
         # item.cond_cont(item.dict_ind) only for CCSD noy for general case
     # print('after compress')

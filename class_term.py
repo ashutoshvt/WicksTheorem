@@ -74,6 +74,63 @@ class term(object):
                                     c1[n] = op.lower[0].name
                         self.sum_list.remove(op.upper[0].name)
 
+    def compress_AK(self):
+        print(self.st[0])
+        print(len(self.st[0]))
+        print(self.co[0])
+        ops_to_remove = []
+        count = 0
+        for op in self.st[0]:
+            cabs_upper = False
+            cabs_lower = False
+            print('terms: ', op)
+            print('terms.kind: ', op.kind)
+            if op.kind == 'delta':
+                if 'A' <= op.upper[0][0] <= 'H':
+                    print('upper')
+                    cabs_upper = True
+                if 'A' <= op.lower[0][0] <= 'H':
+                    print('lower')
+                    cabs_lower = True
+                if cabs_upper and not cabs_lower:
+                    if 'p' <= op.lower[0][0] <= 's':
+                        for i, item in enumerate(self.coeff_list):
+                            if op.lower[0] in item:
+                                index = self.coeff_list[i].index(op.lower[0])
+                                self.coeff_list[i][index] = op.upper[0]
+                        for i, item in enumerate(self.sum_list):
+                            if op.lower[0] == item:
+                                self.sum_list[i] = op.upper[0]
+                        self.sum_list = list(set(self.sum_list))  # unique!
+                    ops_to_remove.append(count)
+                elif cabs_lower and not cabs_upper:
+                    if 'p' <= op.upper[0][0] <= 's':
+                        for i, item in enumerate(self.coeff_list):
+                            if op.upper[0] in item:
+                                index = self.coeff_list[i].index(op.upper[0])
+                                self.coeff_list[i][index] = op.lower[0]
+                        for i, item in enumerate(self.sum_list):
+                            if op.upper[0] == item:
+                                self.sum_list[i] = op.lower[0]
+                        self.sum_list = list(set(self.sum_list))
+                    ops_to_remove.append(count)
+                elif cabs_upper and cabs_lower:
+                    for i, item in enumerate(self.coeff_list):
+                        if op.upper[0] in item:
+                            index = self.coeff_list[i].index(op.upper[0])
+                            self.coeff_list[i][index] = op.lower[0]
+                    for i, item in enumerate(self.sum_list):
+                        if op.upper[0] == item:
+                            self.sum_list[i] = op.lower[0]
+                    self.sum_list = list(set(self.sum_list))
+                    ops_to_remove.append(count)
+                else:
+                    return
+            count += 1
+        for item in sorted(ops_to_remove, reverse=True):
+            self.st[0].pop(item)
+        print('final_st[0]: ', self.st[0])
+
     def compare(self, term2):
         """
         for (c1,c2, t) in zip(self.coeff_list, term2.coeff_list, self.map_org):
@@ -328,7 +385,9 @@ class term(object):
     #            general index to the CABS+ index --> second half in compress function!
     #            or maybe mimic compress function here!  
     # Rule 3: a) If an operator contains CABS+ index, replace by 
-    #            corresponding virtual: A0 ---> a0 
+    #            corresponding virtual: A0 ---> a0,
+    #            need to be careful if R amplitude contains both virtual and CABS indices
+    #            which is very well the case for excited states!
     #         b) also if 2 CABS indices are present in operator,
     #             remove that term!
     # Rule 4: Remove 3 body operators
@@ -347,7 +406,7 @@ class term(object):
         CABS_pairs = [['A0', 'B0'], ['A1', 'B1'], ['A2', 'B2']]
         flag = 0
         f_contract = 1
-        print('self.coeff:{}'.format(self.coeff_list))
+        # print('self.coeff:{}'.format(self.coeff_list))
         for terms in self.st:
             for op in terms:
                 # Rule 1.
@@ -393,16 +452,22 @@ class term(object):
                         self.sum_list.remove(item)
                     # Rule 3a
                     # (replace in self.coeff_list, self.st[op.upper,op.lower] as well!)
-                    # A0 --> a0
+                    # A0 --> a0 (need to revisit for excited states!)
                     for item in cabs_list:
                         for i in range(len(self.coeff_list)):
                             if item in self.coeff_list[i]:
-                                item = item.lower()
+                                index = self.coeff_list[i].index(item)
+                                self.coeff_list[i][index] = self.coeff_list[i][index].lower()
                         if item in op.upper:
-                            item = item.lower()
+                            index = op.upper.index(item)
+                            op.upper[index] = op.upper[index].lower()
                         if item in op.lower:
-                            item = item.lower()
+                            index = op.lower.index(item)
+                            op.lower[index] = op.lower[index].lower()
         # Rule 6
         if f_contract == 1:
-            flag = 1 
-        return flag  
+            flag = 1
+        # maybe call compress function to resolve deltas
+        # of course, I might need to inject some extra logic
+        # into compress function! Not here --> in input!
+        return flag

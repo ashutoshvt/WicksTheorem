@@ -9,13 +9,13 @@ func = func_ewt
 def make_c(lim_cu, contracted, a, i, u, full, poss, f, fptr, store_for_repeat, full_pos,
            i_c, menu, contr_obj, const_obj):
     for n in range(2, lim_cu+1, 2):
-        print('n: ', n)
-        print('lim_cu: ', lim_cu)
-        print('u: ', u)
+        # print('n: ', n)
+        # print('lim_cu: ', lim_cu)
+        # print('u: ', u)
         if n > 2:
             u_copy = deque([])
             y = copy.deepcopy(u)
-            print('y: ', y)
+            # print('y: ', y)
             for x in range(n):
                 u_copy.append(copy.deepcopy(y))
                 if y:
@@ -88,7 +88,6 @@ def make_c(lim_cu, contracted, a, i, u, full, poss, f, fptr, store_for_repeat, f
                     else:
                         x = x-1
         elif n == 2:
-            # AK: removed the comments!
             no = int(len(full)/2)
             for lim_cnt in range(0, no+1):
                 if lim_cnt > 0:
@@ -117,7 +116,7 @@ def make_c(lim_cu, contracted, a, i, u, full, poss, f, fptr, store_for_repeat, f
                             fix_temp.fix_con(copy.copy(op_no), 1, lim_cnt, copy.deepcopy(temp_list), matched,
                                              contracted, contracted_l, contracted_r, a, i, u, full, f, fptr, full_pos,
                                              i_c, contr_obj, const_obj)
-                            print('after fix_con function!!')
+                            # print('after fix_con function!!')
                             matched.pop()
                             matched.pop()
                 else:

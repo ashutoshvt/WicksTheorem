@@ -13,14 +13,14 @@ func = func_ewt
 
 def ewt(string1_upper, string1_lower, string2_upper, string2_lower, f, fptr, menu='2'):
 
-    print('string1_upper')
-    print(string1_upper)
-    print('string2_upper')
-    print(string2_upper)
-    print('string1_lower')
-    print(string1_lower)
-    print('string2_lower')
-    print(string2_lower)
+    # print('string1_upper')
+    # print(string1_upper)
+    # print('string2_upper')
+    # print(string2_upper)
+    # print('string1_lower')
+    # print(string1_lower)
+    # print('string2_lower')
+    # print(string2_lower)
 
     commutator = 0
     if menu == '3':
@@ -53,8 +53,8 @@ def ewt(string1_upper, string1_lower, string2_upper, string2_lower, f, fptr, men
     dagger = '1'
     for item in string1:
         for item1 in item:
-            print('item1')
-            print(item1)
+            # print('item1')
+            # print(item1)
             if item1[0] == 'o' or item1[0] == 't':
                 x = op.operator('ac', dagger, p+1, item1, 1, -1, 1)
                 u.append(x)
@@ -361,8 +361,8 @@ def ewt(string1_upper, string1_lower, string2_upper, string2_lower, f, fptr, men
         print(const_obj)
         final_contr_obj.append(contr_obj)
         final_const_obj.append(const_obj)
-    print("\n-------------------------------------------------------------------------------------\n"
-          "    ITS DONE :D Have a look at the tec.txt file !\n     !!CHEERS !!")
+    # print("\n-------------------------------------------------------------------------------------\n"
+    #      "    ITS DONE :D Have a look at the tec.txt file !\n     !!CHEERS !!")
     # f.close()
     # fptr.close()
     
