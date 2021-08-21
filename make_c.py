@@ -49,44 +49,44 @@ def make_c(lim_cu, contracted, a, i, u, full, poss, f, fptr, store_for_repeat, f
                             if item1.pos == item2.pos:
                                 full_2.remove(item2)
                                 break
-                flag1 = 0
-                contracted.append(u_tmp)
-                p_1 = 0  # if the character from string 1 is present or not
-                p_2 = 0
-                if len(contracted) > 0:
-                    # this stores all the multiple lambda and stores them in a list, checks them to see redundancy
-                    for item1 in store_for_repeat:
-                        if func.equality_check(contracted, item1):
-                            flag1 = 1
-                            break
-                    for item in u_tmp:
-                        if item.string == 1:
-                            p_1 = 1
-                        else:
-                            p_2 = 1
-                    if (flag1 == 0 and p_1 == 1 and p_2 == 1) or menu == '1':
-                        make_c(n, contracted, a, i, copy.deepcopy(u_2), copy.deepcopy(full_2), poss, f, fptr,
-                               store_for_repeat, full_pos, i_c, menu, contr_obj, const_obj)
-                        # call the function again with smaller u
-                        # if not u_2:
-                        store_for_repeat.append(copy.deepcopy(contracted))
-                contracted.pop()
-            flag = 1
-            x = -1
-            if len(u_copy[0]) == n:
-                break  # break out of whole function
-            while flag == 1:
-                if u_copy[x]:
-                    u_copy[x].popleft()
-                    if x >= (-len(u_copy[x])):
-                        flag = 0
-                        tmp_0 = copy.deepcopy(u_copy[x])
-                        while x < -1:
-                            x = x+1
-                            tmp_0.popleft()
-                            u_copy[x] = copy.deepcopy(tmp_0)
-                else:
-                    x = x-1
+                    flag1 = 0
+                    contracted.append(u_tmp)
+                    p_1 = 0  # if the character from string 1 is present or not
+                    p_2 = 0
+                    if len(contracted) > 0:
+                        # this stores all the multiple lambda and stores them in a list, checks them to see redundancy
+                        for item1 in store_for_repeat:
+                            if func.equality_check(contracted, item1):
+                                flag1 = 1
+                                break
+                        for item in u_tmp:
+                            if item.string == 1:
+                                p_1 = 1
+                            else:
+                                p_2 = 1
+                        if (flag1 == 0 and p_1 == 1 and p_2 == 1) or menu == '1':
+                            make_c(n, contracted, a, i, copy.deepcopy(u_2), copy.deepcopy(full_2), poss, f, fptr,
+                                   store_for_repeat, full_pos, i_c, menu, contr_obj, const_obj)
+                            # call the function again with smaller u
+                            # if not u_2:
+                            store_for_repeat.append(copy.deepcopy(contracted))
+                    contracted.pop()
+                flag = 1
+                x = -1
+                if len(u_copy[0]) == n:
+                    break  # break out of whole function
+                while flag == 1:
+                    if u_copy[x]:
+                        u_copy[x].popleft()
+                        if x >= (-len(u_copy[x])):
+                            flag = 0
+                            tmp_0 = copy.deepcopy(u_copy[x])
+                            while x < -1:
+                                x = x+1
+                                tmp_0.popleft()
+                                u_copy[x] = copy.deepcopy(tmp_0)
+                    else:
+                        x = x-1
         elif n == 2:
             # AK: removed the comments!
             no = int(len(full)/2)
