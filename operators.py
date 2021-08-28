@@ -1,4 +1,9 @@
+import func_ewt
+# import operators as op
+func = func_ewt
+
 # Define operator and standard operator classes here!
+
 
 # Pure operator
 class operator(object):
@@ -32,3 +37,40 @@ class StOperator(object):
 
     def __repr__(self):
         return self.name
+
+
+def initialize_stoperator(name, prefac, summ_ind, coeff_ind=None):
+    opp = func_ewt.contractedobj('op', 1, 1)
+    # summ and coeff would be identical!
+    summ = [item for sublist in summ_ind for item in sublist]
+    if coeff_ind:
+        coeff = coeff_ind
+    else:
+        coeff = [item for sublist in summ_ind for item in sublist]
+    opp.upper = summ_ind[0]
+    opp.lower = summ_ind[1]
+    stp = [[opp]]
+    co = [[1, 1]]
+    St_op = StOperator(name, prefac, summ, coeff, stp, co)
+    St_op.map_org = [St_op]
+    return St_op
+
+
+def simplify_for_HF(list_terms):
+    term_to_remove = []
+    for index, items in enumerate(list_terms):
+        removed = items.simplify_for_HF_ref()
+        if removed:
+            term_to_remove.append(index)
+    for index in sorted(term_to_remove, reverse=True):
+        list_terms.pop(index)
+    # want to call the compress function here!
+    for item in list_terms:
+        item.resolve_gammas_HF()
+        item.compress_AK_HF()
+    count = 0
+    for item in list_terms:
+        flag = item.identify_f12_intermediates()
+        if flag:
+            count += 1
+    print('number of V/B terms: ', count)

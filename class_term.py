@@ -1,6 +1,7 @@
 import eq8
 import numpy as np
 import copy
+import operators as op
 
 
 class term(object):
@@ -19,114 +20,168 @@ class term(object):
 
     def compress(self):
         for terms in self.st:
-            for op in terms:
+            for oper in terms:
                 # print op
-                if op.kind == 'delta':
-                    if 'p' <= op.upper[0].name[0] <= 's':
+                if oper.kind == 'delta':
+                    if 'p' <= oper.upper[0].name[0] <= 's':
                         # find name in coeff
                         # self.coeff_list=[[w.replace(op.upper[0].name, op.lower[0].name)
                         # for w in l] for l in self.coeff_list]
                         for c1 in self.coeff_list:
                             for n, i in enumerate(c1):
-                                if i == op.upper[0].name:
-                                    c1[n] = op.lower[0].name
-                        self.sum_list.remove(op.upper[0].name)
-                    elif 'p' <= op.lower[0].name[0] <= 's':
+                                if i == oper.upper[0].name:
+                                    c1[n] = oper.lower[0].name
+                        self.sum_list.remove(oper.upper[0].name)
+                    elif 'p' <= oper.lower[0].name[0] <= 's':
                         # self.coeff_list=[[w.replace(op.lower[0].name, op.upper[0].name)
                         # for w in l] for l in self.coeff_list]
                         for c1 in self.coeff_list:
                             for n, i in enumerate(c1):
-                                if i == op.lower[0].name:
-                                    c1[n] = op.upper[0].name
-                        self.sum_list.remove(op.lower[0].name)
-                    elif (op.upper[0].name in self.sum_list) and (op.lower[0].name in self.sum_list):
-                        if op.upper[0].name[0] >= op.lower[0].name[0]:
+                                if i == oper.lower[0].name:
+                                    c1[n] = oper.upper[0].name
+                        self.sum_list.remove(oper.lower[0].name)
+                    elif (oper.upper[0].name in self.sum_list) and (oper.lower[0].name in self.sum_list):
+                        if oper.upper[0].name[0] >= oper.lower[0].name[0]:
                             # self.coeff_list=[[w.replace(op.upper[0].name, op.lower[0].name)
                             # for w in l] for l in self.coeff_list]
                             for c1 in self.coeff_list:
                                 for n, i in enumerate(c1):
-                                    if i == op.upper[0].name:
-                                        c1[n] = op.lower[0].name
-                            self.sum_list.remove(op.upper[0].name)
-                        elif op.upper[0].name[0] < op.lower[0].name[0]:
+                                    if i == oper.upper[0].name:
+                                        c1[n] = oper.lower[0].name
+                            self.sum_list.remove(oper.upper[0].name)
+                        elif oper.upper[0].name[0] < oper.lower[0].name[0]:
                             # self.coeff_list=[[w.replace(op.lower[0].name, op.upper[0].name)
                             # for w in l] for l in self.coeff_list]
                             for c1 in self.coeff_list:
                                 for n, i in enumerate(c1):
-                                    if i == op.lower[0].name:
-                                        c1[n] = op.upper[0].name
-                            self.sum_list.remove(op.lower[0].name)
+                                    if i == oper.lower[0].name:
+                                        c1[n] = oper.upper[0].name
+                            self.sum_list.remove(oper.lower[0].name)
 
-                    elif op.lower[0].name in self.sum_list:
+                    elif oper.lower[0].name in self.sum_list:
                         # self.coeff_list=[[w.replace(op.lower[0].name, op.upper[0].name)
                         # for w in l] for l in self.coeff_list]
                         for c1 in self.coeff_list:
                             for n, i in enumerate(c1):
-                                if i == op.lower[0].name:
-                                    c1[n] = op.upper[0].name
-                        self.sum_list.remove(op.lower[0].name)
-                    elif op.upper[0].name in self.sum_list:
+                                if i == oper.lower[0].name:
+                                    c1[n] = oper.upper[0].name
+                        self.sum_list.remove(oper.lower[0].name)
+                    elif oper.upper[0].name in self.sum_list:
                         # self.coeff_list=[[w.replace(op.upper[0].name, op.lower[0].name)
                         # for w in l] for l in self.coeff_list]
                         for c1 in self.coeff_list:
                             for n, i in enumerate(c1):
-                                if i == op.upper[0].name:
-                                    c1[n] = op.lower[0].name
-                        self.sum_list.remove(op.upper[0].name)
+                                if i == oper.upper[0].name:
+                                    c1[n] = oper.lower[0].name
+                        self.sum_list.remove(oper.upper[0].name)
 
-    def compress_AK(self):
-        print(self.st[0])
-        print(len(self.st[0]))
-        print(self.co[0])
+    # lets resolve gamma as well (and eta if there!)
+    # assuming gammas only involve the non-zero pieces!
+    def resolve_gammas_HF(self):
+        for i, oper in enumerate(self.st[0]):
+            if oper.kind == 'gamma':
+                print('constants')
+                print(self.co[0])
+                self.st[0][i].kind = 'delta'
+                self.co[0][1] *= 2.0
+                self.fac *= 2.0
+                print(self.co[0])
+
+    # resolving deltas of CABS+ indices
+    # after this resolve the other deltas as well!
+    # after this function, identify the f12 intermediates as the final step!
+    def compress_AK_HF(self):
+        print('compress: ', self.st[0])
+        # print(len(self.st[0]))
+        # print(self.co[0])
         ops_to_remove = []
         count = 0
-        for op in self.st[0]:
-            cabs_upper = False
-            cabs_lower = False
-            print('terms: ', op)
-            print('terms.kind: ', op.kind)
-            if op.kind == 'delta':
-                if 'A' <= op.upper[0][0] <= 'H':
+        cabs_upper = False
+        cabs_lower = False
+        for oper in self.st[0]:
+            print('terms: ', oper)
+            print('terms.kind: ', oper.kind)
+            if oper.kind == 'delta':
+                if 'A' <= oper.upper[0][0] <= 'H':
                     print('upper')
                     cabs_upper = True
-                if 'A' <= op.lower[0][0] <= 'H':
+                if 'A' <= oper.lower[0][0] <= 'H':
                     print('lower')
                     cabs_lower = True
                 if cabs_upper and not cabs_lower:
-                    if 'p' <= op.lower[0][0] <= 's':
+                    print('cabs_upper; not cabs_lower')
+                    if 'p' <= oper.lower[0][0] <= 's':
                         for i, item in enumerate(self.coeff_list):
-                            if op.lower[0] in item:
-                                index = self.coeff_list[i].index(op.lower[0])
-                                self.coeff_list[i][index] = op.upper[0]
+                            if oper.lower[0] in item:
+                                index = self.coeff_list[i].index(oper.lower[0])
+                                self.coeff_list[i][index] = oper.upper[0]
                         for i, item in enumerate(self.sum_list):
-                            if op.lower[0] == item:
-                                self.sum_list[i] = op.upper[0]
+                            if oper.lower[0] == item:
+                                self.sum_list[i] = oper.upper[0]
                         self.sum_list = list(set(self.sum_list))  # unique!
                     ops_to_remove.append(count)
                 elif cabs_lower and not cabs_upper:
-                    if 'p' <= op.upper[0][0] <= 's':
+                    print('cabs_lower; not cabs_upper')
+                    if 'p' <= oper.upper[0][0] <= 's':
                         for i, item in enumerate(self.coeff_list):
-                            if op.upper[0] in item:
-                                index = self.coeff_list[i].index(op.upper[0])
-                                self.coeff_list[i][index] = op.lower[0]
+                            if oper.upper[0] in item:
+                                index = self.coeff_list[i].index(oper.upper[0])
+                                self.coeff_list[i][index] = oper.lower[0]
                         for i, item in enumerate(self.sum_list):
-                            if op.upper[0] == item:
-                                self.sum_list[i] = op.lower[0]
+                            if oper.upper[0] == item:
+                                self.sum_list[i] = oper.lower[0]
                         self.sum_list = list(set(self.sum_list))
                     ops_to_remove.append(count)
                 elif cabs_upper and cabs_lower:
+                    print('cabs_lower; cabs_upper')
                     for i, item in enumerate(self.coeff_list):
-                        if op.upper[0] in item:
-                            index = self.coeff_list[i].index(op.upper[0])
-                            self.coeff_list[i][index] = op.lower[0]
+                        if oper.upper[0] in item:
+                            index = self.coeff_list[i].index(oper.upper[0])
+                            self.coeff_list[i][index] = oper.lower[0]
                     for i, item in enumerate(self.sum_list):
-                        if op.upper[0] == item:
-                            self.sum_list[i] = op.lower[0]
+                        if oper.upper[0] == item:
+                            self.sum_list[i] = oper.lower[0]
                     self.sum_list = list(set(self.sum_list))
                     ops_to_remove.append(count)
                 else:
-                    return
+                    # resolve deltas not containing any CABS indices
+                    # if general index is present, make sure it becomes
+                    # equal to other indices!
+                    print('not cabs_lower; not cabs_upper')
+                    lower_ge = False
+                    upper_ge = False
+                    if 'p' <= oper.lower[0][0] <= 's':
+                        lower_ge = True
+                    if 'p' <= oper.upper[0][0] <= 's':
+                        upper_ge = True
+                    for i, item in enumerate(self.coeff_list):
+                        if upper_ge:
+                            if oper.upper[0] in item:
+                                index = self.coeff_list[i].index(oper.upper[0])
+                                self.coeff_list[i][index] = oper.lower[0]
+                        elif lower_ge:
+                            if oper.lower[0] in item:
+                                index = self.coeff_list[i].index(oper.lower[0])
+                                self.coeff_list[i][index] = oper.upper[0]
+                        else:
+                            if oper.upper[0] in item:
+                                index = self.coeff_list[i].index(oper.upper[0])
+                                self.coeff_list[i][index] = oper.lower[0]
+                    for i, item in enumerate(self.sum_list):
+                        if upper_ge:
+                            if oper.upper[0] == item:
+                                self.sum_list[i] = oper.lower[0]
+                        if lower_ge:
+                            if oper.lower[0] == item:
+                                self.sum_list[i] = oper.upper[0]
+                        if not upper_ge and not lower_ge:
+                            if oper.upper[0] == item:
+                                self.sum_list[i] = oper.lower[0]
+                        self.sum_list = list(set(self.sum_list))
+                    ops_to_remove.append(count)
             count += 1
+            cabs_upper = False
+            cabs_lower = False
         for item in sorted(ops_to_remove, reverse=True):
             self.st[0].pop(item)
         print('final_st[0]: ', self.st[0])
@@ -327,7 +382,8 @@ class term(object):
             f.write("}")
         for i in range(0, len(self.large_op_list)):
             if self.large_op_list[i].name[0] != 'V' and self.large_op_list[i].name[0] != 'X':
-                f.write(self.large_op_list[i].name[0])
+                # f.write(self.large_op_list[i].name[0])
+                f.write(self.large_op_list[i].name)
                 f.write("^{")
 
             elif self.large_op_list[i].name[0] == 'V':
@@ -379,12 +435,15 @@ class term(object):
     # Rule 1: Density terms with CABS indices must be zero!
     # Rule 2: Eta terms:
     #         a) if eta term contains only general indices or occupied and virtual
-    #            in other words, no CABS+ indices  --> zero!
+    #            in other words, no CABS+ indices  --> zero! --> NOPES!
+    #            what about eta^p_a?? the gamma term would be zero but the delta
+    #            term should remain!! so what should be the modified rule?
+    #            lets resolve only the CABS case. We will resolve other cases
+    #            later by expanding general indices into occupied and virtual cases!
     #         b) if eta term contains CABS+ indices --> replace 
     #            eta by delta and then replace the corresponding 
     #            general index to the CABS+ index --> second half in compress function!
-    #            or maybe mimic compress function here!  
-    # Rule 3: a) If an operator contains CABS+ index, replace by 
+    # Rule 3: a) If an operator contains CABS+ index, replace by
     #            corresponding virtual: A0 ---> a0,
     #            need to be careful if R amplitude contains both virtual and CABS indices
     #            which is very well the case for excited states!
@@ -400,6 +459,9 @@ class term(object):
     # Rule 6: Remove fully contracted terms!
     # Rule 7: Remove indices appearing in the operators from self.sum_list
     # lets focus on removal of terms first!: Rule 1, Rule 2a, Rule 3b, Rule 4, Rule 6
+    # Try to update the st and coeff members of standard operators as well!
+    # Do I need that??? maybe because term objects do have a list of standard operators!
+    # so, I can update that as well!!
 
     def simplify_for_HF_ref(self):
         CABS_inds = ['A0', 'B0', 'A1', 'B1', 'A2', 'B2']
@@ -408,32 +470,37 @@ class term(object):
         f_contract = 1
         # print('self.coeff:{}'.format(self.coeff_list))
         for terms in self.st:
-            for op in terms:
+            for oper in terms:
                 # Rule 1.
-                if op.kind == 'gamma':
-                    if op.upper[0] in CABS_inds or op.lower[0] in CABS_inds:
+                if oper.kind == 'gamma':
+                    if oper.upper[0] in CABS_inds or oper.lower[0] in CABS_inds:
                         flag = 1
                         return flag
-                if op.kind == 'eta':
-                    # Rule 2a.
-                    if op.upper[0] not in CABS_inds and op.lower[0] not in CABS_inds:
+                if oper.kind == 'eta':
+                    # Rule 2a. Modified it but needs to be tested!
+                    # if one of the indices is occupied and other is general --> zero!
+                    # if one of the indices is virtual and other is general --> delta!
+                    # the below if only works when: (occ, occ), (general, occ), (general, general)[NA here!]
+                    if oper.upper[0].upper() not in CABS_inds and oper.lower[0].upper() not in CABS_inds:
                         flag = 1
                         return flag
                     # Rule 2b.
                     else:
-                        op.kind = 'delta'
-                if op.kind == 'op':
+                        # occ-vir is also delta!! --> need to change it!
+                        # general-vir
+                        oper.kind = 'delta'
+                if oper.kind == 'op':
                     f_contract = 0
                     # Rule 4
-                    if len(op.upper) >= 3:
+                    if len(oper.upper) >= 3:
                         flag = 1
                         return flag
                     # Rule 3b
                     cabs_list = []
-                    for item in op.upper:
+                    for item in oper.upper:
                         if item in CABS_inds:
                             cabs_list.append(item)
-                    for item in op.lower:
+                    for item in oper.lower:
                         if item in CABS_inds:
                             cabs_list.append(item)
                     for i, item in enumerate(CABS_pairs):
@@ -444,9 +511,9 @@ class term(object):
                             return flag
                     # Rule 7
                     op_indices = []
-                    for item in op.upper:
+                    for item in oper.upper:
                         op_indices.append(item)
-                    for item in op.lower:
+                    for item in oper.lower:
                         op_indices.append(item)
                     for item in op_indices:
                         self.sum_list.remove(item)
@@ -458,16 +525,222 @@ class term(object):
                             if item in self.coeff_list[i]:
                                 index = self.coeff_list[i].index(item)
                                 self.coeff_list[i][index] = self.coeff_list[i][index].lower()
-                        if item in op.upper:
-                            index = op.upper.index(item)
-                            op.upper[index] = op.upper[index].lower()
-                        if item in op.lower:
-                            index = op.lower.index(item)
-                            op.lower[index] = op.lower[index].lower()
+                        if item in oper.upper:
+                            index = oper.upper.index(item)
+                            oper.upper[index] = oper.upper[index].lower()
+                        if item in oper.lower:
+                            index = oper.lower.index(item)
+                            oper.lower[index] = oper.lower[index].lower()
         # Rule 6
         if f_contract == 1:
             flag = 1
-        # maybe call compress function to resolve deltas
-        # of course, I might need to inject some extra logic
-        # into compress function! Not here --> in input!
+        return flag
+
+    def identify_f12_intermediates(self):
+        # identify pattern for for intermediate V: (A)
+        CABS_inds = ['A0', 'B0', 'A1', 'B1', 'A2', 'B2']
+        CABS_pairs = [['A0', 'B0'], ['A1', 'B1'], ['A2', 'B2']]
+        V2 = False
+        R2 = False
+        flag = 0
+        i_indx = 0
+        # 0-> V2, 1 -> R2, 2 -> R22 etc!
+        if len(self.large_op_list) == 2:
+            # print('self.coeff_list', self.coeff_list)
+            for i, item in enumerate(CABS_pairs):
+                if CABS_pairs[i][0] in self.coeff_list[0] and CABS_pairs[i][1] in self.coeff_list[0]:
+                    V2 = True
+                    if CABS_pairs[i][0] in self.coeff_list[1] and CABS_pairs[i][1] in self.coeff_list[1]:
+                        R2 = True
+                        i_indx = i
+            if V2 and R2:
+                print('looks like V intermediate!')
+                print('V2: ', self.coeff_list[0])
+                print('R2: ', self.coeff_list[1])
+                # I need to re-order the coefficients if B comes before A
+                # in both V2 and R2
+                for i, items in enumerate(self.coeff_list):
+                    Ai = 'A' + str(i_indx)
+                    Bi = 'B' + str(i_indx)
+                    index_A = items.index(Ai)
+                    index_B = items.index(Bi)
+                    # swap 0,1 and 2,3
+                    if index_B < index_A:
+                        tmp = self.coeff_list[i][1]
+                        self.coeff_list[i][1] = self.coeff_list[i][0]
+                        self.coeff_list[i][0] = tmp
+                        tmp = self.coeff_list[i][3]
+                        self.coeff_list[i][3] = self.coeff_list[i][2]
+                        self.coeff_list[i][2] = tmp
+                new_coeff = copy.deepcopy(self.coeff_list)
+                # re-populate self.coeff_list
+                for i, items in enumerate(self.coeff_list):
+                    Ai = 'A' + str(i_indx)
+                    Bi = 'B' + str(i_indx)
+                    index_A = items.index(Ai)
+                    index_B = items.index(Bi)
+                    # B before A is important!
+                    new_coeff[i].pop(index_B)
+                    new_coeff[i].pop(index_A)
+                # print('new_coeff: ', new_coeff)
+                self.coeff_list = []
+                tmp_list = []
+                for i in range(2):
+                    for items in new_coeff[i]:
+                        tmp_list.append(items)
+                    self.coeff_list.append(tmp_list)
+                    tmp_list = []
+                print('self.coeff: ', self.coeff_list)
+
+                # change the operator name to V_F12
+                # V2 and R2 operators should be removed!
+                # So, only one element in the coeff_list!
+                # All I care about is the coeff_list and name
+                # rest of the member variables of Stoperator can
+                # be empty!
+
+                V_F12 = op.initialize_stoperator('A', 1.0, [[], []])
+                self.large_op_list = []
+                self.large_op_list.append(V_F12)
+
+                print('test: ', self.large_op_list[0].name[0])
+
+                # remove Ai, Bi from sum_list
+                self.sum_list.remove(CABS_pairs[i_indx][0])
+                self.sum_list.remove(CABS_pairs[i_indx][1])
+                flag = 1
+
+        # identify the pattern for for intermediate X: (C)
+        # X(i0,j0,i1,j1) = R^{AB}_{i0j0} * R^{AB}_{i1j1}
+        if len(self.large_op_list) == 3:
+            R2_1 = False
+            R2_2 = False
+            # print('self.large_op_list: ', self.large_op_list)
+            for i, item in enumerate(CABS_pairs):
+                if CABS_pairs[i][0] in self.coeff_list[0] and CABS_pairs[i][1] in self.coeff_list[0]:
+                    R2_1 = True
+                    if CABS_pairs[i][0] in self.coeff_list[2] and CABS_pairs[i][1] in self.coeff_list[2]:
+                        R2_2 = True
+                        i_indx = i
+            if R2_1 and R2_2:
+                # print('looks like X intermediate!')
+                print('X0: ', self.coeff_list[0])
+                print('X1: ', self.coeff_list[1])
+                print('X2: ', self.coeff_list[2])
+                print('coeff: ', self.coeff_list)
+                # I need to re-order the coefficients if B comes before A
+                # in both R2 and R22
+                for i, items in enumerate(self.coeff_list):
+                    Ai = 'A' + str(i_indx)
+                    Bi = 'B' + str(i_indx)
+                    if Ai in items:
+                        index_A = items.index(Ai)
+                    else:
+                        index_A = 0
+                    if Bi in items:
+                        index_B = items.index(Bi)
+                    else:
+                        index_B = 0
+                    # swap 0,1 and 2,3
+                    if index_B < index_A:
+                        tmp = self.coeff_list[i][1]
+                        self.coeff_list[i][1] = self.coeff_list[i][0]
+                        self.coeff_list[i][0] = tmp
+                        tmp = self.coeff_list[i][3]
+                        self.coeff_list[i][3] = self.coeff_list[i][2]
+                        self.coeff_list[i][2] = tmp
+                new_coeff = copy.deepcopy(self.coeff_list)
+                # re-populate self.coeff_list
+                for i, items in enumerate(self.coeff_list):
+                    Ai = 'A' + str(i_indx)
+                    Bi = 'B' + str(i_indx)
+                    if Bi in items:
+                        index_B = items.index(Bi)
+                        new_coeff[i].pop(index_B)
+                    if Ai in items:
+                        index_A = items.index(Ai)
+                        new_coeff[i].pop(index_A)
+                X_F12 = op.initialize_stoperator('C', 1.0, [[], []])
+                # remove R2
+                self.large_op_list.pop(0)
+                # remove R22
+                self.large_op_list.pop(1)
+                # F, X_F12
+                self.large_op_list.append(X_F12)
+
+                print('test: ', self.large_op_list[0].name[0])
+
+                # merge 0 and 2
+                print('new_coeff: ', new_coeff)
+                # remove R2
+                self.coeff_list.pop(0)
+                # remove R22
+                self.coeff_list.pop(1)
+                tmp_list = []
+                for i, items in enumerate(new_coeff):
+                    if i == 0 or i == 2:
+                        for items_i in new_coeff[i]:
+                            tmp_list.append(items_i)
+                print('tmp_list: ', tmp_list)
+
+                self.coeff_list.append(tmp_list)
+                print('self.coeff1: ', self.coeff_list)
+
+                # remove Ai, Bi from sum_list
+                self.sum_list.remove(CABS_pairs[i_indx][0])
+                self.sum_list.remove(CABS_pairs[i_indx][1])
+
+                flag = 1
+        # identify the B intermediate now!
+        # B(i0,j0,i1,j1) = R^{AB}_{i0j0} * f^{A}_{C} * R^{CB}_{i1j1} (1)
+        #                + R^{AB}_{i0j0} * f^{B}_{C} * R^{AC}_{i1j1} (2)
+        # So, I would need to compare two terms now!
+        # maybe I can do something like this! (1) - D, (2) - E
+        # and then combine D and E later in some other place! --> OK!
+        # (f.upper in R2/R22 and f.lower in R2/R22) and both R contains
+        # a common CABS index (B or A)
+        # TODO: ON IT NOW!
+        # R22/R22D F R2/R2D
+        if len(self.large_op_list) == 3:
+            F_upper = self.coeff_list[1][0]
+            F_lower = self.coeff_list[1][1]
+            F_upper_0 = False
+            F_upper_1 = False
+            F_lower_0 = False
+            F_lower_1 = False
+            first_pos = False
+            second_pos = False
+            # print('F_upper: ', F_upper)
+            # print('F_lower: ', F_lower)
+            index_F_upper_0 = 0
+            index_F_upper_1 = 0
+            index_F_lower_0 = 0
+            index_F_lower_1 = 0
+            if F_upper in self.coeff_list[0] and F_upper in CABS_inds:
+                F_upper_0 = True
+                index_F_upper_0 = self.coeff_list[0].index(F_upper)
+            if F_upper in self.coeff_list[2] and F_upper in CABS_inds:
+                F_upper_1 = True
+                index_F_upper_1 = self.coeff_list[2].index(F_upper)
+            if F_lower in self.coeff_list[0] and F_lower in CABS_inds:
+                F_lower_0 = True
+                index_F_lower_0 = self.coeff_list[0].index(F_lower)
+            if F_lower in self.coeff_list[2] and F_lower in CABS_inds:
+                F_lower_1 = True
+                index_F_lower_1 = self.coeff_list[2].index(F_lower)
+            if (F_upper_0 and F_lower_1) or (F_upper_1 and F_lower_0):
+                # make sure the order is correct!!!
+                # check for a common CABS index in self.coeff[0] and self.coeff[2]
+                intersect = [value for value in self.coeff_list[0] if value in self.coeff_list[2] and value in CABS_inds]
+                print('intersect: ', intersect)
+                if intersect:
+                    index_0 = self.coeff_list[0].index(intersect[0])
+                    index_1 = self.coeff_list[2].index(intersect[0])
+                    if index_0 == 0 and index_1 == 0:
+                        print(self.coeff_list[0])
+                        # print(self.coeff_list[1])
+                        print(self.coeff_list[2])
+                        print('D term!')
+                    else:
+                        print('E term!')
         return flag
