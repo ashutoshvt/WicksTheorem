@@ -687,20 +687,27 @@ class term(object):
                 print('self.coeff1: ', self.coeff_list)
 
                 # remove Ai, Bi from sum_list
-                self.sum_list.remove(CABS_pairs[i_indx][0])
-                self.sum_list.remove(CABS_pairs[i_indx][1])
-
+                if CABS_pairs[i_indx][0] in self.sum_list:
+                    self.sum_list.remove(CABS_pairs[i_indx][0])
+                if CABS_pairs[i_indx][1] in self.sum_list:
+                    self.sum_list.remove(CABS_pairs[i_indx][1])
                 flag = 1
+
         # identify the B intermediate now!
         # B(i0,j0,i1,j1) = R^{AB}_{i0j0} * f^{A}_{C} * R^{CB}_{i1j1} (1)
         #                + R^{AB}_{i0j0} * f^{B}_{C} * R^{AC}_{i1j1} (2)
         # So, I would need to compare two terms now!
         # maybe I can do something like this! (1) - D, (2) - E
-        # and then combine D and E later in some other place! --> OK!
+        # and then combine D and E later in some other place!
         # (f.upper in R2/R22 and f.lower in R2/R22) and both R contains
         # a common CABS index (B or A)
+        # I guess just one term is fine!
+        # B(i0,j0,i1,j1) = R^{AB}_{i0j0} * f^{A}_{C} * R^{CB}_{i1j1}
+        # Just use this pattern only!
+        # make sure you cast the appropriate terms into the above pattern!
         # TODO: ON IT NOW!
         # R22/R22D F R2/R2D
+
         if len(self.large_op_list) == 3:
             F_upper = self.coeff_list[1][0]
             F_lower = self.coeff_list[1][1]
@@ -729,18 +736,130 @@ class term(object):
                 F_lower_1 = True
                 index_F_lower_1 = self.coeff_list[2].index(F_lower)
             if (F_upper_0 and F_lower_1) or (F_upper_1 and F_lower_0):
-                # make sure the order is correct!!!
                 # check for a common CABS index in self.coeff[0] and self.coeff[2]
                 intersect = [value for value in self.coeff_list[0] if value in self.coeff_list[2] and value in CABS_inds]
                 print('intersect: ', intersect)
                 if intersect:
-                    index_0 = self.coeff_list[0].index(intersect[0])
-                    index_1 = self.coeff_list[2].index(intersect[0])
-                    if index_0 == 0 and index_1 == 0:
-                        print(self.coeff_list[0])
-                        # print(self.coeff_list[1])
-                        print(self.coeff_list[2])
-                        print('D term!')
-                    else:
-                        print('E term!')
+                    # make sure the following pattern order is matched!!
+                    # B(i0,j0,i1,j1) = R^{i0j0}_{A0B0} * f^{A0}_{C0} * R^{C0B0}_{i1j1}
+                    # make sure f.upper and f.lower appears first!
+                    # in other words, f.upper = 2 and f.lower = 0
+                    # [or f.upper = 0 and f.lower = 2 --> will check this later!]
+                    # print('F_upper_0: ', F_upper_0)  # True
+                    # print('F_upper_1: ', F_upper_1)  # False
+                    # print('F_lower_0: ', F_lower_0)  # False
+                    # print('F_lower_1: ', F_lower_1)  # True
+                    # Assuming the above combination of True, False to stay true
+                    # for all the elements
+                    print('index_F_upper_0: ', index_F_upper_0)
+                    print('index_F_lower_1: ', index_F_lower_1)
+                    print('self.st: ', self.st[0])
+                    print('self.sum: ', self.sum_list)
+                    if index_F_upper_0 != 2:
+                        # swap coefficients and operator indices of 0 please!
+                        temp = self.coeff_list[0][0]
+                        self.coeff_list[0][0] = self.coeff_list[0][1]
+                        self.coeff_list[0][1] = temp
+                        self.st[0][0].upper.reverse()
+                    if index_F_lower_1 != 0:
+                        # swap coefficients and operator indices of 2 please!
+                        temp = self.coeff_list[2][2]
+                        self.coeff_list[2][2] = self.coeff_list[2][3]
+                        self.coeff_list[2][3] = temp
+                        self.st[0][0].lower.reverse()
+                    # operator == [coeff[0][0], coeff[0][1], coeff[2][0], coeff[2][1]]
+                    print('self.st after: ', self.st[0])
+                    # self.sum_list = []
+                    temp_list = [self.coeff_list[0][0], self.coeff_list[0][1],
+                                 self.coeff_list[2][2], self.coeff_list[2][3]]
+                    # for items in self.st[0][0].upper:
+                    #     temp_list.append(items)
+                    # for items in self.st[0][0].lower:
+                    #     temp_list.append(items)
+                    print('coeff[0]: ', self.coeff_list[0])
+                    print('coeff[1]: ', self.coeff_list[1])
+                    print('coeff[2]: ', self.coeff_list[2])
+                    print('temp_list', temp_list)
+                    print('self.coeff', self.coeff_list)
+                    self.coeff_list = []
+                    self.coeff_list.append(temp_list)
+                    print('self.coeff', self.coeff_list)
+                    B_F12 = op.initialize_stoperator('B', 1.0, [[], []])
+                    self.large_op_list = []
+                    self.large_op_list.append(B_F12)
+                    self.sum_list.remove(intersect[0])
+                    self.sum_list.remove(F_upper)
+                    self.sum_list.remove(F_lower)
+            return flag
+
+    def resolve_cabs_to_vir(self):
+        if len(self.large_op_list) == 3:
+            # if 0 and 2 contains a vir index
+            # and a CABS+ index --> change CABS+ to CABS
+            cabs_indx = ''
+            cabs_vir_map = {'A0': 'x0', 'A1': 'x1', 'B0': 'y0', 'B1': 'y1'}
+            print('coeff[0]: ', self.coeff_list[0])
+            print('coeff[1]: ', self.coeff_list[1])
+            print('coeff[2]: ', self.coeff_list[2])
+            tmp_map = {'0': 2, '2': 0}
+            for coeff_ind in range(0, 3, 2):
+                vir = 0
+                CABS_plus = 0
+                indx = 0
+                for i, items in enumerate(self.coeff_list[coeff_ind]):
+                    if 'a' <= items[0] <= 'h':
+                        vir += 1
+                    if 'A' <= items[0] <= 'H':
+                        CABS_plus += 1
+                        indx = i
+                        cabs_indx = items
+                if vir == 1 and CABS_plus == 1:
+                    self.coeff_list[coeff_ind][indx] = cabs_vir_map[cabs_indx]
+                    j = [1, tmp_map[str(coeff_ind)]]
+                    for j_x in j:
+                        if cabs_indx in self.coeff_list[j_x]:
+                            ind = self.coeff_list[j_x].index(cabs_indx)
+                            self.coeff_list[j_x][ind] = cabs_vir_map[cabs_indx]
+            print('coeff[0] after: ', self.coeff_list[0])
+            print('coeff[1] after: ', self.coeff_list[1])
+            print('coeff[2] after: ', self.coeff_list[2])
+
+    def gbc_ebc(self):
+        # generalized BC --> GBC : F^i_alpha = 0
+        # extended BC --> EBC: F^a_alpha = 0
+        # So, EBC + GBC: F^p_CABS = 0
+        # EBC: Such condition is only fulfilled if the basis set
+        # is saturated for each angular momentum involved in this basis set
+        # Not sure if this is true for these tiny basis-sets!
+        flag = 0
+        if len(self.large_op_list) == 3:
+            gen_index = False
+            CABS_index = False
+            occ_index = False
+            vir_index = False
+            for items in self.coeff_list[1]:
+                if 'a' <= items[0] <= 'h':
+                    vir_index = True
+                if 'p' <= items[0] <= 's':
+                    gen_index = True
+                if 'i' <= items[0] <= 'n':
+                    occ_index = True
+                if 'A' <= items[0] <= 'H':
+                    CABS_index = True
+                if (gen_index or occ_index or vir_index) and CABS_index:
+                    flag = 1
+                    return flag
         return flag
+
+
+
+
+
+            
+
+
+
+
+
+
+

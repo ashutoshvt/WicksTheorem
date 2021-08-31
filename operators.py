@@ -73,4 +73,13 @@ def simplify_for_HF(list_terms):
         flag = item.identify_f12_intermediates()
         if flag:
             count += 1
+        item.resolve_cabs_to_vir()
     print('number of V/B terms: ', count)
+    term_to_remove = []
+    for index, items in enumerate(list_terms):
+        removed = items.gbc_ebc()
+        if removed:
+            term_to_remove.append(index)
+    for index in sorted(term_to_remove, reverse=True):
+        list_terms.pop(index)
+
