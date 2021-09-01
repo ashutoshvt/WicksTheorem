@@ -167,17 +167,22 @@ class term(object):
                             if oper.upper[0] in item:
                                 index = self.coeff_list[i].index(oper.upper[0])
                                 self.coeff_list[i][index] = oper.lower[0]
+                    # lists are un-ordered!
                     for i, item in enumerate(self.sum_list):
                         if upper_ge:
                             if oper.upper[0] == item:
-                                self.sum_list[i] = oper.lower[0]
+                                index = self.sum_list.index(item)
+                                self.sum_list[index] = oper.lower[0]
                         if lower_ge:
                             if oper.lower[0] == item:
-                                self.sum_list[i] = oper.upper[0]
+                                index = self.sum_list.index(item)
+                                self.sum_list[index] = oper.upper[0]
                         if not upper_ge and not lower_ge:
                             if oper.upper[0] == item:
-                                self.sum_list[i] = oper.lower[0]
+                                index = self.sum_list.index(item)
+                                self.sum_list[index] = oper.lower[0]
                         self.sum_list = list(set(self.sum_list))
+                    print('final sum: ', self.sum_list)
                     ops_to_remove.append(count)
             count += 1
             cabs_upper = False
@@ -582,14 +587,13 @@ class term(object):
                     # B before A is important!
                     new_coeff[i].pop(index_B)
                     new_coeff[i].pop(index_A)
-                # print('new_coeff: ', new_coeff)
+                print('new_coeff: ', new_coeff)
                 self.coeff_list = []
                 tmp_list = []
                 for i in range(2):
                     for items in new_coeff[i]:
                         tmp_list.append(items)
-                    self.coeff_list.append(tmp_list)
-                    tmp_list = []
+                self.coeff_list.append(tmp_list)
                 print('self.coeff: ', self.coeff_list)
 
                 # change the operator name to V_F12
@@ -715,8 +719,6 @@ class term(object):
             F_upper_1 = False
             F_lower_0 = False
             F_lower_1 = False
-            first_pos = False
-            second_pos = False
             # print('F_upper: ', F_upper)
             # print('F_lower: ', F_lower)
             index_F_upper_0 = 0
@@ -787,21 +789,24 @@ class term(object):
                     B_F12 = op.initialize_stoperator('B', 1.0, [[], []])
                     self.large_op_list = []
                     self.large_op_list.append(B_F12)
-                    self.sum_list.remove(intersect[0])
-                    self.sum_list.remove(F_upper)
-                    self.sum_list.remove(F_lower)
+                    if intersect[0] in self.sum_list:
+                        self.sum_list.remove(intersect[0])
+                    if F_upper in self.sum_list:
+                        self.sum_list.remove(F_upper)
+                    if F_lower in self.sum_list:
+                        self.sum_list.remove(F_lower)
             return flag
 
     def resolve_cabs_to_vir(self):
+        cabs_indx = ''
+        cabs_vir_map = {'A0': 'x0', 'A1': 'x1', 'B0': 'y0', 'B1': 'y1'}
+        tmp_map = {'0': 2, '2': 0}
         if len(self.large_op_list) == 3:
             # if 0 and 2 contains a vir index
             # and a CABS+ index --> change CABS+ to CABS
-            cabs_indx = ''
-            cabs_vir_map = {'A0': 'x0', 'A1': 'x1', 'B0': 'y0', 'B1': 'y1'}
             print('coeff[0]: ', self.coeff_list[0])
             print('coeff[1]: ', self.coeff_list[1])
             print('coeff[2]: ', self.coeff_list[2])
-            tmp_map = {'0': 2, '2': 0}
             for coeff_ind in range(0, 3, 2):
                 vir = 0
                 CABS_plus = 0
@@ -820,9 +825,46 @@ class term(object):
                         if cabs_indx in self.coeff_list[j_x]:
                             ind = self.coeff_list[j_x].index(cabs_indx)
                             self.coeff_list[j_x][ind] = cabs_vir_map[cabs_indx]
+                    if cabs_indx in self.sum_list:
+                        ind = self.sum_list.index(cabs_indx)
+                        self.sum_list[ind] = cabs_vir_map[cabs_indx]
             print('coeff[0] after: ', self.coeff_list[0])
             print('coeff[1] after: ', self.coeff_list[1])
             print('coeff[2] after: ', self.coeff_list[2])
+        else:
+            # [F1, R2]
+            # print('self.large_op_list: ', self.large_op_list)
+            # print('coeff[0]: ', self.coeff_list[0])
+            # print('coeff[1]: ', self.coeff_list[1])
+            print('self.st: ', self.st)
+            vir = 0
+            CABS_plus = 0
+            indx = 0
+            i_star = 0
+            for i in range(len(self.large_op_list)):
+                if self.large_op_list[i].name[0] == 'R':
+                    i_star = i
+            for i, items in enumerate(self.coeff_list[i_star]):
+                if 'a' <= items[0] <= 'h':
+                    vir += 1
+                if 'A' <= items[0] <= 'H':
+                    CABS_plus += 1
+                    indx = i
+                    cabs_indx = items
+                if vir == 1 and CABS_plus == 1:
+                    self.coeff_list[i_star][indx] = cabs_vir_map[cabs_indx]
+                    if i_star == 0:
+                        j_star = 1
+                    else:
+                        j_star = 0
+                    if cabs_indx in self.coeff_list[j_star]:
+                        ind = self.coeff_list[j_star].index(cabs_indx)
+                        self.coeff_list[j_star][ind] = cabs_vir_map[cabs_indx]
+                    if cabs_indx in self.sum_list:
+                        ind = self.sum_list.index(cabs_indx)
+                        self.sum_list[ind] = cabs_vir_map[cabs_indx]
+            # print('coeff[0] after: ', self.coeff_list[0])
+            # print('coeff[1] after: ', self.coeff_list[1])
 
     def gbc_ebc(self):
         # generalized BC --> GBC : F^i_alpha = 0
@@ -851,11 +893,119 @@ class term(object):
                     return flag
         return flag
 
+    def convert_into_einsum(self, f):
+        numpy_map = {'i0': 'i', 'j0': 'j', 'i1': 'k', 'j1': 'l',
+                     'a0': 'a', 'b0': 'b', 'a1': 'c', 'b1': 'd',
+                     'A0': 'A', 'B0': 'B', 'A1': 'C', 'B1': 'D',
+                     'p0': 'p', 'q0': 'q', 'r0': 'r', 's0': 's',
+                     'x0': 'x', 'y0': 'y', 'x1': 'z', 'y1': 'w'}
+        final_string = ''
+        Hamiltonian_block = 'H'
+        # print(self.st[0][0].upper)
+        # print(self.st[0][0].lower)
+        for item in self.st[0][0].upper:
+            if 'p' <= item[0] <= 's':
+                Hamiltonian_block += '_gen'
+            if 'a' <= item[0] <= 'h':
+                Hamiltonian_block += '_vir'
+            if 'i' <= item[0] <= 'n':
+                Hamiltonian_block += '_occ'
+        for item in self.st[0][0].lower:
+            if 'p' <= item[0] <= 's':
+                Hamiltonian_block += '_gen'
+            if 'a' <= item[0] <= 'h':
+                Hamiltonian_block += '_vir'
+            if 'i' <= item[0] <= 'n':
+                Hamiltonian_block += '_occ'
+        new_coeff = []
+        tmp_list = []
+        size = len(self.large_op_list)
+        for i in range(size):
+            for items in self.coeff_list[i]:
+                tmp_list.append(items)
+            new_coeff.append(tmp_list)
+            tmp_list = []
+        print('new_coeff: ', new_coeff)
+        for i in range(size):
+            for j in range(len(new_coeff[i])):
+                new_coeff[i][j] = numpy_map[new_coeff[i][j]]
+        print('new_coeff after: ', new_coeff)
+        for i in range(size):
+            for j in range(len(new_coeff[i])):
+                final_string += new_coeff[i][j]
+            if size > 1 and i != size-1:
+                final_string += ','
+        final_string += '->'
+        for item in self.st[0][0].upper:
+            tmp_list.append(numpy_map[item])
+        for item in self.st[0][0].lower:
+            tmp_list.append(numpy_map[item])
+        for items in tmp_list:
+            final_string += items
+        print('final_string: ', final_string)
+        oper_list = ''
+        for i in range(size):
+            oper_list += self.large_op_list[i].name
+            if i != size-1:
+                oper_list += ', '
+        print('oper_list: ', oper_list)
+        # need to figure out size = 1 terms as well! TODO
+        if size != 1:
+            f.write('{} += {} * np.einsum(\'{}\', {})\n'.format(Hamiltonian_block, self.fac, final_string, oper_list))
+
+    def allocate_shapes_memory(self, f):
+        sizes = '('
+        Hamiltonian_block = 'H'
+        for item in self.st[0][0].upper:
+            if 'p' <= item[0] <= 's':
+                Hamiltonian_block += '_gen'
+                sizes += 'ngen, '
+            if 'a' <= item[0] <= 'h':
+                Hamiltonian_block += '_vir'
+                sizes  += 'nvir, '
+            if 'i' <= item[0] <= 'n':
+                Hamiltonian_block += '_occ'
+                sizes += 'nocc, '
+        for item in self.st[0][0].lower:
+            if 'p' <= item[0] <= 's':
+                Hamiltonian_block += '_gen'
+                sizes += 'ngen, '
+            if 'a' <= item[0] <= 'h':
+                Hamiltonian_block += '_vir'
+                sizes += 'nvir, '
+            if 'i' <= item[0] <= 'n':
+                Hamiltonian_block += '_occ'
+                sizes += 'nocc, '
+        # print('Hamiltonian_block: ', Hamiltonian_block)
+        sizes = sizes[0:len(sizes)-2]
+        sizes += ')'
+        print(sizes)
+        # f.write('{} = np.zeros({})\n'.format(Hamiltonian_block, sizes))
+        return Hamiltonian_block, sizes
 
 
+def get_parameters(f):
+    ngen = 'ngen = inp.ngen\n'
+    f.write(ngen)
+    nvir = 'nvir = inp.nvir\n'
+    f.write(nvir)
+    nocc = 'nocc = inp.nocc\n'
+    f.write(nocc)
+    V2 = 'V2 = inp.V2\n'
+    f.write(V2)
+    R2 = 'R2 = inp.R2\n'
+    f.write(R2)
+    R2D = 'R2D = inp.R2D\n'
+    f.write(R2D)
+    F1 = 'F1 = inp.F1\n'
+    f.write(F1)
+    R22 = 'R22 = inp.R22\n'
+    f.write(R22)
+    R22D = 'R22D = inp.R22D\n'
+    f.write(R22D)
+    C = 'C = inp.C\n'
+    f.write(C)
 
-
-            
 
 
 

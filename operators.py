@@ -75,11 +75,42 @@ def simplify_for_HF(list_terms):
             count += 1
         item.resolve_cabs_to_vir()
     print('number of V/B terms: ', count)
-    term_to_remove = []
-    for index, items in enumerate(list_terms):
-        removed = items.gbc_ebc()
-        if removed:
-            term_to_remove.append(index)
-    for index in sorted(term_to_remove, reverse=True):
-        list_terms.pop(index)
+    # I need to experiment a bit with EBC and GBC
+    # Disabled the gbc_ebc function for now!
+    # term_to_remove = []
+    # for index, items in enumerate(list_terms):
+    #     removed = items.gbc_ebc()
+    #     if removed:
+    #         term_to_remove.append(index)
+    # for index in sorted(term_to_remove, reverse=True):
+    #     list_terms.pop(index)
+
+
+def allocate_memory(list_list_terms, file=None):
+    if file:
+        Hamiltonian_arr = []
+        sizes_arr = []
+        for list_terms in list_list_terms:
+            for items in list_terms:
+                Hamiltonian_block, sizes = items.allocate_shapes_memory(file)
+                print(Hamiltonian_block)
+                if Hamiltonian_block not in Hamiltonian_arr:
+                    # Hamiltonian_arr.append([Hamiltonian_block, sizes])
+                    Hamiltonian_arr.append(Hamiltonian_block)
+                    sizes_arr.append(sizes)
+                    print('H_arr: ', Hamiltonian_arr)
+        for i, items in enumerate(Hamiltonian_arr):
+            file.write('{} = np.zeros({})\n'.format(Hamiltonian_arr[i], sizes_arr[i]))
+
+
+def einsum_expressions(list_list_terms, file=None):
+    if file:
+        for list_terms in list_list_terms:
+            for items in list_terms:
+                items.convert_into_einsum(file)
+
+
+
+
+
 
