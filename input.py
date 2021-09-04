@@ -24,6 +24,7 @@ f.write('import input_parameters as inp\n')
 f.write('\n\n# Getting parameters!\n\n')
 get_parameters(f)
 
+
 # 1.  [F1, R2-R2+] == [F1, R2] - [F1,R2+] 
 #                        a)        b)
 
@@ -103,6 +104,7 @@ pt.print_terms(V2R2D, 'V2R2D.txt')
 print('Simplification for HF ref:')
 op.simplify_for_HF(V2R2D)
 pt.print_terms(V2R2D, 'V2R2D_new.txt')
+
 
 # Write all the terms to the file in
 # the einsum routine
