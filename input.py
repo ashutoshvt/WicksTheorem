@@ -25,25 +25,25 @@ f.write('\n\n# Getting parameters!\n\n')
 get_parameters(f)
 
 
-# 1.  [F1, R2-R2+] == [F1, R2] - [F1,R2+] 
-#                        a)        b)
+# 1.  [F1, R2-R2+] == [F1, R2] - [F1,R2+]
+#                       a)        b)
 
 # a)
 
-F1R2 = comm([F1], [R2], 1)
-pt.print_terms(F1R2, 'F1R2.txt')
+F1_R2 = comm([F1], [R2], 1)
+pt.print_terms(F1_R2, 'F1R2.txt')
 print('Simplification for HF ref:')
-op.simplify_for_HF(F1R2)
-pt.print_terms(F1R2, 'F1R2_new.txt')
+op.simplify_for_HF(F1_R2)
+pt.print_terms(F1_R2, 'F1R2_new.txt')
 
 
-# # b)
+# b)
 
-F1R2D = comm([F1], [R2D], 1)
-pt.print_terms(F1R2D, 'F1R2D.txt')
+F1_R2D = comm([F1], [R2D], 1)
+pt.print_terms(F1_R2D, 'F1R2D.txt')
 print('Simplification for HF ref:')
-op.simplify_for_HF(F1R2D)
-pt.print_terms(F1R2D, 'F1R2D_new.txt')
+op.simplify_for_HF(F1_R2D)
+pt.print_terms(F1_R2D, 'F1R2D_new.txt')
 
 
 # 2.  [[F1, R2-R2+], R2-R2+] ==  [[F1, R2], R2] - [[F1, R2], R2+] - [[F1,R2+],R2] + [F1,R2+],R2+]
@@ -51,38 +51,38 @@ pt.print_terms(F1R2D, 'F1R2D_new.txt')
 
 # a)
 
-F1R2R2 = comm(comm([F1], [R2], 0), [R22], 1)
-pt.print_terms(F1R2R2, 'F1R2R2.txt')
+F1_R2_R2 = comm(comm([F1], [R2], 0), [R22], 1)
+pt.print_terms(F1_R2_R2, 'F1R2R2.txt')
 print('Simplification for HF ref:')
-op.simplify_for_HF(F1R2R2)
-pt.print_terms(F1R2R2, 'F1R2R2_new.txt')
+op.simplify_for_HF(F1_R2_R2)
+pt.print_terms(F1_R2_R2, 'F1R2R2_new.txt')
 
 
 # b)
 
-F1R2R2D = comm(comm([F1], [R2], 0), [R22D], 1)
-pt.print_terms(F1R2R2D, 'F1R2R2D.txt')
+F1_R2_R2D = comm(comm([F1], [R2], 0), [R22D], 1)
+pt.print_terms(F1_R2_R2D, 'F1R2R2D.txt')
 print('Simplification for HF ref:')
-op.simplify_for_HF(F1R2R2D)
-pt.print_terms(F1R2R2D, 'F1R2R2D_new.txt')
+op.simplify_for_HF(F1_R2_R2D)
+pt.print_terms(F1_R2_R2D, 'F1R2R2D_new.txt')
 
 
 # c)
 
-F1R2DR2 = comm(comm([F1], [R2D], 0), [R22], 1)
-pt.print_terms(F1R2DR2, 'F1R2DR2.txt')
+F1_R2D_R2 = comm(comm([F1], [R2D], 0), [R22], 1)
+pt.print_terms(F1_R2D_R2, 'F1R2DR2.txt')
 print('Simplification for HF ref:')
-op.simplify_for_HF(F1R2DR2)
-pt.print_terms(F1R2DR2, 'F1R2DR2_new.txt')
+op.simplify_for_HF(F1_R2D_R2)
+pt.print_terms(F1_R2D_R2, 'F1R2DR2_new.txt')
 
 
 # d)
 
-F1R2DR2D = comm(comm([F1], [R2D], 0), [R22D], 1)
-pt.print_terms(F1R2DR2D, 'F1R2DR2D.txt')
+F1_R2D_R2D = comm(comm([F1], [R2D], 0), [R22D], 1)
+pt.print_terms(F1_R2D_R2D, 'F1R2DR2D.txt')
 print('Simplification for HF ref:')
-op.simplify_for_HF(F1R2DR2D)
-pt.print_terms(F1R2DR2D, 'F1R2DR2D_new.txt')
+op.simplify_for_HF(F1_R2D_R2D)
+pt.print_terms(F1_R2D_R2D, 'F1R2DR2D_new.txt')
 
 
 # 3.  [V2, R2-R2+] == [V2,R2] - [V2,R2+]
@@ -90,31 +90,30 @@ pt.print_terms(F1R2DR2D, 'F1R2DR2D_new.txt')
 
 # a)
 
-V2R2 = comm([V2], [R2], 1)
-pt.print_terms(V2R2, 'V2R2.txt')
+V2_R2 = comm([V2], [R2], 1)
+pt.print_terms(V2_R2, 'V2R2.txt')
 print('Simplification for HF ref:')
-op.simplify_for_HF(V2R2)
-pt.print_terms(V2R2, 'V2R2_new.txt')
+op.simplify_for_HF(V2_R2)
+pt.print_terms(V2_R2, 'V2R2_new.txt')
 
 
 # b)
 
-V2R2D = comm([V2], [R2D], 1)
-pt.print_terms(V2R2D, 'V2R2D.txt')
+V2_R2D = comm([V2], [R2D], 1)
+pt.print_terms(V2_R2D, 'V2R2D.txt')
 print('Simplification for HF ref:')
-op.simplify_for_HF(V2R2D)
-pt.print_terms(V2R2D, 'V2R2D_new.txt')
+op.simplify_for_HF(V2_R2D)
+pt.print_terms(V2_R2D, 'V2R2D_new.txt')
 
 
 # Write all the terms to the file in
 # the einsum routine
-list_list_terms = [F1R2, F1R2D, F1R2R2, F1R2R2D, F1R2DR2, F1R2DR2D, V2R2, V2R2D]
+# list_list_terms = [F1_R2_R2D]
+list_list_terms = [F1_R2_R2D, F1_R2D_R2]
+# list_list_terms = [V2_R2]
+# list_list_terms = [F1_R2, F1_R2D, F1_R2_R2, F1_R2_R2D, F1_R2D_R2, F1_R2D_R2D, V2_R2, V2_R2D]
 f.write('\n\n# Allocating shapes and memory!!\n\n')
 op.allocate_memory(list_list_terms, f)
 f.write('\n\n# Einsum expressions!!\n\n')
 op.einsum_expressions(list_list_terms, f)
-
-# Append all this in the einsum notation to
-# the main file final_hamiltonian.py
-# of course after resolving the CABS logic!!!
 f.close()

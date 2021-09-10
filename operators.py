@@ -66,15 +66,28 @@ def simplify_for_HF(list_terms):
         list_terms.pop(index)
     # want to call the compress function here!
     for item in list_terms:
+        print('be4 resolve_gammas_HF:\n')
+        item.print_term()
         item.resolve_gammas_HF()
+        print('after resolve_gammas_HF and be4 compress_AK_HF:\n')
+        item.print_term()
         item.compress_AK_HF()
+        print('after compress AK_HF:\n')
+        item.print_term()
     count = 0
     for item in list_terms:
         flag = item.identify_f12_intermediates()
         if flag:
             count += 1
-        item.resolve_cabs_to_vir()
     print('number of V/B terms: ', count)
+    print('-----------------------------\n')
+    print('-----------------------------\n')
+    print('-----------------------------\n')
+    count = 0
+    for item in list_terms:
+        print('count: ', count)
+        item.resolve_cabs_to_vir()
+        count += 1
     # I need to experiment a bit with EBC and GBC
     # Disabled the gbc_ebc function for now!
     # term_to_remove = []
@@ -84,23 +97,36 @@ def simplify_for_HF(list_terms):
     #         term_to_remove.append(index)
     # for index in sorted(term_to_remove, reverse=True):
     #     list_terms.pop(index)
+    term_to_remove = []
+    for index, items in enumerate(list_terms):
+        removed = items.check_for_2_cabs_index()
+        if removed:
+            print('these terms have 2 cabs indices and hence removed!!!\n')
+            items.print_term()
+            term_to_remove.append(index)
+    for index in sorted(term_to_remove, reverse=True):
+        list_terms.pop(index)
 
 
 def allocate_memory(list_list_terms, file=None):
     if file:
-        Hamiltonian_arr = []
-        sizes_arr = []
-        for list_terms in list_list_terms:
-            for items in list_terms:
-                Hamiltonian_block, sizes = items.allocate_shapes_memory(file)
-                print(Hamiltonian_block)
-                if Hamiltonian_block not in Hamiltonian_arr:
-                    # Hamiltonian_arr.append([Hamiltonian_block, sizes])
-                    Hamiltonian_arr.append(Hamiltonian_block)
-                    sizes_arr.append(sizes)
-                    print('H_arr: ', Hamiltonian_arr)
-        for i, items in enumerate(Hamiltonian_arr):
-            file.write('{} = np.zeros({})\n'.format(Hamiltonian_arr[i], sizes_arr[i]))
+        file.write('H_1body = np.zeros(ngen, ngen)\n')
+        file.write('H_2body = np.zeros(ngen, ngen, ngen, ngen)\n')
+        file.write('slice_o = slice(0, nocc)\n')
+        file.write('slice_v = slice(0, nvir)\n')
+        # Hamiltonian_arr = []
+        # sizes_arr = []
+        # for list_terms in list_list_terms:
+        #     for items in list_terms:
+        #         Hamiltonian_block, sizes = items.allocate_shapes_memory(file)
+        #         print(Hamiltonian_block)
+        #         if Hamiltonian_block not in Hamiltonian_arr:
+        #             # Hamiltonian_arr.append([Hamiltonian_block, sizes])
+        #             Hamiltonian_arr.append(Hamiltonian_block)
+        #             sizes_arr.append(sizes)
+        #             print('H_arr: ', Hamiltonian_arr)
+        # for i, items in enumerate(Hamiltonian_arr):
+        #     file.write('{} = np.zeros({})\n'.format(Hamiltonian_arr[i], sizes_arr[i]))
 
 
 def einsum_expressions(list_list_terms, file=None):
