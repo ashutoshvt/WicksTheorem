@@ -2,7 +2,6 @@ import func_ewt
 import operators as op
 from commutator import comm
 import print_terms as pt
-from class_term import get_parameters
 
 func = func_ewt
 
@@ -20,10 +19,6 @@ R22D = op.initialize_stoperator('R22D', 0.5, [['i1', 'j1'], ['A1', 'B1']])
 
 f = open('final_hamiltonian.py', 'w')
 f.write('import numpy as np\n')
-f.write('import input_parameters as inp\n')
-f.write('\n\n# Getting parameters!\n\n')
-get_parameters(f)
-
 
 # 1.  [F1, R2-R2+] == [F1, R2] - [F1,R2+]
 #                       a)        b)
@@ -109,11 +104,8 @@ pt.print_terms(V2_R2D, 'V2R2D_new.txt')
 # Write all the terms to the file in
 # the einsum routine
 # list_list_terms = [F1_R2_R2D]
-list_list_terms = [F1_R2_R2D, F1_R2D_R2]
+# list_list_terms = [F1_R2_R2D, F1_R2D_R2]
 # list_list_terms = [V2_R2]
-# list_list_terms = [F1_R2, F1_R2D, F1_R2_R2, F1_R2_R2D, F1_R2D_R2, F1_R2D_R2D, V2_R2, V2_R2D]
-f.write('\n\n# Allocating shapes and memory!!\n\n')
-op.allocate_memory(list_list_terms, f)
-f.write('\n\n# Einsum expressions!!\n\n')
+list_list_terms = [F1_R2, F1_R2D, F1_R2_R2, F1_R2_R2D, F1_R2D_R2, F1_R2D_R2D, V2_R2, V2_R2D]
 op.einsum_expressions(list_list_terms, f)
 f.close()

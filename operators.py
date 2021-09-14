@@ -1,6 +1,7 @@
 import func_ewt
 # import operators as op
 func = func_ewt
+from class_term import get_parameters
 
 # Define operator and standard operator classes here!
 
@@ -108,35 +109,25 @@ def simplify_for_HF(list_terms):
         list_terms.pop(index)
 
 
-def allocate_memory(list_list_terms, file=None):
+def allocate_memory(file=None):
     if file:
-        file.write('H_1body = np.zeros(ngen, ngen)\n')
-        file.write('H_2body = np.zeros(ngen, ngen, ngen, ngen)\n')
-        file.write('slice_o = slice(0, nocc)\n')
-        file.write('slice_v = slice(0, nvir)\n')
-        # Hamiltonian_arr = []
-        # sizes_arr = []
-        # for list_terms in list_list_terms:
-        #     for items in list_terms:
-        #         Hamiltonian_block, sizes = items.allocate_shapes_memory(file)
-        #         print(Hamiltonian_block)
-        #         if Hamiltonian_block not in Hamiltonian_arr:
-        #             # Hamiltonian_arr.append([Hamiltonian_block, sizes])
-        #             Hamiltonian_arr.append(Hamiltonian_block)
-        #             sizes_arr.append(sizes)
-        #             print('H_arr: ', Hamiltonian_arr)
-        # for i, items in enumerate(Hamiltonian_arr):
-        #     file.write('{} = np.zeros({})\n'.format(Hamiltonian_arr[i], sizes_arr[i]))
+        #file.write('H_1body = np.zeros((ngen, ngen))\n')
+        #file.write('H_2body = np.zeros((ngen, ngen, ngen, ngen))\n')
+        file.write('    slice_o = slice(0, nocc)\n')
+        file.write('    slice_v = slice(0, nvir)\n')
 
 
 def einsum_expressions(list_list_terms, file=None):
     if file:
+        file.write('\ndef construct_transcorr_H(H_1body, H_2body, info):\n')
+        file.write('\n    # Getting parameters!\n')
+        get_parameters(file)
+        file.write('\n    # slices !!\n')
+        allocate_memory(file)
+        file.write('\n    # Einsum expressions!!\n')
         for list_terms in list_list_terms:
             for items in list_terms:
                 items.convert_into_einsum(file)
-
-
-
 
 
 

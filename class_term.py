@@ -722,24 +722,21 @@ class term(object):
             # print('F_upper: ', F_upper)
             # print('F_lower: ', F_lower)
             index_F_upper_0 = 0
-            index_F_upper_1 = 0
-            index_F_lower_0 = 0
             index_F_lower_1 = 0
             if F_upper in self.coeff_list[0] and F_upper in CABS_inds:
                 F_upper_0 = True
                 index_F_upper_0 = self.coeff_list[0].index(F_upper)
             if F_upper in self.coeff_list[2] and F_upper in CABS_inds:
                 F_upper_1 = True
-                index_F_upper_1 = self.coeff_list[2].index(F_upper)
             if F_lower in self.coeff_list[0] and F_lower in CABS_inds:
                 F_lower_0 = True
-                index_F_lower_0 = self.coeff_list[0].index(F_lower)
             if F_lower in self.coeff_list[2] and F_lower in CABS_inds:
                 F_lower_1 = True
                 index_F_lower_1 = self.coeff_list[2].index(F_lower)
             if (F_upper_0 and F_lower_1) or (F_upper_1 and F_lower_0):
                 # check for a common CABS index in self.coeff[0] and self.coeff[2]
-                intersect = [value for value in self.coeff_list[0] if value in self.coeff_list[2] and value in CABS_inds]
+                intersect = [value for value in self.coeff_list[0] if value in self.coeff_list[2]
+                             and value in CABS_inds]
                 print('intersect: ', intersect)
                 if intersect:
                     # make sure the following pattern order is matched!!
@@ -774,10 +771,6 @@ class term(object):
                     # self.sum_list = []
                     temp_list = [self.coeff_list[0][0], self.coeff_list[0][1],
                                  self.coeff_list[2][2], self.coeff_list[2][3]]
-                    # for items in self.st[0][0].upper:
-                    #     temp_list.append(items)
-                    # for items in self.st[0][0].lower:
-                    #     temp_list.append(items)
                     print('coeff[0]: ', self.coeff_list[0])
                     print('coeff[1]: ', self.coeff_list[1])
                     print('coeff[2]: ', self.coeff_list[2])
@@ -999,7 +992,7 @@ class term(object):
                         j_star = j
                         break
                 if flag:
-                    self.large_op_list[i].name = 'V2_pqrx'
+                    self.large_op_list[i].name = 'V2_gg_gc'
                     temp_0 = new_coeff[i_star][0]
                     temp_1 = new_coeff[i_star][1]
                     temp_2 = new_coeff[i_star][2]
@@ -1024,6 +1017,8 @@ class term(object):
                         new_coeff[i_star][3] = temp_2
                     else:
                         pass
+                else:
+                    self.large_op_list[i].name = 'V2_gg_gg'
         for i, items in enumerate(self.large_op_list):
             if items.name == 'R2':
                 for j in range(4):
@@ -1045,46 +1040,95 @@ class term(object):
         print('new_coeff (R2D, R22, R22D, V2_CABS) after : ', new_coeff)
         oper_list = ''
         # need to modify oper_list for adding slices of Fock matrix!
+        # Also, need to have Fock_CABS_gen (bring everything into this format)
+        # and Fock_CABS_CABS
         Fock_block = 'F1'
-        flag = 0
+        cabs_count = 0
         for i in range(size):
             if self.large_op_list[i].name == 'F1':
                 for indices in new_coeff[i]:
-                    if 'p' <= indices <= 's':
-                        Fock_block += ':, '
-                        flag = 1
-                    elif 'i' <= indices <= 'n':
-                        Fock_block += 'slice_o, '
-                        flag = 1
-                    elif 'a' <= indices <= 'h':
-                        Fock_block += 'slice_v, '
-                        flag = 1
-                    else:
-                        Fock_block += '_x'
-                if flag:
-                    Fock_block = Fock_block[:2] + '[' + Fock_block[2:]
+                    if 'x' <= indices[0] <= 'z':
+                        cabs_count += 1
+                print('cabs_count: ', cabs_count)
+                if not cabs_count:
+                    Fock_block += '_gg'
+                    for indices in new_coeff[i]:
+                        if 'p' <= indices[0] <= 's':
+                            Fock_block += ':, '
+                        elif 'i' <= indices[0] <= 'n':
+                            Fock_block += 'slice_o, '
+                        elif 'a' <= indices[0] <= 'h':
+                            Fock_block += 'slice_v, '
+                        else:
+                            pass
+                    Fock_block = Fock_block[:5] + '[' + Fock_block[5:]
                     Fock_block = Fock_block[0:len(Fock_block)-2]
                     Fock_block += ']'
+                if cabs_count == 1:
+                    # make sure cabs index appears last 
+                    if 'x' <= new_coeff[i][0][0]  <= 'z':
+                        temp = new_coeff[i][1]
+                        new_coeff[i][1] = new_coeff[i][0]
+                        new_coeff[i][0] = temp
+                    Fock_block += '_gc['
+                    # now the slicing : slice_o, slice_v and :,
+                    if 'p' <= new_coeff[i][0][0] <= 's':
+                        Fock_block += ':'
+                    if 'i' <= new_coeff[i][0][0] <= 'n':
+                        Fock_block += 'slice_o'
+                    if 'a' <= new_coeff[i][0][0] <= 'h':
+                        Fock_block += 'slice_v'
+                    Fock_block += ', :]'
+                if cabs_count == 2:
+                    # F_x_x
+                    Fock_block += '_cc'
                 oper_list += Fock_block
+            elif self.large_op_list[i].name == 'A':
+                # make sure V_F12 is in the format V^ij_pq
+                if 'i' <= new_coeff[i][2][0] <= 'n' and 'i' <= new_coeff[i][3][0] <= 'n':
+                    # swap 0,1 withn 2,3
+                    tmp_0 = new_coeff[i][0]
+                    tmp_1 = new_coeff[i][1]
+                    tmp_2 = new_coeff[i][2]
+                    tmp_3 = new_coeff[i][3]
+                    new_coeff[i][0] = tmp_2
+                    new_coeff[i][1] = tmp_3
+                    new_coeff[i][2] = tmp_0
+                    new_coeff[i][3] = tmp_1
+                tmp_str = 'V_F12_oo_gg[:, :, '
+                for j in range(2, 4):
+                    if 'p' <= new_coeff[i][j][0] <= 's':
+                        tmp_str += ':, '
+                    if 'i' <= new_coeff[i][j][0] <= 'n':
+                        tmp_str += 'slice_o, '
+                    if 'a' <= new_coeff[i][j][0] <= 'h':
+                        tmp_str += 'slice_v, '
+                tmp_str = tmp_str[0:len(tmp_str)-2]
+                tmp_str += ']'
+                oper_list += tmp_str
+            elif self.large_op_list[i].name == 'B':
+                oper_list += 'B_F12_oo_oo'
+            elif self.large_op_list[i].name == 'C':
+                oper_list += 'X_F12_oo_oo'
+            elif self.large_op_list[i].name == 'V2_gg_gc':
+                tmp_str = 'V2_gg_gc['
+                for j in range(3):
+                    if 'p' <= new_coeff[i][j][0] <= 's':
+                        tmp_str += ':, '
+                    if 'i' <= new_coeff[i][j][0] <= 'n':
+                        tmp_str += 'slice_o, '
+                    if 'a' <= new_coeff[i][j][0] <= 'h':
+                        tmp_str += 'slice_v, '
+                tmp_str = tmp_str[0:len(tmp_str)-2]
+                tmp_str += ', :]'
+                oper_list += tmp_str
+            elif self.large_op_list[i].name == 'R2':
+                 oper_list += 'R2_oo_vc'
             else:
                 oper_list += self.large_op_list[i].name
             if i != size-1:
                 oper_list += ', '
         print('oper_list: ', oper_list)
-
-        for i, items in enumerate(oper_list):
-            if items == 'F1':
-                for indices in new_coeff[i]:
-                    if 'p' <= indices <= 's':
-                        Fock_block += ':, '
-                    if 'i' <= indices <= 'n':
-                        Fock_block += 'slice_o, '
-                    if 'a' <= indices <= 'h':
-                        Fock_block += 'slice_v, '
-                Fock_block = Fock_block[0:len(Fock_block)-2]
-                Fock_block += ']'
-                oper_list[i] = Fock_block
-
         for i in range(size):
             for j in range(len(new_coeff[i])):
                 new_coeff[i][j] = numpy_map[new_coeff[i][j]]
@@ -1092,7 +1136,7 @@ class term(object):
         for i in range(size):
             for j in range(len(new_coeff[i])):
                 final_string += new_coeff[i][j]
-            if size > 1 and i != size-1:
+            if i != size-1 and size > 1:
                 final_string += ','
         final_string += '->'
         for item in self.st[0][0].upper:
@@ -1102,65 +1146,31 @@ class term(object):
         for items in tmp_list:
             final_string += items
         print('final_string: ', final_string)
-        # need to figure out size = 1 terms as well! TODO
-        if size != 1:
-            f.write('{} += {} * np.einsum(\'{}\', {})\n'.format(Hamiltonian_block, self.fac, final_string, oper_list))
-
-    # def allocate_shapes_memory(self, f):
-    #     sizes = '('
-    #     Hamiltonian_block = 'H'
-    #     for item in self.st[0][0].upper:
-    #         if 'p' <= item[0] <= 's':
-    #             Hamiltonian_block += '_gen'
-    #             sizes += 'ngen, '
-    #         if 'a' <= item[0] <= 'h':
-    #             Hamiltonian_block += '_vir'
-    #             sizes  += 'nvir, '
-    #         if 'i' <= item[0] <= 'n':
-    #             Hamiltonian_block += '_occ'
-    #             sizes += 'nocc, '
-    #     for item in self.st[0][0].lower:
-    #         if 'p' <= item[0] <= 's':
-    #             Hamiltonian_block += '_gen'
-    #             sizes += 'ngen, '
-    #         if 'a' <= item[0] <= 'h':
-    #             Hamiltonian_block += '_vir'
-    #             sizes += 'nvir, '
-    #         if 'i' <= item[0] <= 'n':
-    #             Hamiltonian_block += '_occ'
-    #             sizes += 'nocc, '
-    #     # print('Hamiltonian_block: ', Hamiltonian_block)
-    #     sizes = sizes[0:len(sizes)-2]
-    #     sizes += ')'
-    #     print(sizes)
-    #     # f.write('{} = np.zeros({})\n'.format(Hamiltonian_block, sizes))
-    #     return Hamiltonian_block, sizes
+        f.write('    {} += {} * np.einsum(\'{}\', {})\n'.format(Hamiltonian_block, self.fac, final_string, oper_list))
 
 
 def get_parameters(f):
-    ngen = 'ngen = inp.ngen\n'
+    ngen = '    ngen = info[0]\n'
     f.write(ngen)
-    nvir = 'nvir = inp.nvir\n'
-    f.write(nvir)
-    nocc = 'nocc = inp.nocc\n'
+    nocc = '    nocc = info[1]\n'
     f.write(nocc)
-    V2 = 'V2 = inp.V2\n'
-    f.write(V2)
-    V2_CABS = 'V2_pqrx = inp.V2_pqrx\n'
+    nvir = '    nvir = info[2]\n'
+    f.write(nvir)
+    F1_gg = '    F1_gg = info[3]\n'
+    f.write(F1_gg)
+    F1_g_c = '    F1_gc = info[4]\n'
+    f.write(F1_g_c)
+    F1_c_c = '    F1_cc = info[5]\n'
+    f.write(F1_c_c)
+    V2_gg_gg = '    V2_gg_gg = info[6]\n'
+    f.write(V2_gg_gg)
+    V2_CABS = '    V2_gg_gc = info[7]\n'
     f.write(V2_CABS)
-    R2 = 'R2 = inp.R2\n'
+    R2 = '    R2_oo_vc = info[8]\n'
     f.write(R2)
-    F1 = 'F1 = inp.F1\n'
-    f.write(F1)
-    F1_x_x = 'F1_x_x = inp.F1_x_x\n'
-    f.write(F1_x_x)
-    C = 'C = inp.C\n'
+    A = '    V_F12_oo_gg = info[9]\n'
+    f.write(A)
+    C = '    X_F12_oo_oo = info[10]\n'
     f.write(C)
-
-
-
-
-
-
-
-
+    B = '    B_F12_oo_oo = info[11]\n'
+    f.write(B)
