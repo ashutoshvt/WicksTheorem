@@ -1,7 +1,10 @@
 import numpy as np
 from final_hamiltonian import construct_transcorr_H
+from utils import *
+from helper_scf import *
+from helper_ccenergy import *
 
-def read_from_file(filename):
+def read_from_file(filename, enuc_bool = False):
     prefix = '/Users/akumar1/ayush/f12_intermediates/H2/'
     I_file = open(prefix + filename)
     shapes = I_file.readline().split('\n')
@@ -32,14 +35,17 @@ def read_from_file(filename):
             r = int(tmp[2])
             s = int(tmp[3])
             my_tensor[p][q][r][s] = float(tmp[4])
-    return my_tensor
+    if enuc_bool:
+        return my_tensor, e_nuc
+    else:
+        return my_tensor
 
 # One body operators
 h1_gg = read_from_file('h1_gg.csv')
 h1_gc = read_from_file('h1_gc.csv')
 F1_gg = read_from_file('F1_gg.csv')
 F1_gc = read_from_file('F1_gc.csv')
-F1_cc = read_from_file('F1_cc.csv')
+F1_cc, e_nuc = read_from_file('F1_cc.csv', True)
 
 # Two body operators
 V2_gg_gg = read_from_file('V2_gg_gg.csv')
@@ -59,9 +65,36 @@ ncabs =  R2_oo_vc.shape[3]
 info = [ngen, nocc, nvir, F1_gg, F1_gc, F1_cc, V2_gg_gg, V2_gg_gc, R2_oo_vc, V_F12_oo_gg, X_F12_oo_oo, B_F12_oo_oo]
 
 # Pertubed Hamiltonian using transcorrelated approach
-H_1body = np.zeros((ngen, ngen))
-H_2body = np.zeros((ngen, ngen, ngen, ngen))
-construct_transcorr_H(H_1body, H_2body, info)
+Pert_H_1body = np.zeros((ngen, ngen))
+Pert_H_2body = np.zeros((ngen, ngen, ngen, ngen))
+construct_transcorr_H(Pert_H_1body, Pert_H_2body, info)
 
-print('H_1body: ', H_1body)
-print('H_2body: ', H_2body)
+print('Pert_H_1body: ', Pert_H_1body)
+print('Pertr_H_2body: ', Pert_H_2body)
+
+# Final Hamiltonian
+H_1body =   h1_gg 
+H_1body +=  0.5 * (Pert_H_1body + Pert_H_1body.T)
+H_2body =   V2_gg_gg 
+# 4-fold symmetry for now (could experiment with eight-fold symmetry later!)
+for p in range(ngen):
+    for q in range(ngen):
+        for r in range(ngen):
+            for s in range(ngen):
+                H_2body[p][q][r][s] +=  0.25 * Pert_H_2body[p][q][r][s]
+                H_2body[p][q][r][s] +=  0.25 * Pert_H_2body[q][p][s][r]
+                H_2body[p][q][r][s] +=  0.25 * Pert_H_2body[r][s][p][q]
+                H_2body[p][q][r][s] +=  0.25 * Pert_H_2body[s][r][q][p]
+
+# Need to do SCF and CC with the final Hamiltonian!
+scf = HelperSCF(ngen, nocc, H_1body, H_2body, e_nuc, memory=2)
+scf.compute_energy(e_conv=1e-13)
+SCF_E = scf.SCF_E
+print('\nSCF energy:          {}'.format(SCF_E))
+# No frozen occ for now!
+frozen_occ = 0
+ccsd = HelperCCEnergy(ngen, nocc, frozen_occ, scf.H, scf.MO, scf.F, memory=2)
+ccsd.compute_energy(e_conv=1e-13, r_conv=1e-13)
+CCSDcorr_E = ccsd.ccsd_corr_e
+print('\nCCSD correlation energy:          {}'.format(CCSDcorr_E))
+print('\nTotal energy:          {}'.format(CCSDcorr_E + SCF_E))
