@@ -1,7 +1,7 @@
 import func_ewt
 # import operators as op
-func = func_ewt
 from class_term import get_parameters
+func = func_ewt
 
 # Define operator and standard operator classes here!
 
@@ -77,6 +77,11 @@ def simplify_for_HF(list_terms):
         item.print_term()
     count = 0
     for item in list_terms:
+        print('count: ', count)
+        item.resolve_cabs_to_vir()
+        count += 1
+    print('inside F12 intermediates section!!')
+    for item in list_terms:
         flag = item.identify_f12_intermediates()
         if flag:
             count += 1
@@ -84,11 +89,6 @@ def simplify_for_HF(list_terms):
     print('-----------------------------\n')
     print('-----------------------------\n')
     print('-----------------------------\n')
-    count = 0
-    for item in list_terms:
-        print('count: ', count)
-        item.resolve_cabs_to_vir()
-        count += 1
     # I need to experiment a bit with EBC and GBC
     # Disabled the gbc_ebc function for now!
     # term_to_remove = []
@@ -111,23 +111,24 @@ def simplify_for_HF(list_terms):
 
 def allocate_memory(file=None):
     if file:
-        #file.write('H_1body = np.zeros((ngen, ngen))\n')
-        #file.write('H_2body = np.zeros((ngen, ngen, ngen, ngen))\n')
+        # file.write('H_1body = np.zeros((ngen, ngen))\n')
+        # file.write('H_2body = np.zeros((ngen, ngen, ngen, ngen))\n')
         file.write('    slice_o = slice(0, nocc)\n')
         file.write('    slice_v = slice(0, nvir)\n')
 
 
 def einsum_expressions(list_list_terms, file=None):
     if file:
-        file.write('\ndef construct_transcorr_H(H_1body, H_2body, info):\n')
+        file.write('\n\ndef construct_transcorr_H(H_1body, H_2body, info):\n')
         file.write('\n    # Getting parameters!\n')
         get_parameters(file)
         file.write('\n    # slices !!\n')
         allocate_memory(file)
         file.write('\n    # Einsum expressions!!\n')
         for list_terms in list_list_terms:
-            for items in list_terms:
-                items.convert_into_einsum(file)
+            for items in list_terms[0]:
+                items.convert_into_einsum(file, list_terms[1])
+            file.write('# ----------------------------------------------------\n')
 
 
 

@@ -23,7 +23,7 @@ class term(object):
             for oper in terms:
                 # print op
                 if oper.kind == 'delta':
-                    if 'p' <= oper.upper[0].name[0] <= 's':
+                    if 'p' <= oper.upper[0].name[0] <= 'u':
                         # find name in coeff
                         # self.coeff_list=[[w.replace(op.upper[0].name, op.lower[0].name)
                         # for w in l] for l in self.coeff_list]
@@ -32,7 +32,7 @@ class term(object):
                                 if i == oper.upper[0].name:
                                     c1[n] = oper.lower[0].name
                         self.sum_list.remove(oper.upper[0].name)
-                    elif 'p' <= oper.lower[0].name[0] <= 's':
+                    elif 'p' <= oper.lower[0].name[0] <= 'u':
                         # self.coeff_list=[[w.replace(op.lower[0].name, op.upper[0].name)
                         # for w in l] for l in self.coeff_list]
                         for c1 in self.coeff_list:
@@ -110,7 +110,7 @@ class term(object):
                     cabs_lower = True
                 if cabs_upper and not cabs_lower:
                     print('cabs_upper; not cabs_lower')
-                    if 'p' <= oper.lower[0][0] <= 's':
+                    if 'p' <= oper.lower[0][0] <= 'u':
                         for i, item in enumerate(self.coeff_list):
                             if oper.lower[0] in item:
                                 index = self.coeff_list[i].index(oper.lower[0])
@@ -122,7 +122,7 @@ class term(object):
                     ops_to_remove.append(count)
                 elif cabs_lower and not cabs_upper:
                     print('cabs_lower; not cabs_upper')
-                    if 'p' <= oper.upper[0][0] <= 's':
+                    if 'p' <= oper.upper[0][0] <= 'u':
                         for i, item in enumerate(self.coeff_list):
                             if oper.upper[0] in item:
                                 index = self.coeff_list[i].index(oper.upper[0])
@@ -150,9 +150,9 @@ class term(object):
                     print('not cabs_lower; not cabs_upper')
                     lower_ge = False
                     upper_ge = False
-                    if 'p' <= oper.lower[0][0] <= 's':
+                    if 'p' <= oper.lower[0][0] <= 'u':
                         lower_ge = True
-                    if 'p' <= oper.upper[0][0] <= 's':
+                    if 'p' <= oper.upper[0][0] <= 'u':
                         upper_ge = True
                     for i, item in enumerate(self.coeff_list):
                         if upper_ge:
@@ -549,21 +549,33 @@ class term(object):
         R2 = False
         flag = 0
         i_indx = 0
-        # 0-> V2, 1 -> R2, 2 -> R22 etc!
-        if len(self.large_op_list) == 2:
+        # applicable for [V2,R2-R2D]
+        size = len(self.large_op_list)
+        large_op_list_names = [self.large_op_list[i].name for i in range(size)]
+        print(large_op_list_names)
+        if 'V2' in large_op_list_names and ('R2' or 'R2D' in large_op_list_names):
+            # grab the V2 and R2/R2D indices
+            V2_index = large_op_list_names.index('V2')
+            if 'R2' in large_op_list_names:
+                R2_index = large_op_list_names.index('R2')
+            else:
+                R2_index = large_op_list_names.index('R2D')
+            print('V2_index: ', V2_index)
+            print('R2_index: ', R2_index)
             # print('self.coeff_list', self.coeff_list)
             for i, item in enumerate(CABS_pairs):
-                if CABS_pairs[i][0] in self.coeff_list[0] and CABS_pairs[i][1] in self.coeff_list[0]:
+                if CABS_pairs[i][0] in self.coeff_list[V2_index] and CABS_pairs[i][1] in self.coeff_list[V2_index]:
                     V2 = True
-                    if CABS_pairs[i][0] in self.coeff_list[1] and CABS_pairs[i][1] in self.coeff_list[1]:
+                    if CABS_pairs[i][0] in self.coeff_list[R2_index] and CABS_pairs[i][1] in self.coeff_list[R2_index]:
                         R2 = True
                         i_indx = i
             if V2 and R2:
                 print('looks like V intermediate!')
-                print('V2: ', self.coeff_list[0])
-                print('R2: ', self.coeff_list[1])
+                print('V2: ', self.coeff_list[V2_index])
+                print('R2: ', self.coeff_list[R2_index])
+                print('op: ', self.st[0][0])
                 # I need to re-order the coefficients if B comes before A
-                # in both V2 and R2
+                # in both V2 and R2: 
                 for i, items in enumerate(self.coeff_list):
                     Ai = 'A' + str(i_indx)
                     Bi = 'B' + str(i_indx)
@@ -613,25 +625,28 @@ class term(object):
                 self.sum_list.remove(CABS_pairs[i_indx][0])
                 self.sum_list.remove(CABS_pairs[i_indx][1])
                 flag = 1
-
         # identify the pattern for for intermediate X: (C)
         # X(i0,j0,i1,j1) = R^{AB}_{i0j0} * R^{AB}_{i1j1}
+        # assuming a fixed pattern, need to adapt! TODO!
         if len(self.large_op_list) == 3:
+            index_F = large_op_list_names.index('F1')
+            ops = [i for i in range(3)]
+            ops.pop(index_F)
             R2_1 = False
             R2_2 = False
             # print('self.large_op_list: ', self.large_op_list)
+            print('ops: ', ops)
             for i, item in enumerate(CABS_pairs):
-                if CABS_pairs[i][0] in self.coeff_list[0] and CABS_pairs[i][1] in self.coeff_list[0]:
+                if CABS_pairs[i][0] in self.coeff_list[ops[0]] and CABS_pairs[i][1] in self.coeff_list[ops[0]]:
                     R2_1 = True
-                    if CABS_pairs[i][0] in self.coeff_list[2] and CABS_pairs[i][1] in self.coeff_list[2]:
+                    if CABS_pairs[i][0] in self.coeff_list[ops[1]] and CABS_pairs[i][1] in self.coeff_list[ops[1]]:
                         R2_2 = True
                         i_indx = i
             if R2_1 and R2_2:
-                # print('looks like X intermediate!')
-                print('X0: ', self.coeff_list[0])
-                print('X1: ', self.coeff_list[1])
-                print('X2: ', self.coeff_list[2])
-                print('coeff: ', self.coeff_list)
+                print('looks like X intermediate!')
+                print('coeff[0]: ', self.coeff_list[0])
+                print('coeff[1]: ', self.coeff_list[1])
+                print('coeff[2]: ', self.coeff_list[2])
                 # I need to re-order the coefficients if B comes before A
                 # in both R2 and R22
                 for i, items in enumerate(self.coeff_list):
@@ -654,35 +669,43 @@ class term(object):
                         self.coeff_list[i][3] = self.coeff_list[i][2]
                         self.coeff_list[i][2] = tmp
                 new_coeff = copy.deepcopy(self.coeff_list)
+                print('coeff[0] after swap: ', self.coeff_list[0])
+                print('coeff[1] after swap: ', self.coeff_list[1])
+                print('coeff[2] after swap: ', self.coeff_list[2])
+                print('self.coeff_list: ', self.coeff_list)
                 # re-populate self.coeff_list
                 for i, items in enumerate(self.coeff_list):
                     Ai = 'A' + str(i_indx)
                     Bi = 'B' + str(i_indx)
+                    print('Ai, Bi, items: ', Ai, Bi, items)
                     if Bi in items:
                         index_B = items.index(Bi)
+                        print('index_B: ', index_B)
                         new_coeff[i].pop(index_B)
                     if Ai in items:
                         index_A = items.index(Ai)
+                        print('index_A: ', index_A)
                         new_coeff[i].pop(index_A)
                 X_F12 = op.initialize_stoperator('C', 1.0, [[], []])
                 # remove R2
-                self.large_op_list.pop(0)
+                self.large_op_list.pop(ops[1])
                 # remove R22
-                self.large_op_list.pop(1)
+                self.large_op_list.pop(ops[0])
                 # F, X_F12
                 self.large_op_list.append(X_F12)
 
                 print('test: ', self.large_op_list[0].name[0])
+                print('test: ', self.large_op_list[1].name[0])
 
                 # merge 0 and 2
                 print('new_coeff: ', new_coeff)
                 # remove R2
-                self.coeff_list.pop(0)
+                self.coeff_list.pop(ops[1])
                 # remove R22
-                self.coeff_list.pop(1)
+                self.coeff_list.pop(ops[0])
                 tmp_list = []
                 for i, items in enumerate(new_coeff):
-                    if i == 0 or i == 2:
+                    if i in ops:
                         for items_i in new_coeff[i]:
                             tmp_list.append(items_i)
                 print('tmp_list: ', tmp_list)
@@ -697,24 +720,26 @@ class term(object):
                     self.sum_list.remove(CABS_pairs[i_indx][1])
                 flag = 1
 
-        # identify the B intermediate now!
-        # B(i0,j0,i1,j1) = R^{AB}_{i0j0} * f^{A}_{C} * R^{CB}_{i1j1} (1)
-        #                + R^{AB}_{i0j0} * f^{B}_{C} * R^{AC}_{i1j1} (2)
-        # So, I would need to compare two terms now!
-        # maybe I can do something like this! (1) - D, (2) - E
-        # and then combine D and E later in some other place!
-        # (f.upper in R2/R22 and f.lower in R2/R22) and both R contains
-        # a common CABS index (B or A)
-        # I guess just one term is fine!
-        # B(i0,j0,i1,j1) = R^{AB}_{i0j0} * f^{A}_{C} * R^{CB}_{i1j1}
-        # Just use this pattern only!
-        # make sure you cast the appropriate terms into the above pattern!
-        # TODO: ON IT NOW!
-        # R22/R22D F R2/R2D
-
+        # # identify the B intermediate now!
+        # # B(i0,j0,i1,j1) = R^{AB}_{i0j0} * f^{A}_{C} * R^{CB}_{i1j1} (1)
+        # #                + R^{AB}_{i0j0} * f^{B}_{C} * R^{AC}_{i1j1} (2)
+        # # So, I would need to compare two terms now!
+        # # maybe I can do something like this! (1) - D, (2) - E
+        # # and then combine D and E later in some other place!
+        # # (f.upper in R2/R22 and f.lower in R2/R22) and both R contains
+        # # a common CABS index (B or A)
+        # # I guess just one term is fine!
+        # # B(i0,j0,i1,j1) = R^{AB}_{i0j0} * f^{A}_{C} * R^{CB}_{i1j1}
+        # # Just use this pattern only!
+        # # make sure you cast the appropriate terms into the above pattern!
+        # # I can't assume the following order, so need to change logic! TODO!
+        # # R22/R22D F R2/R2D
+        #
         if len(self.large_op_list) == 3:
-            F_upper = self.coeff_list[1][0]
-            F_lower = self.coeff_list[1][1]
+            print('Trying to identify B intermediate\n')
+            index_F = large_op_list_names.index('F1')
+            F_upper = self.coeff_list[index_F][0]
+            F_lower = self.coeff_list[index_F][1]
             F_upper_0 = False
             F_upper_1 = False
             F_lower_0 = False
@@ -723,22 +748,26 @@ class term(object):
             # print('F_lower: ', F_lower)
             index_F_upper_0 = 0
             index_F_lower_1 = 0
-            if F_upper in self.coeff_list[0] and F_upper in CABS_inds:
+            ops = [i for i in range(3)]
+            ops.pop(index_F)
+            print('ops: ', ops)
+            if F_upper in self.coeff_list[ops[0]] and F_upper in CABS_inds:
                 F_upper_0 = True
-                index_F_upper_0 = self.coeff_list[0].index(F_upper)
-            if F_upper in self.coeff_list[2] and F_upper in CABS_inds:
+                index_F_upper_0 = self.coeff_list[ops[0]].index(F_upper)
+            if F_upper in self.coeff_list[ops[1]] and F_upper in CABS_inds:
                 F_upper_1 = True
-            if F_lower in self.coeff_list[0] and F_lower in CABS_inds:
+            if F_lower in self.coeff_list[ops[0]] and F_lower in CABS_inds:
                 F_lower_0 = True
-            if F_lower in self.coeff_list[2] and F_lower in CABS_inds:
+            if F_lower in self.coeff_list[ops[1]] and F_lower in CABS_inds:
                 F_lower_1 = True
-                index_F_lower_1 = self.coeff_list[2].index(F_lower)
+                index_F_lower_1 = self.coeff_list[ops[1]].index(F_lower)
             if (F_upper_0 and F_lower_1) or (F_upper_1 and F_lower_0):
                 # check for a common CABS index in self.coeff[0] and self.coeff[2]
-                intersect = [value for value in self.coeff_list[0] if value in self.coeff_list[2]
+                intersect = [value for value in self.coeff_list[ops[0]] if value in self.coeff_list[ops[1]]
                              and value in CABS_inds]
                 print('intersect: ', intersect)
                 if intersect:
+                    print('looks like B intermediate!')
                     # make sure the following pattern order is matched!!
                     # B(i0,j0,i1,j1) = R^{i0j0}_{A0B0} * f^{A0}_{C0} * R^{C0B0}_{i1j1}
                     # make sure f.upper and f.lower appears first!
@@ -756,21 +785,21 @@ class term(object):
                     print('self.sum: ', self.sum_list)
                     if index_F_upper_0 != 2:
                         # swap coefficients and operator indices of 0 please!
-                        temp = self.coeff_list[0][0]
-                        self.coeff_list[0][0] = self.coeff_list[0][1]
-                        self.coeff_list[0][1] = temp
+                        temp = self.coeff_list[ops[0]][0]
+                        self.coeff_list[ops[0]][0] = self.coeff_list[ops[0]][1]
+                        self.coeff_list[ops[0]][1] = temp
                         self.st[0][0].upper.reverse()
                     if index_F_lower_1 != 0:
                         # swap coefficients and operator indices of 2 please!
-                        temp = self.coeff_list[2][2]
-                        self.coeff_list[2][2] = self.coeff_list[2][3]
-                        self.coeff_list[2][3] = temp
+                        temp = self.coeff_list[ops[1]][2]
+                        self.coeff_list[ops[1]][2] = self.coeff_list[ops[1]][3]
+                        self.coeff_list[ops[1]][3] = temp
                         self.st[0][0].lower.reverse()
                     # operator == [coeff[0][0], coeff[0][1], coeff[2][0], coeff[2][1]]
                     print('self.st after: ', self.st[0])
                     # self.sum_list = []
-                    temp_list = [self.coeff_list[0][0], self.coeff_list[0][1],
-                                 self.coeff_list[2][2], self.coeff_list[2][3]]
+                    temp_list = [self.coeff_list[ops[0]][0], self.coeff_list[ops[0]][1],
+                                 self.coeff_list[ops[1]][2], self.coeff_list[ops[1]][3]]
                     print('coeff[0]: ', self.coeff_list[0])
                     print('coeff[1]: ', self.coeff_list[1])
                     print('coeff[2]: ', self.coeff_list[2])
@@ -791,10 +820,11 @@ class term(object):
             return flag
 
     def resolve_cabs_to_vir(self):
-        # print('inside resolve cabs\n')
+        print('inside resolve cabs\n')
         cabs_indx = ''
         cabs_vir_map = {'A0': 'x0', 'A1': 'x1', 'B0': 'y0', 'B1': 'y1'}
         tmp_map = {'0': 2, '2': 0}
+        # I can't assume a given order, so need to change logic! TODO!
         if len(self.large_op_list) == 3:
             # if 0 and 2 contains a vir index
             # and a CABS+ index --> change CABS+ to CABS
@@ -851,7 +881,7 @@ class term(object):
             print('coeff[1] after: ', self.coeff_list[1])
             print('coeff[2] after: ', self.coeff_list[2])
         else:
-            # [F1, R2]
+            # [F1, R2], [V2, R2] etc.
             # print('self.large_op_list: ', self.large_op_list)
             # print('coeff[0]: ', self.coeff_list[0])
             # print('coeff[1]: ', self.coeff_list[1])
@@ -911,7 +941,7 @@ class term(object):
             for items in self.coeff_list[1]:
                 if 'a' <= items[0] <= 'h':
                     vir_index = True
-                if 'p' <= items[0] <= 's':
+                if 'p' <= items[0] <= 'u':
                     gen_index = True
                 if 'i' <= items[0] <= 'n':
                     occ_index = True
@@ -922,12 +952,13 @@ class term(object):
                     return flag
         return flag
 
-    def convert_into_einsum(self, f):
+    def convert_into_einsum(self, f, sign):
         numpy_map = {'i0': 'i', 'j0': 'j', 'i1': 'k', 'j1': 'l',
                      'a0': 'a', 'b0': 'b', 'a1': 'c', 'b1': 'd',
                      'A0': 'A', 'B0': 'B', 'A1': 'C', 'B1': 'D',
                      'p0': 'p', 'q0': 'q', 'r0': 'r', 's0': 's',
-                     'x0': 'x', 'y0': 'y', 'x1': 'z', 'y1': 'w'}
+                     'p1': 't', 'q1': 'u', 
+                     'x0': 'x', 'y0': 'y', 'x1': 'w', 'y1': 'z'}
         final_string = ''
         Hamiltonian_block = ''
         if len(self.st[0][0].upper) == 2:
@@ -937,14 +968,14 @@ class term(object):
         # print(self.st[0][0].upper)
         # print(self.st[0][0].lower)
         for item in self.st[0][0].upper:
-            if 'p' <= item[0] <= 's':
+            if 'p' <= item[0] <= 'u':
                 Hamiltonian_block += ':, '
             if 'a' <= item[0] <= 'h':
                 Hamiltonian_block += 'slice_v, '
             if 'i' <= item[0] <= 'n':
                 Hamiltonian_block += 'slice_o, '
         for item in self.st[0][0].lower:
-            if 'p' <= item[0] <= 's':
+            if 'p' <= item[0] <= 'u':
                 Hamiltonian_block += ':, '
             if 'a' <= item[0] <= 'h':
                 Hamiltonian_block += 'slice_v, '
@@ -1019,6 +1050,7 @@ class term(object):
                         pass
                 else:
                     self.large_op_list[i].name = 'V2_gg_gg'
+        print('self.large_op_list: ', self.large_op_list)
         for i, items in enumerate(self.large_op_list):
             if items.name == 'R2':
                 for j in range(4):
@@ -1026,6 +1058,10 @@ class term(object):
                         i_star = i
                         j_star = j
                         break
+                print('i_star: ', i_star)
+                print('j_star: ', j_star)
+                print('new_coeff[i_star]: ', new_coeff[i_star])
+                print('new_coeff: ', new_coeff)
                 temp_0 = new_coeff[i_star][0]
                 temp_1 = new_coeff[i_star][1]
                 temp_2 = new_coeff[i_star][2]
@@ -1042,10 +1078,12 @@ class term(object):
         # need to modify oper_list for adding slices of Fock matrix!
         # Also, need to have Fock_CABS_gen (bring everything into this format)
         # and Fock_CABS_CABS
-        Fock_block = 'F1'
+        Fock_block = ''
         cabs_count = 0
         for i in range(size):
-            if self.large_op_list[i].name == 'F1':
+            Fock_block = ''
+            if self.large_op_list[i].name == 'F1' or self.large_op_list[i].name == 'H1':
+                Fock_block += self.large_op_list[i].name
                 for indices in new_coeff[i]:
                     if 'x' <= indices[0] <= 'z':
                         cabs_count += 1
@@ -1053,7 +1091,7 @@ class term(object):
                 if not cabs_count:
                     Fock_block += '_gg'
                     for indices in new_coeff[i]:
-                        if 'p' <= indices[0] <= 's':
+                        if 'p' <= indices[0] <= 'u':
                             Fock_block += ':, '
                         elif 'i' <= indices[0] <= 'n':
                             Fock_block += 'slice_o, '
@@ -1072,7 +1110,7 @@ class term(object):
                         new_coeff[i][0] = temp
                     Fock_block += '_gc['
                     # now the slicing : slice_o, slice_v and :,
-                    if 'p' <= new_coeff[i][0][0] <= 's':
+                    if 'p' <= new_coeff[i][0][0] <= 'u':
                         Fock_block += ':'
                     if 'i' <= new_coeff[i][0][0] <= 'n':
                         Fock_block += 'slice_o'
@@ -1097,7 +1135,7 @@ class term(object):
                     new_coeff[i][3] = tmp_1
                 tmp_str = 'V_F12_oo_gg[:, :, '
                 for j in range(2, 4):
-                    if 'p' <= new_coeff[i][j][0] <= 's':
+                    if 'p' <= new_coeff[i][j][0] <= 'u':
                         tmp_str += ':, '
                     if 'i' <= new_coeff[i][j][0] <= 'n':
                         tmp_str += 'slice_o, '
@@ -1113,7 +1151,7 @@ class term(object):
             elif self.large_op_list[i].name == 'V2_gg_gc':
                 tmp_str = 'V2_gg_gc['
                 for j in range(3):
-                    if 'p' <= new_coeff[i][j][0] <= 's':
+                    if 'p' <= new_coeff[i][j][0] <= 'u':
                         tmp_str += ':, '
                     if 'i' <= new_coeff[i][j][0] <= 'n':
                         tmp_str += 'slice_o, '
@@ -1146,7 +1184,17 @@ class term(object):
         for items in tmp_list:
             final_string += items
         print('final_string: ', final_string)
-        f.write('    {} += {} * np.einsum(\'{}\', {})\n'.format(Hamiltonian_block, self.fac, final_string, oper_list))
+        prefactor = self.fac * sign
+        if 'B_F12_oo_oo' in oper_list and 'H_1body' in Hamiltonian_block:
+            f.write('    # {} += {} * np.einsum(\'{}\', {})\n'.format(Hamiltonian_block, prefactor, final_string, oper_list))
+        elif 'X_F12_oo_oo' in oper_list and 'H_1body' in Hamiltonian_block:
+            f.write('    # {} += {} * np.einsum(\'{}\', {})\n'.format(Hamiltonian_block, prefactor, final_string, oper_list))
+        elif 'V_F12_oo_gg' in oper_list and 'H_1body' in Hamiltonian_block:
+            f.write('    # {} += {} * np.einsum(\'{}\', {})\n'.format(Hamiltonian_block, prefactor, final_string, oper_list))
+        elif 'V_F12_oo_gg' in oper_list and 'H_2body' in Hamiltonian_block:
+            f.write('    # {} += {} * np.einsum(\'{}\', {})\n'.format(Hamiltonian_block, prefactor, final_string, oper_list))
+        else:
+            f.write('    {} += {} * np.einsum(\'{}\', {})\n'.format(Hamiltonian_block, prefactor, final_string, oper_list))
 
 
 def get_parameters(f):
@@ -1156,21 +1204,25 @@ def get_parameters(f):
     f.write(nocc)
     nvir = '    nvir = info[2]\n'
     f.write(nvir)
-    F1_gg = '    F1_gg = info[3]\n'
+    H1_gg = '    H1_gg = info[3]\n'
+    f.write(H1_gg)
+    H1_gc = '    H1_gc = info[4]\n'
+    f.write(H1_gc)
+    F1_gg = '    F1_gg = info[5]\n'
     f.write(F1_gg)
-    F1_g_c = '    F1_gc = info[4]\n'
+    F1_g_c = '    F1_gc = info[6]\n'
     f.write(F1_g_c)
-    F1_c_c = '    F1_cc = info[5]\n'
+    F1_c_c = '    F1_cc = info[7]\n'
     f.write(F1_c_c)
-    V2_gg_gg = '    V2_gg_gg = info[6]\n'
+    V2_gg_gg = '    V2_gg_gg = info[8]\n'
     f.write(V2_gg_gg)
-    V2_CABS = '    V2_gg_gc = info[7]\n'
+    V2_CABS = '    V2_gg_gc = info[9]\n'
     f.write(V2_CABS)
-    R2 = '    R2_oo_vc = info[8]\n'
+    R2 = '    R2_oo_vc = info[10]\n'
     f.write(R2)
-    A = '    V_F12_oo_gg = info[9]\n'
+    A = '    V_F12_oo_gg = info[11]\n'
     f.write(A)
-    C = '    X_F12_oo_oo = info[10]\n'
+    C = '    X_F12_oo_oo = info[12]\n'
     f.write(C)
-    B = '    B_F12_oo_oo = info[11]\n'
+    B = '    B_F12_oo_oo = info[13]\n'
     f.write(B)

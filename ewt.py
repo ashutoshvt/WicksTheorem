@@ -236,7 +236,6 @@ def ewt(string1_upper, string1_lower, string2_upper, string2_lower, f, fptr, men
                 # print('operator.string')
                 # print(operator.string)
                 y = deque([])
-
                 if operator.kind == 'pa' and operator.dag == '0':
                     for item in a:
                         if operator.pos < item.pos and item.dag == '1' and operator.string != item.string:
@@ -269,9 +268,9 @@ def ewt(string1_upper, string1_lower, string2_upper, string2_lower, f, fptr, men
                     for item in a:
                         if operator.pos < item.pos and item.dag == '1' and operator.string != item.string:
                             y.append(item)
-                    # for item in i: # AK added --> think about it later!
-                    #     if operator.pos<item.pos and item.dag=='0' and operator.string != item.string:
-                    #        y.append(item)
+                    for item in i:  # AK added
+                        if operator.pos < item.pos and item.dag == '1' and operator.string != item.string:
+                            y.append(item)
                 elif operator.kind == 'ge' and operator.dag == '1':
                     for item in i:
                         # print('item')
@@ -290,9 +289,9 @@ def ewt(string1_upper, string1_lower, string2_upper, string2_lower, f, fptr, men
                         # print(operator.string)
                         if operator.pos < item.pos and item.dag == '0' and operator.string != item.string:
                             y.append(item)
-                    # for item in a: # AK added --> think about it later!
-                    #    if operator.pos<item.pos and item.dag=='0' and operator.string!=item.string:
-                    #        y.append(item)
+                    for item in a: # AK added 
+                        if operator.pos<item.pos and item.dag=='0' and operator.string!=item.string:
+                            y.append(item)
                 if operator.kind == 'ge':  # because active states will have eta and gamma
                     for item in u:
                         if operator.pos < item.pos and int(item.dag) != int(operator.dag) \

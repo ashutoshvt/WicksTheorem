@@ -9,6 +9,7 @@ import multi_cont
 import change_terms as ct
 import print_terms as pt
 import special_conditions as cond
+import numpy as np
 # import class_term as class_terms
 # import library.compare_envelope as cpre_env
 # import library.compare_overall as cpre_env2
@@ -32,7 +33,12 @@ def populate_dict(a, b):
 
 def comm(a, b, last):
     on = 1
-    # print 'a: ', a ,'b: ', b
+    print('a: ', a, 'b: ', b)
+    print('a[0].map_org')
+    print(a[0].map_org)
+    print('b[0].map_org')
+    print(b[0].map_org)
+    print('a[0].map_org + b[0].map_org: ', a[0].map_org + b[0].map_org)
     a_st = []
     a_co = []
     for item in a:
@@ -52,10 +58,12 @@ def comm(a, b, last):
     st1 = []
     co2 = []
     co1 = []
+    list_ops_ordered = []
 
     f = open("tec.txt", "w")
     fptr = open("AK.txt", "w")
     print('doing contraction through multi_cont')
+    count = 0
     for t1 in a:
         for t2 in b:
             print('t1.st')
@@ -80,8 +88,8 @@ def comm(a, b, last):
             # print('type(t1.co[0][0])')
             # print(type(t1.co[0][0]))
 
-        # COMMUTATOR CONDITION : removing element where length of input operator strings =
-        # length of output operator string
+            # COMMUTATOR CONDITION : removing element where length of input operator strings =
+            # length of output operator string
             for (term, termco) in zip(stt, cot):
                 # lib.print_op.print_op(term,termco)
                 present_op1 = 0
@@ -113,16 +121,28 @@ def comm(a, b, last):
                         # print('here in fully contracted')
                         stt.remove(term)
                         cot.remove(termco)
-            # print('length of output string', len(stt))
+            print('length of output string', len(stt))
+            for i in range(count, count + len(stt)):
+                list_ops_ordered.append(t1.map_org + t2.map_org)
+            count += len(stt)
             st1.extend(stt)
             co1.extend(cot)
+            # order_ops = [t1.map_org + t2.map_org]
+            # list_ops_ordered.extend(order_ops)
             # print('st1')
             # print(st1)
             # print('co1')
             # print(co1)
+    print('list_ops_ordered: ', list_ops_ordered)
+    print('len(st1): ', len(st1))
+    print('len(list_ops_ordered): ', len(list_ops_ordered))
+    # print('st1: ', st1)
 
+    list_ops_ordered_comm = []
+    count = 0
     # contract b,a and store in list_terms if on is 1 (commutator working)
     if on == 1:
+        print('\n---------- On to the commutator now!-------------\n')
         for t1 in b:
             for t2 in a:
                 print('t1.st')
@@ -164,7 +184,10 @@ def comm(a, b, last):
                             # print 'here in fully contracted'
                             stt.remove(term)
                             cot.remove(termco)
-                # print 'length of output string', len(stt)
+                print('length of output string', len(stt))
+                for i in range(count, count + len(stt)):
+                    list_ops_ordered_comm.append(t1.map_org + t2.map_org)
+                count += len(stt)
                 st2.extend(stt)
                 co2.extend(cot)
         # lib.print_op.print_op(st2,co2)
@@ -172,6 +195,9 @@ def comm(a, b, last):
         # print(st2)
         # print('co2')
         # print(co2)
+        print('list_ops_ordered commutator: ', list_ops_ordered_comm)
+        print('len(list_ops_ordered) commutator: ', len(list_ops_ordered_comm))
+
     elif on != 0:
         print('error in commutator input on switch-------------------')
     
@@ -181,10 +207,7 @@ def comm(a, b, last):
     # if last!=0:
     # fc=last
     # make terms of st and co and list of terms
-    # print('a[0].map_org[0]')
-    # print(a[0].map_org[0])
-    # print('b[0].map_org[0]')
-    # print(b[0].map_org[0])
+
 
 # AK : I am commenting out these terms for now!
 # Let me get the multi_cont function to return things correctly for now!
@@ -193,7 +216,10 @@ def comm(a, b, last):
     dict_inds = populate_dict(a, b)
     print('--------------------------------------------------------')
     print(dict_inds)
-    list_terms = ct.change_terms(st1, co1, last, dict_inds, a[0].map_org + b[0].map_org)
+    print('list_ops_ordered[0]: ', list_ops_ordered[0])
+    print('list_ops_ordered_comm[0]: ', list_ops_ordered_comm[0])
+    # list_terms = ct.change_terms(st1, co1, last, dict_inds, a[0].map_org + b[0].map_org)
+    list_terms = ct.change_terms(st1, co1, last, dict_inds, list_ops_ordered)
     # Problem : how to make lou?
 
     # print('list_terms after change_terms1 function called')
@@ -202,7 +228,8 @@ def comm(a, b, last):
     
     # print len(list_terms)
     if on == 1:
-        terms_tmp = ct.change_terms(st2, co2, last, dict_inds, b[0].map_org + a[0].map_org)
+        # terms_tmp = ct.change_terms(st2, co2, last, dict_inds, b[0].map_org + a[0].map_org)
+        terms_tmp = ct.change_terms(st2, co2, last, dict_inds, list_ops_ordered_comm)
         for item in terms_tmp:
             item.fac = item.fac*-1.0
             item.co[0][0] = item.co[0][0]*-1.0
@@ -212,6 +239,7 @@ def comm(a, b, last):
     for item in list_terms:
         # item.compress() # AK: --> no delta term until now, so this is useless!
         item.build_map_org()
+        print('item.map_org: ', item.map_org)
         # item.cond_cont(item.dict_ind) only for CCSD noy for general case
     # print('after compress')
     # pt.print_terms(list_terms,'latex_terms.txt')
