@@ -240,6 +240,84 @@ def ewt(string1_upper, string1_lower, string2_upper, string2_lower, f, fptr, men
                     for item in a:
                         if operator.pos < item.pos and item.dag == '1' and operator.string != item.string:
                             y.append(item)
+                #elif operator.kind == 'pa' and operator.dag == '1':
+                #    # AK: assuming gamma_ai == 0, will document elsewhere!
+                #    for item in a:
+                #        # print('item.string')
+                #        # print(item.string)
+                #        # print('operator.pos')
+                #        # print(operator.pos)
+                #        # print('item.pos')
+                #        # print(item.pos)
+                #        if operator.pos < item.pos and item.dag == '0' and operator.string != item.string:
+                #            y.append(item)
+                #elif operator.kind == 'ho' and operator.dag == '1':
+                #    for item in i:
+                #        if operator.pos < item.pos and item.dag == '0' and operator.string != item.string:
+                #            y.append(item)
+                elif operator.kind == 'ho' and operator.dag == '0':
+                    for item in i:
+                        if operator.pos < item.pos and item.dag == '1' and operator.string != item.string:
+                            y.append(item)
+                elif operator.kind == 'ac':  # because active states will have eta and gamma
+                    for item in u:
+                        if operator.pos < item.pos and int(item.dag) != int(operator.dag) \
+                                and operator.string != item.string:
+                            y.append(item)
+                elif operator.kind == 'ge' and operator.dag == '0':
+                    for item in a:
+                        if operator.pos < item.pos and item.dag == '1' and operator.string != item.string:
+                            y.append(item)
+                    # remove general indices from i to prevent double counting!
+                    i_pure = []
+                    for item in i:
+                        if item not in a:
+                            i_pure.append(item) 
+                    for item in i_pure:  # AK added
+                        if operator.pos < item.pos and item.dag == '1' and operator.string != item.string:
+                            y.append(item)
+                #elif operator.kind == 'ge' and operator.dag == '1':
+                #    for item in i:
+                #        # print('item')
+                #        # print(item)
+                #        # print('item.pos')
+                #        # print(item.pos)
+                #        # print('operator.pos')
+                #        # print(operator.pos)
+                #        # print('item.dag')
+                #        # print(item.dag)
+                #        # print('item.dag')
+                #        # print(item.dag)
+                #        # print('item.string')
+                #        # print(item.string)
+                #        # print('operator.string')
+                #        # print(operator.string)
+                #        if operator.pos < item.pos and item.dag == '0' and operator.string != item.string:
+                #            y.append(item)
+                #    for item in a: # AK added 
+                #        if operator.pos<item.pos and item.dag=='0' and operator.string!=item.string:
+                #            y.append(item)
+                if operator.kind == 'ge':  # because active states will have eta and gamma
+                    for item in u:
+                        if operator.pos < item.pos and int(item.dag) != int(operator.dag) \
+                                and operator.string != item.string and item.kind != 'ge':
+                            # ge operator already added in i and a case
+                            y.append(item)
+                poss.append(y)  # list of list in dictionary order i.e 1st annihilation
+        '''
+        else:
+            for operator in full:
+                # print('operator.kind')
+                # print(operator.kind)
+                # print('operator.dag')
+                # print(operator.dag)
+                # print('operator.string')
+                # print(operator.string)
+                y = deque([])
+                if operator.kind == 'pa' and operator.dag == '0':
+                    for item in a:
+                        if operator.pos < item.pos and item.dag == '1' and operator.string != item.string:
+                            y.append(item)
                 elif operator.kind == 'pa' and operator.dag == '1':
                     # AK: assuming gamma_ai == 0, will document elsewhere!
                     for item in a:
@@ -301,6 +379,7 @@ def ewt(string1_upper, string1_lower, string2_upper, string2_lower, f, fptr, men
         # if (y): remember that empty strings are also included
                 poss.append(y)  # list of list in dictionary order i.e 1st annihilation
                 # -> possible creation then 2nd ...
+        ''' 
         contracted = []
         tmp_l = []
         tmp_lower = []

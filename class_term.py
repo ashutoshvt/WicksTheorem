@@ -77,13 +77,14 @@ class term(object):
 
     # lets resolve gamma as well (and eta if there!)
     # assuming gammas only involve the non-zero pieces!
+    # only general and occ indices must be there in gamma
     def resolve_gammas_HF(self):
         for i, oper in enumerate(self.st[0]):
             if oper.kind == 'gamma':
                 print('constants')
                 print(self.co[0])
                 self.st[0][i].kind = 'delta'
-                self.co[0][1] *= 2.0
+                self.co[0][1] *= 2.0 # is this required??
                 self.fac *= 2.0
                 print(self.co[0])
 
@@ -91,7 +92,7 @@ class term(object):
     # after this resolve the other deltas as well!
     # after this function, identify the f12 intermediates as the final step!
     def compress_AK_HF(self):
-        print('compress: ', self.st[0])
+        print('compress: ', self.st)
         # print(len(self.st[0]))
         # print(self.co[0])
         ops_to_remove = []
@@ -496,10 +497,12 @@ class term(object):
                         oper.kind = 'delta'
                 if oper.kind == 'op':
                     f_contract = 0
+                    '''
                     # Rule 4
                     if len(oper.upper) >= 3:
                         flag = 1
                         return flag
+                    '''
                     # Rule 3b
                     cabs_list = []
                     for item in oper.upper:
@@ -509,9 +512,7 @@ class term(object):
                         if item in CABS_inds:
                             cabs_list.append(item)
                     for i, item in enumerate(CABS_pairs):
-                        if CABS_pairs[i][0] in cabs_list and CABS_pairs[i][1] in cabs_list:
-                            # cabs_list.remove(CABS_pairs[i][0])
-                            # cabs_list.remove(CABS_pairs[i][1])
+                        if CABS_pairs[i][0] in cabs_list and CABS_pairs[i][1] in cabs_list and len(oper.upper) == 2:
                             flag = 1
                             return flag
                     # Rule 7
@@ -525,17 +526,18 @@ class term(object):
                     # Rule 3a
                     # (replace in self.coeff_list, self.st[op.upper,op.lower] as well!)
                     # A0 --> a0 (need to revisit for excited states!)
-                    for item in cabs_list:
-                        for i in range(len(self.coeff_list)):
-                            if item in self.coeff_list[i]:
-                                index = self.coeff_list[i].index(item)
-                                self.coeff_list[i][index] = self.coeff_list[i][index].lower()
-                        if item in oper.upper:
-                            index = oper.upper.index(item)
-                            oper.upper[index] = oper.upper[index].lower()
-                        if item in oper.lower:
-                            index = oper.lower.index(item)
-                            oper.lower[index] = oper.lower[index].lower()
+                    if len(oper.upper) < 3:
+                        for item in cabs_list:
+                            for i in range(len(self.coeff_list)):
+                                if item in self.coeff_list[i]:
+                                    index = self.coeff_list[i].index(item)
+                                    self.coeff_list[i][index] = self.coeff_list[i][index].lower()
+                            if item in oper.upper:
+                                index = oper.upper.index(item)
+                                oper.upper[index] = oper.upper[index].lower()
+                            if item in oper.lower:
+                                index = oper.lower.index(item)
+                                oper.lower[index] = oper.lower[index].lower()
         # Rule 6
         if f_contract == 1:
             flag = 1
@@ -783,6 +785,7 @@ class term(object):
                     print('index_F_lower_1: ', index_F_lower_1)
                     print('self.st: ', self.st[0])
                     print('self.sum: ', self.sum_list)
+    # only general and occ indices must be there in gamma
                     if index_F_upper_0 != 2:
                         # swap coefficients and operator indices of 0 please!
                         temp = self.coeff_list[ops[0]][0]
@@ -929,6 +932,7 @@ class term(object):
         # generalized BC --> GBC : F^i_alpha = 0
         # extended BC --> EBC: F^a_alpha = 0
         # So, EBC + GBC: F^p_CABS = 0
+        # remember CABS here refers to CABS_pure!
         # EBC: Such condition is only fulfilled if the basis set
         # is saturated for each angular momentum involved in this basis set
         # Not sure if this is true for these tiny basis-sets!
@@ -951,6 +955,26 @@ class term(object):
                     flag = 1
                     return flag
         return flag
+
+
+    def remove_cabs_density_three_body(self):
+        CABS_inds = ['A0', 'B0', 'A1', 'B1', 'A2', 'B2']
+        flag = 0
+        for terms in self.st:
+            for oper in terms:
+                # Rule 1.
+                if oper.kind == 'gamma':
+                    if len(oper.upper) == 1:
+                        if oper.upper[0] in CABS_inds or oper.lower[0] in CABS_inds:
+                            flag = 1
+                            return flag       
+                    if len(oper.upper) == 2:
+                        if oper.upper[0] in CABS_inds or oper.lower[0] in CABS_inds\
+                        or oper.upper[1] in CABS_inds or oper.lower[1] in CABS_inds:
+                            flag = 1
+                            return flag       
+        return flag        
+
 
     def convert_into_einsum(self, f, sign):
         numpy_map = {'i0': 'i', 'j0': 'j', 'i1': 'k', 'j1': 'l',
@@ -1185,6 +1209,7 @@ class term(object):
             final_string += items
         print('final_string: ', final_string)
         prefactor = self.fac * sign
+        '''
         if 'B_F12_oo_oo' in oper_list and 'H_1body' in Hamiltonian_block:
             f.write('    # {} += {} * np.einsum(\'{}\', {})\n'.format(Hamiltonian_block, prefactor, final_string, oper_list))
         elif 'X_F12_oo_oo' in oper_list and 'H_1body' in Hamiltonian_block:
@@ -1195,6 +1220,15 @@ class term(object):
             f.write('    # {} += {} * np.einsum(\'{}\', {})\n'.format(Hamiltonian_block, prefactor, final_string, oper_list))
         else:
             f.write('    {} += {} * np.einsum(\'{}\', {})\n'.format(Hamiltonian_block, prefactor, final_string, oper_list))
+        '''
+        test_terms = ['H1_gc', 'B_F12_oo_oo', 'X_F12_oo_oo', 'V_F12_oo_gg']
+        #if 'X_F12_oo_oo' in oper_list or 'V_F12_oo_gg' in oper_list:
+        #    prefactor *= 2.0
+        if 'B_F12_oo_oo' in oper_list: 
+            prefactor *= 0.5
+        # for elements in test_terms:
+        #    if elements in oper_list:
+        f.write('    {} += {} * np.einsum(\'{}\', {})\n'.format(Hamiltonian_block, prefactor, final_string, oper_list))
 
 
 def get_parameters(f):

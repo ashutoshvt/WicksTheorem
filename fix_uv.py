@@ -78,10 +78,13 @@ def fix_con(op_no, cnt, lim_cnt, t_list, matched, contracted, contracted_l, cont
         for index in range(len(contracted_l)):
             output.append(contracted_l[index])
             output.append(contracted_r[index])
+            ''' # Not sure what does this section of code means
             if contracted_l[index].spin == contracted_r[index].spin:
                 print("\n not multiplied\n")
             else:
                 const_of_expression = const_of_expression*(1.0/2.0)
+                print("\n multiplied\n")
+            '''
             # !!!!!make the spin change of the operators here. Think
             # print 'contracted_l[index], contracted_r[index]'
             # print contracted_l[index], contracted_r[index]
@@ -204,6 +207,13 @@ def fix_con(op_no, cnt, lim_cnt, t_list, matched, contracted, contracted_l, cont
 
                 tmp_3 = ''
                 try_full_con = []
+                if tmp_1.kind != 'ac':
+                    tmp_3 = '\delta_{'+tmp_1.name+tmp_2.name+'}'
+                    try_full_con = func.contractedobj('delta', 1, 1)
+                    try_full_con.upper = [tmp_2.name]  # AK
+                    try_full_con.lower = [tmp_1.name]  # AK
+                    print('tmp_3: ', tmp_3)
+                '''
                 if tmp_1.dag == '1':
                     tmp_3 = r'\Gamma^'+tmp_1.name+'_{'+tmp_2.name+'}'
                     try_full_con = func.contractedobj('gamma', 1, 1)
@@ -219,6 +229,8 @@ def fix_con(op_no, cnt, lim_cnt, t_list, matched, contracted, contracted_l, cont
                     print('tmp_3: ', tmp_3)
                 else:
                     print("!!!!not printing anywhere, if this occurs:there may be a problem")
+                '''
+                
                 new_list.append(tmp_3)
                 new_list1 = copy.deepcopy(new_list)  # AK
 

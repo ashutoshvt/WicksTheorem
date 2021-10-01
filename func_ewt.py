@@ -73,10 +73,11 @@ class contractedobj(object):
         return 1
 
     def __str__(self):
-        quote_upper = (', '.join("'" + str(item) + "'" for item in self.upper))
-        quote_lower = (', '.join("'" + str(item) + "'" for item in self.lower))
-        return str(self.kind)+'^'+'['+str(quote_upper)+']'+'_['+str(quote_lower)+']'
-        # return str.upper(self.kind)+'^'+'['+str(quote_upper)+']'+'_['+str(quote_lower)+']'
+        return str.upper(self.kind) + '^' + str(self.upper) + '_' + str(self.lower)
+        #quote_upper = (', '.join("'" + str(item) + "'" for item in self.upper))
+        #quote_lower = (', '.join("'" + str(item) + "'" for item in self.lower))
+        #return str(self.kind)+'^'+'['+str(quote_upper)+']'+'_['+str(quote_lower)+']'
+        ## return str.upper(self.kind)+'^'+'['+str(quote_upper)+']'+'_['+str(quote_lower)+']'
 
     def printlatex(self):
         return "\\" + str(self.kind)+'^'+str(self.upper)+'_'+str(self.lower)
