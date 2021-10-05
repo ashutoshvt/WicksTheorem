@@ -431,6 +431,8 @@ def ewt(string1_upper, string1_lower, string2_upper, string2_lower, f, fptr, men
         print(a, i, u, full, poss, full_pos)
         contr_obj = []
         const_obj = [] 
+        # force u to be empty: 
+        u = []
         make_c.make_c(len(full), contracted, a, i, u, full, poss, f, fptr, store_for_repeat,
                       full_pos, i_c, menu, contr_obj, const_obj)
         print('contr_obj')

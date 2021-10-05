@@ -28,7 +28,8 @@ def parity(A, B):
     #   >>> relative_parity( ['A','B','C'], ['A','C','B'] )
     #   1
     #   """
-    
+    print('A: ', A) 
+    print('B: ', B) 
     if len(A) != len(B):
         raise ValueError("B is not a permutation of A")
     

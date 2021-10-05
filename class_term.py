@@ -531,6 +531,7 @@ class term(object):
                             for i in range(len(self.coeff_list)):
                                 if item in self.coeff_list[i]:
                                     index = self.coeff_list[i].index(item)
+                                    print('converted CABS+ to vir in operator\n')
                                     self.coeff_list[i][index] = self.coeff_list[i][index].lower()
                             if item in oper.upper:
                                 index = oper.upper.index(item)
@@ -555,7 +556,7 @@ class term(object):
         size = len(self.large_op_list)
         large_op_list_names = [self.large_op_list[i].name for i in range(size)]
         print(large_op_list_names)
-        if 'V2' in large_op_list_names and ('R2' or 'R2D' in large_op_list_names):
+        if 'V2' in large_op_list_names and ('R2' in large_op_list_names or 'R2D' in large_op_list_names):
             # grab the V2 and R2/R2D indices
             V2_index = large_op_list_names.index('V2')
             if 'R2' in large_op_list_names:
@@ -843,7 +844,7 @@ class term(object):
                     if 'a' <= items[0] <= 'h':
                         vir += 1
                     if 'x' <= items[0] <= 'z':
-                        pure_cabs += 1
+                        pure_cabs += 1 # this case will never come as CABS+ hasn't been resolved yet!
                     if 'A' <= items[0] <= 'H':
                         CABS_plus += 1
                         indx = i
@@ -979,7 +980,9 @@ class term(object):
     def convert_into_einsum(self, f, sign):
         numpy_map = {'i0': 'i', 'j0': 'j', 'i1': 'k', 'j1': 'l',
                      'a0': 'a', 'b0': 'b', 'a1': 'c', 'b1': 'd',
+                     'c0': 'e', 'd0': 'f', 
                      'A0': 'A', 'B0': 'B', 'A1': 'C', 'B1': 'D',
+                     'A2': 'E', 'B2': 'F', 
                      'p0': 'p', 'q0': 'q', 'r0': 'r', 's0': 's',
                      'p1': 't', 'q1': 'u', 
                      'x0': 'x', 'y0': 'y', 'x1': 'w', 'y1': 'z'}
@@ -1037,34 +1040,35 @@ class term(object):
         # CABS at the end of R2 and V2_CABS
         flag = 0
         i_star = 0
-        j_star = 0
+        j_star = []
         for i, items in enumerate(self.large_op_list):
             if items.name == 'V2':
+                cabs_ind = 0
                 for j in range(4):
-                    if 'x' <= new_coeff[i][j][0] < 'z':
+                    if 'w' <= new_coeff[i][j][0] < 'z':
                         flag = 1
                         i_star = i
-                        j_star = j
-                        break
-                if flag:
+                        j_star.append(j)
+                        cabs_ind += 1
+                if flag and cabs_ind == 1:
                     self.large_op_list[i].name = 'V2_gg_gc'
                     temp_0 = new_coeff[i_star][0]
                     temp_1 = new_coeff[i_star][1]
                     temp_2 = new_coeff[i_star][2]
                     temp_3 = new_coeff[i_star][3]
-                    if j_star == 0:
+                    if j_star[0] == 0:
                         # make it [[3,2], [1,0]]
                         new_coeff[i_star][0] = temp_3
                         new_coeff[i_star][1] = temp_2
                         new_coeff[i_star][2] = temp_1
                         new_coeff[i_star][3] = temp_0
-                    elif j_star == 1:
+                    elif j_star[0] == 1:
                         # make it [[2,3], [0,1]]
                         new_coeff[i_star][0] = temp_2
                         new_coeff[i_star][1] = temp_3
                         new_coeff[i_star][2] = temp_0
                         new_coeff[i_star][3] = temp_1
-                    elif j_star == 2:
+                    elif j_star[0] == 2:
                         # make it [[1,0], [3,2]]
                         new_coeff[i_star][0] = temp_1
                         new_coeff[i_star][1] = temp_0
@@ -1072,13 +1076,25 @@ class term(object):
                         new_coeff[i_star][3] = temp_2
                     else:
                         pass
+                elif flag and cabs_ind == 2:
+                    self.large_op_list[i].name = 'V2_gg_cc'
+                    if j_star[0] == 0 and j_star[1] == 1:
+                        temp_0 = new_coeff[i_star][0]
+                        temp_1 = new_coeff[i_star][1]
+                        temp_2 = new_coeff[i_star][2]
+                        temp_3 = new_coeff[i_star][3]
+                        # make it [[2,3], [0,1]]
+                        new_coeff[i_star][0] = temp_2
+                        new_coeff[i_star][1] = temp_3
+                        new_coeff[i_star][2] = temp_0
+                        new_coeff[i_star][3] = temp_1
                 else:
                     self.large_op_list[i].name = 'V2_gg_gg'
         print('self.large_op_list: ', self.large_op_list)
         for i, items in enumerate(self.large_op_list):
             if items.name == 'R2':
                 for j in range(4):
-                    if 'x' <= new_coeff[i][j][0] < 'z':
+                    if 'w' <= new_coeff[i][j][0] < 'z':
                         i_star = i
                         j_star = j
                         break
@@ -1100,7 +1116,7 @@ class term(object):
         print('new_coeff (R2D, R22, R22D, V2_CABS) after : ', new_coeff)
         oper_list = ''
         # need to modify oper_list for adding slices of Fock matrix!
-        # Also, need to have Fock_CABS_gen (bring everything into this format)
+        # Also, need to have Fock_gen_CABS (bring everything into this format)
         # and Fock_CABS_CABS
         Fock_block = ''
         cabs_count = 0
@@ -1109,7 +1125,7 @@ class term(object):
             if self.large_op_list[i].name == 'F1' or self.large_op_list[i].name == 'H1':
                 Fock_block += self.large_op_list[i].name
                 for indices in new_coeff[i]:
-                    if 'x' <= indices[0] <= 'z':
+                    if 'w' <= indices[0] <= 'z':
                         cabs_count += 1
                 print('cabs_count: ', cabs_count)
                 if not cabs_count:
@@ -1128,7 +1144,7 @@ class term(object):
                     Fock_block += ']'
                 if cabs_count == 1:
                     # make sure cabs index appears last 
-                    if 'x' <= new_coeff[i][0][0]  <= 'z':
+                    if 'w' <= new_coeff[i][0][0]  <= 'z':
                         temp = new_coeff[i][1]
                         new_coeff[i][1] = new_coeff[i][0]
                         new_coeff[i][0] = temp
@@ -1186,6 +1202,36 @@ class term(object):
                 oper_list += tmp_str
             elif self.large_op_list[i].name == 'R2':
                  oper_list += 'R2_oo_vc'
+            elif self.large_op_list[i].name in ['R1', 'R1D', 'R11', 'R11D']:
+                 oper_list += 'R1'
+                 if self.large_op_list[i].name in ['R1', 'R11']:
+                     temp = new_coeff[i][0]
+                     new_coeff[i][0] = new_coeff[i][1] 
+                     new_coeff[i][1] = temp 
+            elif self.large_op_list[i].name in ['R2_abxy', 'R2D_abxy', 'R22_abxy', 'R22D_abxy']:
+                 oper_list += 'R2_abxy'
+                 if self.large_op_list[i].name in ['R2_abxy', 'R22_abxy']:
+                    # swap 0,1 withn 2,3
+                    tmp_0 = new_coeff[i][0]
+                    tmp_1 = new_coeff[i][1]
+                    tmp_2 = new_coeff[i][2]
+                    tmp_3 = new_coeff[i][3]
+                    new_coeff[i][0] = tmp_2
+                    new_coeff[i][1] = tmp_3
+                    new_coeff[i][2] = tmp_0
+                    new_coeff[i][3] = tmp_1
+            elif self.large_op_list[i].name in ['R2_aixy', 'R2D_aixy', 'R22_aixy', 'R22D_aixy']:
+                 oper_list += 'R2_aixy'
+                 if self.large_op_list[i].name in ['R2_aixy', 'R22_aixy']:
+                    # swap 0,1 withn 2,3
+                    tmp_0 = new_coeff[i][0]
+                    tmp_1 = new_coeff[i][1]
+                    tmp_2 = new_coeff[i][2]
+                    tmp_3 = new_coeff[i][3]
+                    new_coeff[i][0] = tmp_2
+                    new_coeff[i][1] = tmp_3
+                    new_coeff[i][2] = tmp_0
+                    new_coeff[i][3] = tmp_1
             else:
                 oper_list += self.large_op_list[i].name
             if i != size-1:
@@ -1260,3 +1306,5 @@ def get_parameters(f):
     f.write(C)
     B = '    B_F12_oo_oo = info[13]\n'
     f.write(B)
+    R1 = '    R1 = info[14]\n'
+    f.write(R1)
