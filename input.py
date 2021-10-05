@@ -34,7 +34,7 @@ R22_aixy  = op.initialize_stoperator('R22_aixy', 0.5, [['A1', 'B1'], ['a1', 'i1'
 R22D_aixy = op.initialize_stoperator('R22D_aixy', 0.5, [['a1', 'i1'], ['A1', 'B1']])
 
 
-'''
+
 # 1.  [H1, R2-R2+] == [H1, R2] - [H1,R2+]
 #                       a)        b)
 
@@ -160,15 +160,16 @@ pt.print_terms(V2_R2D, 'V2_R2D_3body_simplified.txt')
 # list_list_terms = [(V2_R2, 1.0), (V2_R2D, -1.0)]
 # list_list_terms = [(V2_R2D, -1.0)]
 
-f = open('final_hamiltonian.py', 'w')
-f.write('import numpy as np\n')
-list_list_terms = [(H1_R2, 1.0, 'H1_R2'), (H1_R2D, -1.0, 'H1_R2D'), (F1_R2_R2, 0.5, 'F1_R2_R2'),
-                   (F1_R2_R2D, -0.5, 'F1_R2_R2D'), (F1_R2D_R2, -0.5, 'F1_R2D_R2'),
-                   (F1_R2D_R2D, 0.5, 'F1_R2D_R2D'), (V2_R2, 1.0, 'V2_R2'), (V2_R2D, -1.0, 'V2_R2D')]
-op.einsum_expressions(list_list_terms, f)
-f.close()
-'''
-'''
+#f = open('final_hamiltonian.py', 'w')
+#f = open('test1.py', 'w')
+#f.write('import numpy as np\n')
+#list_list_terms = [(H1_R2, 1.0, 'H1_R2'), (H1_R2D, -1.0, 'H1_R2D'), (F1_R2_R2, 0.5, 'F1_R2_R2'),
+#                   (F1_R2_R2D, -0.5, 'F1_R2_R2D'), (F1_R2D_R2, -0.5, 'F1_R2D_R2'),
+#                   (F1_R2D_R2D, 0.5, 'F1_R2D_R2D'), (V2_R2, 1.0, 'V2_R2'), (V2_R2D, -1.0, 'V2_R2D')]
+#op.einsum_expressions(list_list_terms, f)
+#f.close()
+
+
 # Now, let me look at the extra terms that I need for excited states!
 # 1.  [H1, R1-R1+] == [H1, R1] - [H1,R1+]
 #                       a)        b)
@@ -517,7 +518,11 @@ pt.print_terms(F1_R2D_aixy_R2D_aixy, 'F1R2DaixyR2Daixy_new.txt')
 f = open('test.py', 'w')
 f.write('import numpy as np\n')
 
-list_list_terms = [(H1_R1, 1.0, 'H1_R1'), (H1_R1D, -1.0, 'H1_R1D'),
+list_list_terms = [(H1_R2, 1.0, 'H1_R2'), (H1_R2D, -1.0, 'H1_R2D'), 
+                   (F1_R2_R2, 0.5, 'F1_R2_R2'), (F1_R2_R2D, -0.5, 'F1_R2_R2D'), 
+                   (F1_R2D_R2, -0.5, 'F1_R2D_R2'), (F1_R2D_R2D, 0.5, 'F1_R2D_R2D'), 
+                   (V2_R2, 1.0, 'V2_R2'), (V2_R2D, -1.0, 'V2_R2D'),
+                   (H1_R1, 1.0, 'H1_R1'), (H1_R1D, -1.0, 'H1_R1D'),
                    (V2_R1, 1.0, 'V2_R1'), (V2_R1D, -1.0, 'V2_R1D'), 
                    (F1_R1_R1, 0.5, 'F1_R1_R1'), (F1_R1_R1D, -0.5, 'F1_R1_R1D'), 
                    (F1_R1D_R1, -0.5, 'F1_R1D_R1'), (F1_R1D_R1D, 0.5, 'F1_R1D_R1D'),
@@ -538,4 +543,3 @@ list_list_terms = [(H1_R1, 1.0, 'H1_R1'), (H1_R1D, -1.0, 'H1_R1D'),
 # list_list_terms = [(V2_R1, 1.0, 'V2_R1')]
 op.einsum_expressions(list_list_terms, f)
 f.close()
-'''
