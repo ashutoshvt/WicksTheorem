@@ -904,18 +904,18 @@ class term(object):
                     CABS_plus += 1
                     indx = i
                     cabs_indx = items
-                if vir == 1 and CABS_plus == 1:
-                    self.coeff_list[i_star][indx] = cabs_vir_map[cabs_indx]
-                    if i_star == 0:
-                        j_star = 1
-                    else:
-                        j_star = 0
-                    if cabs_indx in self.coeff_list[j_star]:
-                        ind = self.coeff_list[j_star].index(cabs_indx)
-                        self.coeff_list[j_star][ind] = cabs_vir_map[cabs_indx]
-                    if cabs_indx in self.sum_list:
-                        ind = self.sum_list.index(cabs_indx)
-                        self.sum_list[ind] = cabs_vir_map[cabs_indx]
+            if vir == 1 and CABS_plus == 1:
+                self.coeff_list[i_star][indx] = cabs_vir_map[cabs_indx]
+                if i_star == 0:
+                    j_star = 1
+                else:
+                    j_star = 0
+                if cabs_indx in self.coeff_list[j_star]:
+                    ind = self.coeff_list[j_star].index(cabs_indx)
+                    self.coeff_list[j_star][ind] = cabs_vir_map[cabs_indx]
+                if cabs_indx in self.sum_list:
+                    ind = self.sum_list.index(cabs_indx)
+                    self.sum_list[ind] = cabs_vir_map[cabs_indx]
             # print('coeff[0] after: ', self.coeff_list[0])
             # print('coeff[1] after: ', self.coeff_list[1])
 
@@ -1308,3 +1308,9 @@ def get_parameters(f):
     f.write(B)
     R1 = '    R1 = info[14]\n'
     f.write(R1)
+    R2_abxy = '    R2_abxy = info[15]\n'
+    f.write(R2_abxy)
+    R2_aixy = '    R2_aixy = info[16]\n'
+    f.write(R2_aixy)
+    V2_gg_cc = '    V2_gg_cc = info[17]\n'
+    f.write(V2_gg_cc)

@@ -28,10 +28,10 @@ R2D_abxy  = op.initialize_stoperator('R2D_abxy', 0.5, [['c0', 'd0'], ['A0', 'B0'
 R22_abxy  = op.initialize_stoperator('R22_abxy', 0.5, [['A1', 'B1'], ['c1', 'd1']])
 R22D_abxy = op.initialize_stoperator('R22D_abxy', 0.5, [['c1', 'd1'], ['A1', 'B1']])
 # ------- would need iaxy as well, so maybe I should scale this term by 2.0 later!
-R2_aixy   = op.initialize_stoperator('R2_aixy', 0.5, [['A0', 'B0'], ['a0', 'i0']])
-R2D_aixy  = op.initialize_stoperator('R2D_aixy', 0.5, [['a0', 'i0'], ['A0', 'B0']])
-R22_aixy  = op.initialize_stoperator('R22_aixy', 0.5, [['A1', 'B1'], ['a1', 'i1']])
-R22D_aixy = op.initialize_stoperator('R22D_aixy', 0.5, [['a1', 'i1'], ['A1', 'B1']])
+R2_aixy   = op.initialize_stoperator('R2_aixy', 0.5, [['A0', 'B0'], ['c0', 'i0']])
+R2D_aixy  = op.initialize_stoperator('R2D_aixy', 0.5, [['c0', 'i0'], ['A0', 'B0']])
+R22_aixy  = op.initialize_stoperator('R22_aixy', 0.5, [['A1', 'B1'], ['c1', 'i1']])
+R22D_aixy = op.initialize_stoperator('R22D_aixy', 0.5, [['c1', 'i1'], ['A1', 'B1']])
 
 
 
@@ -440,6 +440,7 @@ V2_R2D_aixy = comm([V2], [R2D_aixy], 1)
 pt.print_terms(V2_R2D_aixy, 'V2R2Daixy.txt')
 print('Simplification for HF ref:')
 op.simplify_for_HF(V2_R2D_aixy)
+pt.print_terms(V2_R2D_aixy, 'test.txt')
 V2_R2D_aixy = op.three_body_decompose(V2_R2D_aixy)
 pt.print_terms(V2_R2D_aixy, 'V2R2Daixy_3body.txt')
 V2_R2D_aixy = op.simplify_three_body_HF(V2_R2D_aixy)
@@ -539,7 +540,7 @@ list_list_terms = [(H1_R2, 1.0, 'H1_R2'), (H1_R2D, -1.0, 'H1_R2D'),
                    (F1_R2D_aixy_R2_aixy, -0.5, 'F1_R2D_aixy_R2_aixy'), 
                    (F1_R2D_aixy_R2D_aixy, 0.5, 'F1_R2D_aixy_R2D_aixy')]
 
-# list_list_terms = [(H1_R2D_abxy, 1.0, 'H1_R2D_abxy')]
+# list_list_terms = [(V2_R2D_aixy, -1.0, 'V2_R2D_aixy')]
 # list_list_terms = [(V2_R1, 1.0, 'V2_R1')]
 op.einsum_expressions(list_list_terms, f)
 f.close()

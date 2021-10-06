@@ -63,7 +63,7 @@ def simplify_for_HF(list_terms):
     term_to_remove = []
     for index, items in enumerate(list_terms):
         # in vacuum case: only checks for the operator if it contains CABS+ index
-        # also, removes 2 operators containing [A0,B0], [A1,B1] etc. 
+        # also, removes 2 body operators containing [A0,B0], [A1,B1] etc. 
         removed = items.simplify_for_HF_ref()
         if removed:
             print('removed!')

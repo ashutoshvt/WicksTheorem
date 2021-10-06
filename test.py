@@ -19,6 +19,9 @@ def construct_transcorr_H(H_1body, H_2body, info):
     X_F12_oo_oo = info[12]
     B_F12_oo_oo = info[13]
     R1 = info[14]
+    R2_abxy = info[15]
+    R2_aixy = info[16]
+    V2_gg_cc = info[17]
 
     # slices !!
     slice_o = slice(0, nocc)
@@ -714,59 +717,11 @@ def construct_transcorr_H(H_1body, H_2body, info):
     #  H1_R2_aixy  
     #  H1_R2D_aixy  
     #  V2_R2_aixy  
-    H_2body[:, :, slice_o, slice_v] += 0.25 * np.einsum('pqyx,aixy->pqia', V2_gg_cc, R2_aixy)
-    H_2body[:, :, slice_v, slice_o] += 0.25 * np.einsum('pqxy,aixy->pqai', V2_gg_cc, R2_aixy)
+    H_2body[:, :, slice_o, slice_v] += 0.25 * np.einsum('pqyx,eixy->pqie', V2_gg_cc, R2_aixy)
+    H_2body[:, :, slice_v, slice_o] += 0.25 * np.einsum('pqxy,eixy->pqei', V2_gg_cc, R2_aixy)
     #  V2_R2D_aixy  
-    H_2body[slice_v, :, slice_v, :] += 0.25 * np.einsum('aixy,siqy->aqas', R2_aixy, V2_gg_gc[:, slice_o, :, :])
-    H_1body[slice_v, slice_v] += -0.25 * np.einsum('aixy,sisy->aa', R2_aixy, V2_gg_gc[:, slice_o, :, :])
-    H_1body[:, slice_v] += 0.125 * np.einsum('aixy,aiqy->qa', R2_aixy, V2_gg_gc[slice_v, slice_o, :, :])
-    H_2body[slice_v, slice_o, slice_v, :] += 0.25 * np.einsum('aixy,srsy->aiar', R2_aixy, V2_gg_gc[:, :, :, :])
-    H_1body[slice_v, slice_v] += -0.25 * np.einsum('aixy,sisy->aa', R2_aixy, V2_gg_gc[:, slice_o, :, :])
-    H_1body[slice_o, slice_v] += 0.125 * np.einsum('aixy,sasy->ia', R2_aixy, V2_gg_gc[:, slice_v, :, :])
-    H_1body[slice_v, slice_v] += 0.25 * np.einsum('aixy,sisy->aa', R2_aixy, V2_gg_gc[:, slice_o, :, :])
-    H_1body[slice_v, slice_v] += -0.125 * np.einsum('aixy,irry->aa', R2_aixy, V2_gg_gc[slice_o, :, :, :])
-    H_2body[slice_o, :, slice_v, :] += -0.125 * np.einsum('aixy,saqy->iqas', R2_aixy, V2_gg_gc[:, slice_v, :, :])
-    H_1body[slice_o, slice_v] += 0.125 * np.einsum('aixy,sasy->ia', R2_aixy, V2_gg_gc[:, slice_v, :, :])
-    H_1body[:, slice_v] += -0.0625 * np.einsum('aixy,iaqy->qa', R2_aixy, V2_gg_gc[slice_o, slice_v, :, :])
-    H_2body[slice_o, :, slice_v, :] += -0.125 * np.einsum('aixy,arqy->iqar', R2_aixy, V2_gg_gc[slice_v, :, :, :])
-    H_1body[slice_o, slice_v] += 0.125 * np.einsum('aixy,arry->ia', R2_aixy, V2_gg_gc[slice_v, :, :, :])
-    H_1body[:, slice_v] += -0.0625 * np.einsum('aixy,aiqy->qa', R2_aixy, V2_gg_gc[slice_v, slice_o, :, :])
-    H_2body[slice_v, :, slice_v, :] += -0.125 * np.einsum('aixy,irqy->aqar', R2_aixy, V2_gg_gc[slice_o, :, :, :])
-    H_1body[slice_v, slice_v] += 0.125 * np.einsum('aixy,irry->aa', R2_aixy, V2_gg_gc[slice_o, :, :, :])
-    H_1body[:, slice_v] += -0.0625 * np.einsum('aixy,iaqy->qa', R2_aixy, V2_gg_gc[slice_o, slice_v, :, :])
-    H_2body[slice_v, slice_o, slice_v, :] += -0.125 * np.einsum('aixy,srry->aias', R2_aixy, V2_gg_gc[:, :, :, :])
-    H_1body[slice_v, slice_v] += 0.125 * np.einsum('aixy,irry->aa', R2_aixy, V2_gg_gc[slice_o, :, :, :])
-    H_1body[slice_o, slice_v] += -0.0625 * np.einsum('aixy,arry->ia', R2_aixy, V2_gg_gc[slice_v, :, :, :])
-    H_1body[slice_o, slice_v] += -0.125 * np.einsum('aixy,sasy->ia', R2_aixy, V2_gg_gc[:, slice_v, :, :])
-    H_1body[slice_o, slice_v] += 0.0625 * np.einsum('aixy,arry->ia', R2_aixy, V2_gg_gc[slice_v, :, :, :])
-    H_1body[:, slice_v] += -0.125 * np.einsum('aixy,iaqy->qa', R2_aixy, V2_gg_gc[slice_o, slice_v, :, :])
-    H_1body[:, slice_v] += 0.0625 * np.einsum('aixy,aiqy->qa', R2_aixy, V2_gg_gc[slice_v, slice_o, :, :])
-    H_2body[slice_v, :, slice_v, :] += 0.25 * np.einsum('aixy,ripy->apar', R2_aixy, V2_gg_gc[:, slice_o, :, :])
-    H_1body[slice_v, slice_v] += -0.25 * np.einsum('aixy,riry->aa', R2_aixy, V2_gg_gc[:, slice_o, :, :])
-    H_1body[:, slice_v] += 0.125 * np.einsum('aixy,aipy->pa', R2_aixy, V2_gg_gc[slice_v, slice_o, :, :])
-    H_2body[slice_v, slice_o, slice_v, :] += 0.25 * np.einsum('aixy,rsry->aias', R2_aixy, V2_gg_gc[:, :, :, :])
-    H_1body[slice_v, slice_v] += -0.25 * np.einsum('aixy,riry->aa', R2_aixy, V2_gg_gc[:, slice_o, :, :])
-    H_1body[slice_o, slice_v] += 0.125 * np.einsum('aixy,rary->ia', R2_aixy, V2_gg_gc[:, slice_v, :, :])
-    H_1body[slice_v, slice_v] += 0.25 * np.einsum('aixy,riry->aa', R2_aixy, V2_gg_gc[:, slice_o, :, :])
-    H_1body[slice_v, slice_v] += -0.125 * np.einsum('aixy,issy->aa', R2_aixy, V2_gg_gc[slice_o, :, :, :])
-    H_2body[slice_o, :, slice_v, :] += -0.125 * np.einsum('aixy,rapy->ipar', R2_aixy, V2_gg_gc[:, slice_v, :, :])
-    H_1body[slice_o, slice_v] += 0.125 * np.einsum('aixy,rary->ia', R2_aixy, V2_gg_gc[:, slice_v, :, :])
-    H_1body[:, slice_v] += -0.0625 * np.einsum('aixy,iapy->pa', R2_aixy, V2_gg_gc[slice_o, slice_v, :, :])
-    H_2body[slice_o, :, slice_v, :] += -0.125 * np.einsum('aixy,aspy->ipas', R2_aixy, V2_gg_gc[slice_v, :, :, :])
-    H_1body[slice_o, slice_v] += 0.125 * np.einsum('aixy,assy->ia', R2_aixy, V2_gg_gc[slice_v, :, :, :])
-    H_1body[:, slice_v] += -0.0625 * np.einsum('aixy,aipy->pa', R2_aixy, V2_gg_gc[slice_v, slice_o, :, :])
-    H_2body[slice_v, :, slice_v, :] += -0.125 * np.einsum('aixy,ispy->apas', R2_aixy, V2_gg_gc[slice_o, :, :, :])
-    H_1body[slice_v, slice_v] += 0.125 * np.einsum('aixy,issy->aa', R2_aixy, V2_gg_gc[slice_o, :, :, :])
-    H_1body[:, slice_v] += -0.0625 * np.einsum('aixy,iapy->pa', R2_aixy, V2_gg_gc[slice_o, slice_v, :, :])
-    H_2body[slice_v, slice_o, slice_v, :] += -0.125 * np.einsum('aixy,rssy->aiar', R2_aixy, V2_gg_gc[:, :, :, :])
-    H_1body[slice_v, slice_v] += 0.125 * np.einsum('aixy,issy->aa', R2_aixy, V2_gg_gc[slice_o, :, :, :])
-    H_1body[slice_o, slice_v] += -0.0625 * np.einsum('aixy,assy->ia', R2_aixy, V2_gg_gc[slice_v, :, :, :])
-    H_1body[slice_o, slice_v] += -0.125 * np.einsum('aixy,rary->ia', R2_aixy, V2_gg_gc[:, slice_v, :, :])
-    H_1body[slice_o, slice_v] += 0.0625 * np.einsum('aixy,assy->ia', R2_aixy, V2_gg_gc[slice_v, :, :, :])
-    H_1body[:, slice_v] += -0.125 * np.einsum('aixy,iapy->pa', R2_aixy, V2_gg_gc[slice_o, slice_v, :, :])
-    H_1body[:, slice_v] += 0.0625 * np.einsum('aixy,aipy->pa', R2_aixy, V2_gg_gc[slice_v, slice_o, :, :])
-    H_2body[slice_v, slice_o, :, :] += 0.25 * np.einsum('aixy,rsyx->aisr', R2_aixy, V2_gg_cc)
-    H_2body[slice_v, slice_o, :, :] += 0.25 * np.einsum('aixy,rsxy->airs', R2_aixy, V2_gg_cc)
+    H_2body[slice_v, slice_o, :, :] += 0.25 * np.einsum('eixy,rsyx->eisr', R2_aixy, V2_gg_cc)
+    H_2body[slice_v, slice_o, :, :] += 0.25 * np.einsum('eixy,rsxy->eirs', R2_aixy, V2_gg_cc)
     #  F1_R2_aixy_R2_aixy  
     #  F1_R2_aixy_R2D_aixy  
     #  F1_R2D_aixy_R2_aixy  

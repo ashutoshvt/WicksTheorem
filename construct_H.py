@@ -1,14 +1,15 @@
 import numpy as np
-from final_hamiltonian import construct_transcorr_H
+# from final_hamiltonian import construct_transcorr_H
+from test import construct_transcorr_H
 from utils import *
 from helper_scf import *
 from helper_ccenergy import *
 
 
 def read_from_file(filename, enuc_bool=False):
-    # prefix = '/Users/akumar1/ayush/f12_intermediates/H2/'
+    prefix = '/Users/akumar1/ayush/f12_intermediates/H2/'
     # prefix = '/Users/akumar1/ayush/f12_intermediates/LiH/'
-    prefix = '/Users/akumar1/ayush/f12_intermediates/BH/'
+    # prefix = '/Users/akumar1/ayush/f12_intermediates/BH/'
     I_file = open(prefix + filename)
     shapes = I_file.readline().split('\n')
     shapes = shapes[:-1][0].split(',')
@@ -64,8 +65,26 @@ nocc  = R2_oo_vc.shape[0]
 nvir  = R2_oo_vc.shape[2]
 ncabs = R2_oo_vc.shape[3]
 
+# construct R1^p_x
+# R1^i_x = F1^i_x/(F1_ii - F1_xx)
+# R1^a_x = F1^a_x/(F1_aa - F1_xx)
+R1_px = np.zeros((ngen, ncabs))
+for p in range(nocc):
+    for x in range(ncabs):
+        R1_px[p][x] = F1_gc[p][x]/(F1_gg[p][p] - F1_cc[x][x]) 
+for p in range(nocc, ngen):
+    for x in range(ncabs):
+        R1_px[p][x] = F1_gc[p][x]/(F1_gg[p][p] - F1_cc[x][x]) 
+# print('R1_px: ', R1_px)
+print('ncabs: ', ncabs)
+
+R2_abxy = np.zeros((nvir, nvir, ncabs, ncabs))
+R2_aixy = np.zeros((nvir, nocc, ncabs, ncabs))
+V2_gg_cc = np.zeros((ngen, ngen, ncabs, ncabs))
+
 # put all the info needed in a list
-info = [ngen, nocc, nvir, H1_gg, H1_gc, F1_gg, F1_gc, F1_cc, V2_gg_gg, V2_gg_gc, R2_oo_vc, V_F12_oo_gg, X_F12_oo_oo, B_F12_oo_oo]
+info = [ngen, nocc, nvir, H1_gg, H1_gc, F1_gg, F1_gc, F1_cc, V2_gg_gg, V2_gg_gc, R2_oo_vc, 
+        V_F12_oo_gg, X_F12_oo_oo, B_F12_oo_oo, R1_px, R2_abxy, R2_aixy, V2_gg_cc]
 
 # Pertubed Hamiltonian using transcorrelated approach
 Pert_H_1body = np.zeros((ngen, ngen))
@@ -91,6 +110,7 @@ for p in range(ngen):
                 H_2body[p][q][r][s] += 2.0 * 0.25 * Pert_H_2body[r][s][p][q]
                 H_2body[p][q][r][s] += 2.0 * 0.25 * Pert_H_2body[s][r][q][p]
 
+'''
 # Need to do SCF and CC with the final Hamiltonian!
 scf = HelperSCF(ngen, nocc, H_1body, H_2body, e_nuc, memory=2)
 scf.compute_energy(e_conv=1e-13)
@@ -105,3 +125,4 @@ ccsd.compute_energy(e_conv=1e-13, r_conv=1e-13)
 CCSDcorr_E = ccsd.ccsd_corr_e
 print('\nCCSD correlation energy:          {}'.format(CCSDcorr_E))
 print('\nTotal energy:          {}'.format(CCSDcorr_E + SCF_E))
+'''
