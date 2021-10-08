@@ -333,6 +333,7 @@ def resolve_gammas(term):
                         index = term.sum_list.index(item)
                         term.sum_list[index] = oper.lower[0]
                 term.sum_list = list(set(term.sum_list))
+            term.fac *= 2
             # print('final sum: ', term.sum_list) 
     st_i.reverse()
     for items in st_i:
@@ -405,7 +406,7 @@ def simplify_three_body_HF(list_terms):
             term_to_remove.append(index)
     for index in sorted(term_to_remove, reverse=True):
         list_terms.pop(index)
-    pt.print_terms(list_terms, 'new_list_simplified_1.txt')
+    pt.print_terms(list_terms, 'outputs/new_list_simplified_1.txt')
     # 2. resolve 2 body densities into 1 body densities!
     new_list = []
     for index, items in enumerate(list_terms):
@@ -424,7 +425,7 @@ def simplify_three_body_HF(list_terms):
     print('term_to_remove: ', term_to_remove)
     for index in sorted(term_to_remove, reverse=True):
         new_list.pop(index)
-    pt.print_terms(new_list, 'new_list_simplified_2.txt')
+    pt.print_terms(new_list, 'outputs/new_list_simplified_2.txt')
     # resolve CABS+ to either CABS_pure or vir
     for items in new_list:
         items.resolve_cabs_to_vir()

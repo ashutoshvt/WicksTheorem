@@ -54,10 +54,18 @@ F1_cc, e_nuc = read_from_file('F1_cc.csv', True)
 # Two body operators
 V2_gg_gg = read_from_file('V2_gg_gg.csv')
 V2_gg_gc = read_from_file('V2_gg_gc.csv')
-R2_oo_vc = read_from_file('R2_oo_vc.csv')
+# R2_oo_vc = read_from_file('R2_oo_vc.csv')
+R2_oo_vc = read_from_file('R2_oo_vc1.csv')
+# R2_oo_vc *= 2.0
 V_F12_oo_gg = read_from_file('V_F12_oo_gg.csv')
 X_F12_oo_oo = read_from_file('X_F12_oo_oo.csv')
 B_F12_oo_oo = read_from_file('B_F12_oo_oo.csv')
+# needed for excited states!
+R2_vv_cc = read_from_file('R2_vv_cc1.csv')
+# R2_vv_cc *= 2.0
+R2_vo_cc = read_from_file('R2_vo_cc1.csv')
+# R2_vo_cc *= 2.0
+V2_gg_cc = read_from_file('V2_gg_cc.csv')
 
 # dimensions
 ngen  = H1_gg.shape[0]
@@ -78,13 +86,13 @@ for p in range(nocc, ngen):
 # print('R1_px: ', R1_px)
 print('ncabs: ', ncabs)
 
-R2_abxy = np.zeros((nvir, nvir, ncabs, ncabs))
-R2_aixy = np.zeros((nvir, nocc, ncabs, ncabs))
-V2_gg_cc = np.zeros((ngen, ngen, ncabs, ncabs))
+# R2_abxy = np.zeros((nvir, nvir, ncabs, ncabs))
+# R2_aixy = np.zeros((nvir, nocc, ncabs, ncabs))
+# V2_gg_cc = np.zeros((ngen, ngen, ncabs, ncabs))
 
 # put all the info needed in a list
 info = [ngen, nocc, nvir, H1_gg, H1_gc, F1_gg, F1_gc, F1_cc, V2_gg_gg, V2_gg_gc, R2_oo_vc, 
-        V_F12_oo_gg, X_F12_oo_oo, B_F12_oo_oo, R1_px, R2_abxy, R2_aixy, V2_gg_cc]
+        V_F12_oo_gg, X_F12_oo_oo, B_F12_oo_oo, R1_px, R2_vv_cc, R2_vo_cc, V2_gg_cc]
 
 # Pertubed Hamiltonian using transcorrelated approach
 Pert_H_1body = np.zeros((ngen, ngen))
@@ -105,12 +113,11 @@ for p in range(ngen):
     for q in range(ngen):
         for r in range(ngen):
             for s in range(ngen):
-                H_2body[p][q][r][s] += 2.0 * 0.25 * Pert_H_2body[p][q][r][s]
-                H_2body[p][q][r][s] += 2.0 * 0.25 * Pert_H_2body[q][p][s][r]
-                H_2body[p][q][r][s] += 2.0 * 0.25 * Pert_H_2body[r][s][p][q]
-                H_2body[p][q][r][s] += 2.0 * 0.25 * Pert_H_2body[s][r][q][p]
+                H_2body[p][q][r][s] +=  2.0 * 0.25 * Pert_H_2body[p][q][r][s]
+                H_2body[p][q][r][s] +=  2.0 * 0.25 * Pert_H_2body[q][p][s][r]
+                H_2body[p][q][r][s] +=  2.0 * 0.25 * Pert_H_2body[r][s][p][q]
+                H_2body[p][q][r][s] +=  2.0 * 0.25 * Pert_H_2body[s][r][q][p]
 
-'''
 # Need to do SCF and CC with the final Hamiltonian!
 scf = HelperSCF(ngen, nocc, H_1body, H_2body, e_nuc, memory=2)
 scf.compute_energy(e_conv=1e-13)
@@ -125,4 +132,4 @@ ccsd.compute_energy(e_conv=1e-13, r_conv=1e-13)
 CCSDcorr_E = ccsd.ccsd_corr_e
 print('\nCCSD correlation energy:          {}'.format(CCSDcorr_E))
 print('\nTotal energy:          {}'.format(CCSDcorr_E + SCF_E))
-'''
+
