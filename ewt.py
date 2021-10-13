@@ -55,17 +55,17 @@ def ewt(string1_upper, string1_lower, string2_upper, string2_lower, f, fptr, men
         for item1 in item:
             # print('item1')
             # print(item1)
-            if item1[0] == 'o' or item1[0] == 't':
-                x = op.operator('ac', dagger, p+1, item1, 1, -1, 1)
-                u.append(x)
-                full1.append(x)
-                p = p+1
+            #if item1[0] == 'o' or item1[0] == 't':
+            #if item1[0] == 'o':
+            #    x = op.operator('ac', dagger, p+1, item1, 1, -1, 1)
+            #    u.append(x)
+            #    full1.append(x)
+            #    p = p+1
                 # Full CABS space A, B, C, D, E, F, G, H
                 # These are just full virtual space
                 # Breaking of A into pure virtual and pure CABS can be done later!
-            # elif (((String1[index][0] >= 'a') and (String1[index][0] < 'h')) or
-            #     ((String1[index][0] >= 'A') and (String1[index][0] < 'H'))) :
-            elif ('a' <= item1[0] <= 'h') or ('A' <= item1[0] <= 'H'):
+            # else if ('a' <= item1[0] <= 'h') or ('A' <= item1[0] <= 'H'):
+            if ('a' <= item1[0] <= 'h') or ('A' <= item1[0] <= 'H'):
                 x = op.operator('pa', dagger, p+1, item1, 1, -1, 1)
                 a.append(x)
                 full1.append(x)
@@ -75,12 +75,12 @@ def ewt(string1_upper, string1_lower, string2_upper, string2_lower, f, fptr, men
                 i.append(x)
                 full1.append(x)
                 p = p+1
-            elif 'u' <= item1[0] <= 'z':
+            elif 'u' < item1[0] <= 'z':
                 x = op.operator('ac', dagger, p+1, item1, 1, -1, 1)
                 u.append(x)
                 full1.append(x)
                 p = p+1
-            elif 'p' <= item1[0] <= 's':
+            elif 'p' <= item1[0] <= 'u':
                 x = op.operator('ge', dagger, p+1, item1, 1, -1, 1)
                 # print('x.kind')
                 # print(x.kind)
@@ -101,17 +101,16 @@ def ewt(string1_upper, string1_lower, string2_upper, string2_lower, f, fptr, men
         for item in string2:
             for item1 in item:
                 # if (String2[index][0] == 'o' or String2[index][0] == 't'):
-                if item1[0] == 'o' or item1[0] == 't':
-                    x = op.operator('ac', dagger, p+1, item1, 2, -1, 1)
-                    u.append(x)
-                    full2.append(x)
-                    p = p+1
-                    # Full CABS space A, B, C, D, E, F, G, H
-                    # These are just full virtual space
-                    # Breaking of A into pure virtual and pure CABS can be done later!
-                # elif (((String2[index][0] >= 'a') and (String2[index][0] < 'h')) or
-                #     ((String2[index][0] >= 'A') and (String2[index][0] < 'H'))) :
-                elif ('a' <= item1[0] <= 'h') or ('A' <= item1[0] <= 'H'):
+                #if item1[0] == 'o' or item1[0] == 't':
+                #    x = op.operator('ac', dagger, p+1, item1, 2, -1, 1)
+                #    u.append(x)
+                #    full2.append(x)
+                #    p = p+1
+                # Full CABS space A, B, C, D, E, F, G, H
+                # These are just full virtual space
+                # Breaking of A into pure virtual and pure CABS can be done later!
+                # elif ('a' <= item1[0] <= 'h') or ('A' <= item1[0] <= 'H'):
+                if ('a' <= item1[0] <= 'h') or ('A' <= item1[0] <= 'H'):
                     x = op.operator('pa', dagger, p+1, item1, 2, -1, 1)
                     a.append(x)
                     full2.append(x)
@@ -133,12 +132,12 @@ def ewt(string1_upper, string1_lower, string2_upper, string2_lower, f, fptr, men
                     # print 'x.pos'
                     # print x.pos
                     p = p+1
-                elif 'u' <= item1[0] <= 'z':
+                elif 'u' < item1[0] <= 'z':
                     x = op.operator('ac', dagger, p+1, item1, 2, -1, 1)
                     u.append(x)
                     full2.append(x)
                     p = p+1
-                elif 'p' <= item1[0] <= 's':
+                elif 'p' <= item1[0] <= 'u':
                     x = op.operator('ge', dagger, p+1, item1, 2, -1, 1)
                     i.append(x)
                     a.append(x)

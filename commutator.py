@@ -288,22 +288,3 @@ def comm(a, b, last):
     '''
     return list_terms
 
-
-# Some examples below, I guess??
-"""
-comm(['X1'],comm(comm(['V2'],['T1'],1,0),['T11'],1,0),0,1)
-comm(['X1'],comm(comm(['V2'],['D1'],1,0),['T11'],1,0),0,1)
-comm(['X1'],comm(comm(['V2'],['T1'],1,0),['D11'],1,0),0,1)
-comm(['X1'],comm(comm(['V2'],['D1'],1,0),['D11'],1,0),0,1)
-
-#comm(comm(['V2'],['T1'],1,0),['T11'],1,1)
-#comm(comm(['V2'],['D1'],1,0),['T11'],1,1)
-#comm(comm(['V2'],['T1'],1,0),['D11'],1,1)
-#comm(comm(['V2'],['D1'],1,0),['D11'],1,1)
-#'''
-# Only test case at the moment is this commutator being computed.
-#comm(['V2'],['T2'],1,1)
-comm(['X2'], comm(['V2'],['D1'],1,0),0,1)
-comm(['X2'], comm(['V2'],['T2'],1,0),0,1)
-comm(['X2'], comm(['V2'],['D2'],1,0),0,1)
-"""

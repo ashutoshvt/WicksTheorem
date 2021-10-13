@@ -68,13 +68,20 @@ def simplify_for_HF(list_terms):
         if removed:
             print('removed!')
             term_to_remove.append(index)
+            pt.print_terms([list_terms[index]])
     for index in sorted(term_to_remove, reverse=True):
         list_terms.pop(index)
     # want to call the compress function here!
     for item in list_terms:
         #item.resolve_gammas_HF() # TODO: need to correct this! as only occupied indices should be populated!
         # resolves only the deltas in vaccum case
+        print('before resolving delta')
+        pt.print_terms([item])
         item.compress_AK_HF()
+        print('after resolving delta')
+        pt.print_terms([item])
+    '''
+    # commenting for now!
     count = 0
     for item in list_terms:
         print('count: ', count)
@@ -84,9 +91,26 @@ def simplify_for_HF(list_terms):
         # converts CABS_plus to vir
         item.resolve_cabs_to_vir()
         count += 1
+    '''
+    # --------------------------------------------------------
+    # remember form of R2 amplitudes is R^A0B0_p0q0 and R^A0_p0
+    # so, if in lower indices (R2) we have a CABS+ operator, convert to vir
+    # --------------------------------------------------------
+    convert_cabs_plus_to_vir_ABpq(list_terms, ['A','H'])
+    print('convert_cabs_plus_to_vir_lower_or_upper:\n')
+    pt.print_terms(list_terms)
+    # --------------------------------------------------------
+    # if any F12 amplitude contains all obs indices, remove that term!
+    # --------------------------------------------------------
+    remove_amplitudes_all_obs(list_terms)
+    pt.print_terms(list_terms)
+    # --------------------------------------------------------
+    # Identifying F12 intermediates V, B and X
+    # --------------------------------------------------------
     count = 0
     print('inside F12 intermediates section!!')
     for item in list_terms:
+        pt.print_terms([item])
         flag = item.identify_f12_intermediates()
         if flag:
             count += 1
@@ -94,8 +118,15 @@ def simplify_for_HF(list_terms):
     print('-----------------------------\n')
     print('-----------------------------\n')
     print('-----------------------------\n')
+
+    # --------------------------------------------------------
+    # converting CABS plus to pure CABS finally! 
+    # --------------------------------------------------------
+    cabs_plus_to_pure_cabs(list_terms)
+    # --------------------------------------------------------
     # I need to experiment a bit with EBC and GBC
     # Disabled the gbc_ebc function for now!
+    # --------------------------------------------------------
     '''
     term_to_remove = []
     for index, items in enumerate(list_terms):
@@ -104,6 +135,10 @@ def simplify_for_HF(list_terms):
             term_to_remove.append(index)
     for index in sorted(term_to_remove, reverse=True):
         list_terms.pop(index)
+    '''
+    # --------------------------------------------------------
+    # Disabling for now!
+    # --------------------------------------------------------
     '''
     term_to_remove = []
     for index, items in enumerate(list_terms):
@@ -114,7 +149,7 @@ def simplify_for_HF(list_terms):
             term_to_remove.append(index)
     for index in sorted(term_to_remove, reverse=True):
         list_terms.pop(index)
-     
+    ''' 
 
 def allocate_memory(file=None):
     if file:
@@ -398,15 +433,15 @@ def three_body_decompose(list_terms):
 
 
 def simplify_three_body_HF(list_terms):
-    # 1. remove density terms containing CABS indices!
+    # 1. remove density terms containing CABS or vir indices!
     term_to_remove = []
     for index, items in enumerate(list_terms):
-        removed = items.remove_cabs_density_three_body()
+        removed = items.remove_cabs_vir_density_three_body()
         if removed:
             term_to_remove.append(index)
     for index in sorted(term_to_remove, reverse=True):
         list_terms.pop(index)
-    pt.print_terms(list_terms, 'outputs/new_list_simplified_1.txt')
+    # pt.print_terms(list_terms, 'outputs/new_list_simplified_1.txt')
     # 2. resolve 2 body densities into 1 body densities!
     new_list = []
     for index, items in enumerate(list_terms):
@@ -425,62 +460,48 @@ def simplify_three_body_HF(list_terms):
     print('term_to_remove: ', term_to_remove)
     for index in sorted(term_to_remove, reverse=True):
         new_list.pop(index)
-    pt.print_terms(new_list, 'outputs/new_list_simplified_2.txt')
+    # pt.print_terms(new_list, 'outputs/new_list_simplified_2.txt')
     # resolve CABS+ to either CABS_pure or vir
+    ''' # commenting for now!
     for items in new_list:
         items.resolve_cabs_to_vir()
+    '''
     return new_list
 
-# excited states amplitudes functions below!
-def excited_states_cabs_plus_to_pure_cabs(list_terms):
+def cabs_plus_to_pure_cabs(list_terms):
     cabs_vir_map = {'A0': 'x0', 'A1': 'x1', 'B0': 'y0', 'B1': 'y1', 'A2': 'z0', 'B2': 'z1'}
     for ind_terms, terms in enumerate(list_terms):
         size = len(terms.large_op_list)
         size_arr = [i for i in range(size)]
         large_op_list_names = [terms.large_op_list[i].name for i in range(size)]
+        H_index = []
         if size == 3:
             if 'F1' in large_op_list_names:
                 F1_index = large_op_list_names.index('F1')
                 print('F1_index: ', F1_index)
                 size_arr.pop(F1_index)
-                for indices in size_arr:
-                    for i, elements in enumerate(terms.coeff_list[indices]):
-                        print('elements[0]: ', elements[0])
-                        if 'A' <=  elements[0] <= 'F':
-                            terms.coeff_list[indices][i] = cabs_vir_map[elements]
-                            if elements in terms.coeff_list[F1_index]:
-                                index = terms.coeff_list[F1_index].index(elements)
-                                terms.coeff_list[F1_index][index] = cabs_vir_map[elements]
-                            if elements in terms.sum_list:
-                                index = terms.sum_list.index(elements)
-                                terms.sum_list[index] = cabs_vir_map[elements]
+                H_index.append(F1_index)
         else:
-            H1 = False
-            V2 = False
             if 'H1' in large_op_list_names:
-                H1 = True
                 H1_index = large_op_list_names.index('H1')
                 size_arr.pop(H1_index)
+                H_index.append(H1_index)
             if 'V2' in large_op_list_names:
-                V2 = True
                 V2_index = large_op_list_names.index('V2')
                 size_arr.pop(V2_index)
-            for indices in size_arr:
-                for i, elements in enumerate(terms.coeff_list[indices]):
-                    if 'A' <=  elements[0] <= 'F':
-                        terms.coeff_list[indices][i] = cabs_vir_map[elements]
-                        if H1:
-                            if elements in terms.coeff_list[H1_index]:
-                                index = terms.coeff_list[H1_index].index(elements)
-                                terms.coeff_list[H1_index][index] = cabs_vir_map[elements]
-                        if V2:
-                            if elements in terms.coeff_list[V2_index]:
-                                index = terms.coeff_list[V2_index].index(elements)
-                                terms.coeff_list[V2_index][index] = cabs_vir_map[elements]
-                        if elements in terms.sum_list:
-                            index = terms.sum_list.index(elements)
-                            terms.sum_list[index] = cabs_vir_map[elements]
-
+                H_index.append(V2_index)
+        for indices in size_arr:
+            for i, elements in enumerate(terms.coeff_list[indices]):
+                print('elements[0]: ', elements[0])
+                if 'A' <=  elements[0] <= 'H':
+                    terms.coeff_list[indices][i] = cabs_vir_map[elements]
+                    if elements in terms.coeff_list[H_index[0]]:
+                        index = terms.coeff_list[H_index[0]].index(elements)
+                        terms.coeff_list[H_index[0]][index] = cabs_vir_map[elements]
+                    if elements in terms.sum_list:
+                        index = terms.sum_list.index(elements)
+                        terms.sum_list[index] = cabs_vir_map[elements]
+'''
 def excited_states_retain_only_one_two_cabs_amplitudes(list_terms):
     # one body: only one cabs_pure, otherwise -> removed
     # two body: only 2 cabs_pure, otherwise -> removed!
@@ -532,67 +553,93 @@ def excited_states_retain_only_one_two_cabs_amplitudes(list_terms):
     print('terms_to_remove: ', terms_to_remove)    
     for index in sorted(terms_to_remove, reverse=True):
         list_terms.pop(index)
+'''
 
-def excited_states_retain_only_one_two_cabs_amplitudes_upper_lower(list_terms):
-    # one body: only one cabs_pure, otherwise -> removed
-    # two body: only 2 cabs_pure, otherwise -> removed!
+# find element in coeff_list and change its every occurence to element.lower()
+def replace_cabs_plus_to_vir_coeff_sum(element, coeff_list, sum_list, H_index, size_arr, indices):
+    list_ = [H_index[0]]
+    size_arr_copy = copy.deepcopy(size_arr)
+    if len(size_arr_copy) == 2:
+        size_arr_copy.remove(indices)
+        list_.append(size_arr_copy[0])
+    for i in list_:
+        if element in coeff_list[i]:
+            ind = coeff_list[i].index(element)
+            coeff_list[i][ind] = element.lower()
+    if element in sum_list:
+        ind = sum_list.index(element)
+        sum_list[ind] = element.lower()
+
+def convert_cabs_plus_to_vir_ABpq(list_terms, cabs_range=['w','z']):
+    # remember form of R2 amplitudes is R^A0B0_p0q0 and R^A0_p0
+    # so, if in lower indices (R2) we have a CABS+ operator, convert to vir
+    for ind_terms, terms in enumerate(list_terms):
+        print('before resolution of CABS')
+        pt.print_terms([terms])
+        size = len(terms.large_op_list)
+        size_arr = [i for i in range(size)]
+        large_op_list_names = [terms.large_op_list[i].name for i in range(size)]
+        H_index = []
+        if size == 3:
+            if 'F1' in large_op_list_names:
+                F1_index = large_op_list_names.index('F1')
+                size_arr.pop(F1_index)
+                H_index.append(F1_index)
+        else:
+            if 'H1' in large_op_list_names:
+                H1_index = large_op_list_names.index('H1')
+                size_arr.pop(H1_index)
+                H_index.append(H1_index)
+            if 'V2' in large_op_list_names:
+                V2_index = large_op_list_names.index('V2')
+                size_arr.pop(V2_index)
+                H_index.append(V2_index)
+        for indices in size_arr:
+            size_ = len(terms.coeff_list[indices]) 
+            if size_ == 2 and '1D' in large_op_list_names[indices]:
+                for i, elements in enumerate(terms.coeff_list[indices][:1]):
+                    if cabs_range[0] <=  elements[0] <= cabs_range[1]:
+                        terms.coeff_list[indices][i] = elements.lower()    
+                        replace_cabs_plus_to_vir_coeff_sum(elements, terms.coeff_list, terms.sum_list, H_index, size_arr, indices)
+            if size_ == 2 and '1D' not in large_op_list_names[indices]:
+                for i, elements in enumerate(terms.coeff_list[indices][1:]):
+                    if cabs_range[0] <=  elements[0] <= cabs_range[1]:
+                        terms.coeff_list[indices][1+i] = elements.lower()    
+                        replace_cabs_plus_to_vir_coeff_sum(elements, terms.coeff_list, terms.sum_list, H_index, size_arr, indices)
+            if size_ == 4 and 'D' in large_op_list_names[indices]:
+                for i, elements in enumerate(terms.coeff_list[indices][:2]):
+                    if cabs_range[0] <=  elements[0] <= cabs_range[1]:
+                        print('elements: ', elements)
+                        terms.coeff_list[indices][i] = elements.lower()    
+                        replace_cabs_plus_to_vir_coeff_sum(elements, terms.coeff_list, terms.sum_list, H_index, size_arr, indices)
+            if size_ == 4 and 'D' not in large_op_list_names[indices]:
+                for i, elements in enumerate(terms.coeff_list[indices][2:]):
+                    if cabs_range[0] <=  elements[0] <= cabs_range[1]:
+                        terms.coeff_list[indices][2+i] = elements.lower()    
+                        replace_cabs_plus_to_vir_coeff_sum(elements, terms.coeff_list, terms.sum_list, H_index, size_arr, indices)
+        print('after resolution of CABS')
+        pt.print_terms([terms])
+
+# if any F12 amplitude contains all obs indices, remove that term!
+def remove_amplitudes_all_obs(list_terms):
     terms_to_remove = []
     for ind_terms, terms in enumerate(list_terms):
         size = len(terms.large_op_list)
         size_arr = [i for i in range(size)]
         large_op_list_names = [terms.large_op_list[i].name for i in range(size)]
-        if size == 3:
-            if 'F1' in large_op_list_names:
-                F1_index = large_op_list_names.index('F1')
-                size_arr.pop(F1_index)
-                for indices in size_arr:
-                    size_ = len(terms.coeff_list[indices]) 
-                    if size_ == 2 and 'D' in large_op_list_names[indices]:
-                        for elements in terms.coeff_list[indices][:1]:
-                            if 'w' <=  elements[0] <= 'z':
-                                terms_to_remove.append(ind_terms) 
-                    if size_ == 2 and 'D' not in large_op_list_names[indices]:
-                        for elements in terms.coeff_list[indices][1:]:
-                            if 'w' <=  elements[0] <= 'z':
-                                terms_to_remove.append(ind_terms) 
-                    if size_ == 4 and 'D' in large_op_list_names[indices]:
-                        for elements in terms.coeff_list[indices][:2]:
-                            if 'w' <=  elements[0] <= 'z':
-                                terms_to_remove.append(ind_terms) 
-                    if size_ == 4 and 'D' not in large_op_list_names[indices]:
-                        for elements in terms.coeff_list[indices][2:]:
-                            if 'w' <=  elements[0] <= 'z':
-                                terms_to_remove.append(ind_terms) 
-                    print('terms.coeff_list[indices]: ', terms.coeff_list[indices])
-                    print('size_: ', size_)
-        else:
-            if 'H1' in large_op_list_names:
-                H1_index = large_op_list_names.index('H1')
-                size_arr.pop(H1_index)
-            if 'V2' in large_op_list_names:
-                V2_index = large_op_list_names.index('V2')
-                size_arr.pop(V2_index)
-            for indices in size_arr:
-                size_ = len(terms.coeff_list[indices]) 
-                if size_ == 2 and 'D' in large_op_list_names[indices]:
-                    for elements in terms.coeff_list[indices][:1]:
-                        if 'w' <=  elements[0] <= 'z':
-                            terms_to_remove.append(ind_terms) 
-                if size_ == 2 and 'D' not in large_op_list_names[indices]:
-                    for elements in terms.coeff_list[indices][1:]:
-                        if 'w' <=  elements[0] <= 'z':
-                            terms_to_remove.append(ind_terms) 
-                if size_ == 4 and 'D' in large_op_list_names[indices]:
-                    for elements in terms.coeff_list[indices][:2]:
-                        if 'w' <=  elements[0] <= 'z':
-                            terms_to_remove.append(ind_terms) 
-                if size_ == 4 and 'D' not in large_op_list_names[indices]:
-                    for elements in terms.coeff_list[indices][2:]:
-                        if 'w' <=  elements[0] <= 'z':
-                            terms_to_remove.append(ind_terms) 
+        for i, ops in enumerate(large_op_list_names):
+            if 'R' in ops:
+                cabs_pure = 0
+                for elements in terms.coeff_list[i]:
+                    if 'A' <= elements[0] <= 'H':
+                        cabs_pure += 1 
+                if cabs_pure == 0:
+                    terms_to_remove.append(ind_terms)    
     terms_to_remove = list(set(terms_to_remove))
     print('terms_to_remove: ', terms_to_remove)    
     for index in sorted(terms_to_remove, reverse=True):
+        print('removed')    
+        pt.print_terms([list_terms[index]])
         list_terms.pop(index)
 
 def einsum_expressions(list_list_terms, file=None):

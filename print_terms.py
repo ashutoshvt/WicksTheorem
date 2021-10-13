@@ -9,11 +9,14 @@ def clean_list(list_terms):
     return final_terms
 
 
-def print_terms(list_terms, filename):
+def print_terms(list_terms, filename=None):
     # pfile = open(filename,'a')
-    pfile = open(filename, 'w')
+    if filename:
+        pfile = open(filename, 'w')
     for term in list_terms:
         if term.fac != 0.0:
             term.print_term()
-            term.print_latex(pfile)
-    pfile.write("------------\\\\ \n")
+            if filename:
+                term.print_latex(pfile)
+    if filename:
+        pfile.write("------------\\\\ \n")

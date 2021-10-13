@@ -1,3 +1,4 @@
+import sys
 import numpy as np
 # from final_hamiltonian import construct_transcorr_H
 from test import construct_transcorr_H
@@ -7,9 +8,10 @@ from helper_ccenergy import *
 
 
 def read_from_file(filename, enuc_bool=False):
-    prefix = '/Users/akumar1/ayush/f12_intermediates/H2/'
-    # prefix = '/Users/akumar1/ayush/f12_intermediates/LiH/'
-    # prefix = '/Users/akumar1/ayush/f12_intermediates/BH/'
+    prefix = '/Users/akumar1/ayush/f12_intermediates/H2O/sto-3g/'
+    #prefix = '/Users/akumar1/ayush/f12_intermediates/H2/'
+    #prefix = '/Users/akumar1/ayush/f12_intermediates/LiH/'
+    #prefix = '/Users/akumar1/ayush/f12_intermediates/BH/'
     I_file = open(prefix + filename)
     shapes = I_file.readline().split('\n')
     shapes = shapes[:-1][0].split(',')
@@ -54,24 +56,27 @@ F1_cc, e_nuc = read_from_file('F1_cc.csv', True)
 # Two body operators
 V2_gg_gg = read_from_file('V2_gg_gg.csv')
 V2_gg_gc = read_from_file('V2_gg_gc.csv')
-# R2_oo_vc = read_from_file('R2_oo_vc.csv')
-R2_oo_vc = read_from_file('R2_oo_vc1.csv')
-# R2_oo_vc *= 2.0
+R2_oo_vc = read_from_file('R2_oo_vc.csv')
 V_F12_oo_gg = read_from_file('V_F12_oo_gg.csv')
 X_F12_oo_oo = read_from_file('X_F12_oo_oo.csv')
 B_F12_oo_oo = read_from_file('B_F12_oo_oo.csv')
 # needed for excited states!
-R2_vv_cc = read_from_file('R2_vv_cc1.csv')
-# R2_vv_cc *= 2.0
-R2_vo_cc = read_from_file('R2_vo_cc1.csv')
-# R2_vo_cc *= 2.0
-V2_gg_cc = read_from_file('V2_gg_cc.csv')
+R2_gg_vc = read_from_file('R2_gg_vc.csv')
+R2_gg_cc = read_from_file('R2_gg_cc.csv')
+
 
 # dimensions
 ngen  = H1_gg.shape[0]
 nocc  = R2_oo_vc.shape[0]
 nvir  = R2_oo_vc.shape[2]
 ncabs = R2_oo_vc.shape[3]
+slice_o = slice(0, nocc)
+slice_v = slice(nocc, ngen)
+
+# Remember to overwrite R2_gg_vc to make R2_abcx terms zero!!!
+R2_gg_vc[slice_v, slice_v, :, :] = np.zeros((nvir, nvir, nvir, ncabs))
+# investigating the effect of ignoring F1_gc terms
+# F1_gc = np.zeros((ngen, ncabs))
 
 # construct R1^p_x
 # R1^i_x = F1^i_x/(F1_ii - F1_xx)
@@ -86,13 +91,31 @@ for p in range(nocc, ngen):
 # print('R1_px: ', R1_px)
 print('ncabs: ', ncabs)
 
-# R2_abxy = np.zeros((nvir, nvir, ncabs, ncabs))
-# R2_aixy = np.zeros((nvir, nocc, ncabs, ncabs))
-# V2_gg_cc = np.zeros((ngen, ngen, ncabs, ncabs))
+# So, I need to reproduce ground state energies!
+# Need to populate all these arrays accordingly!
+# V_F12_gg_gg --> populate just i,j,k,l block
+V_F12_gg_gg = np.zeros((ngen, ngen, ngen, ngen))
+V_F12_gg_gg[slice_o, slice_o, :, :] = V_F12_oo_gg
+# X_F12_gg_gg --> populate just i,j,k,l block
+X_F12_gg_gg = np.zeros((ngen, ngen, ngen, ngen))
+X_F12_gg_gg[slice_o, slice_o, slice_o, slice_o] = X_F12_oo_oo
+# B_F12_gg_gg --> populate just i,j,k,l block
+B_F12_gg_gg = np.zeros((ngen, ngen, ngen, ngen))
+B_F12_gg_gg[slice_o, slice_o, slice_o, slice_o] = B_F12_oo_oo
+## R2_gg_vc --> populate just i,j,v,c block
+#R2_gg_vc = np.zeros((ngen, ngen, nvir, ncabs))
+#R2_gg_vc[slice_o, slice_o, :, :] = R2_oo_vc
+# R2_gg_cc --> should be zero for ground state!
+#R2_gg_cc = np.zeros((ngen, ngen, ncabs, ncabs))
+
+#-------------------------------------------------------------
+#  let the above structure of V, X and B be like this only for excited states 
+# as well, as I would need to hack MPQC!! lets revisit this later!!!
+#--------------------------------------------------------------
 
 # put all the info needed in a list
-info = [ngen, nocc, nvir, H1_gg, H1_gc, F1_gg, F1_gc, F1_cc, V2_gg_gg, V2_gg_gc, R2_oo_vc, 
-        V_F12_oo_gg, X_F12_oo_oo, B_F12_oo_oo, R1_px, R2_vv_cc, R2_vo_cc, V2_gg_cc]
+info = [ngen, nocc, nvir, H1_gg, H1_gc, F1_gg, F1_gc, F1_cc, V2_gg_gg, V2_gg_gc, R2_gg_vc, 
+        R2_gg_cc, V_F12_gg_gg, X_F12_gg_gg, B_F12_gg_gg, R1_px]
 
 # Pertubed Hamiltonian using transcorrelated approach
 Pert_H_1body = np.zeros((ngen, ngen))
@@ -113,10 +136,16 @@ for p in range(ngen):
     for q in range(ngen):
         for r in range(ngen):
             for s in range(ngen):
-                H_2body[p][q][r][s] +=  2.0 * 0.25 * Pert_H_2body[p][q][r][s]
-                H_2body[p][q][r][s] +=  2.0 * 0.25 * Pert_H_2body[q][p][s][r]
-                H_2body[p][q][r][s] +=  2.0 * 0.25 * Pert_H_2body[r][s][p][q]
-                H_2body[p][q][r][s] +=  2.0 * 0.25 * Pert_H_2body[s][r][q][p]
+                H_2body[p][q][r][s] +=  2.0 * 0.125 * Pert_H_2body[p][q][r][s]
+                H_2body[p][q][r][s] +=  2.0 * 0.125 * Pert_H_2body[q][p][s][r]
+                H_2body[p][q][r][s] +=  2.0 * 0.125 * Pert_H_2body[r][s][p][q]
+                H_2body[p][q][r][s] +=  2.0 * 0.125 * Pert_H_2body[s][r][q][p]
+                # ----------
+                H_2body[p][q][r][s] +=  2.0 * 0.125 * Pert_H_2body[r][q][p][s]
+                H_2body[p][q][r][s] +=  2.0 * 0.125 * Pert_H_2body[q][r][s][p]
+                H_2body[p][q][r][s] +=  2.0 * 0.125 * Pert_H_2body[p][s][r][q]
+                H_2body[p][q][r][s] +=  2.0 * 0.125 * Pert_H_2body[s][p][q][r]
+               
 
 # Need to do SCF and CC with the final Hamiltonian!
 scf = HelperSCF(ngen, nocc, H_1body, H_2body, e_nuc, memory=2)
@@ -133,3 +162,19 @@ CCSDcorr_E = ccsd.ccsd_corr_e
 print('\nCCSD correlation energy:          {}'.format(CCSDcorr_E))
 print('\nTotal energy:          {}'.format(CCSDcorr_E + SCF_E))
 
+# write the Hamiltonian in the correct format!
+filename = 'Excited_state_H.csv'
+f=open(filename,'w')
+f.write('{}\n'.format(ccsd.nmo))
+f.write('{},{}\n'.format(ccsd.nocc, ccsd.nocc))
+f.write('{}\n'.format(e_nuc))
+
+for p in range(ccsd.nmo):
+    for q in range(ccsd.nmo):
+        f.write('{},{},{}\n'.format(p,q,ccsd.H[p][q]))
+
+for p in range(ccsd.nmo):
+    for q in range(ccsd.nmo):
+        for r in range(ccsd.nmo):
+            for s in range(ccsd.nmo):
+                f.write('{},{},{},{},{}\n'.format(p,q,r,s,ccsd.MO[p][q][r][s]))
