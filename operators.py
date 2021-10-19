@@ -469,7 +469,8 @@ def simplify_three_body_HF(list_terms):
     return new_list
 
 def cabs_plus_to_pure_cabs(list_terms):
-    cabs_vir_map = {'A0': 'x0', 'A1': 'x1', 'B0': 'y0', 'B1': 'y1', 'A2': 'z0', 'B2': 'z1'}
+    cabs_vir_map = {'A0': 'x0', 'A1': 'x1', 'B0': 'y0', 'B1': 'y1', 
+                    'C1': 'z0', 'D1': 'z1', 'C0': 'X0', 'D0': 'X1'} # just a weird lazy assignmnent!
     for ind_terms, terms in enumerate(list_terms):
         size = len(terms.large_op_list)
         size_arr = [i for i in range(size)]

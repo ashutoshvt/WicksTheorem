@@ -470,8 +470,8 @@ class term(object):
     # so, I can update that as well!!
 
     def simplify_for_HF_ref(self):
-        CABS_inds = ['A0', 'B0', 'A1', 'B1', 'A2', 'B2']
-        CABS_pairs = [['A0', 'B0'], ['A1', 'B1'], ['A2', 'B2']]
+        CABS_inds = ['A0', 'B0', 'A1', 'B1', 'A2', 'B2', 'C0', 'C1', 'D0', 'D1']
+        CABS_pairs = [['A0', 'B0'], ['A1', 'B1'], ['A2', 'B2'], ['C0', 'D0'], ['C1', 'D1']]
         flag = 0
         f_contract = 1
         # print('self.coeff:{}'.format(self.coeff_list))
@@ -990,7 +990,8 @@ class term(object):
                      'p0': 'p', 'q0': 'q', 'r0': 'r', 's0': 's',
                      'p1': 'P', 'q1': 'Q', 'r1': 'R', 's1': 'S',
                      't0': 't', 'u0': 'u', 't1': 'T', 'u1': 'U',
-                     'x0': 'x', 'y0': 'y', 'x1': 'w', 'y1': 'z'}
+                     'x0': 'x', 'y0': 'y', 'x1': 'w', 'y1': 'z',
+                     'z0': 'X', 'z1': 'Y', 'w0': 'W', 'w1': 'Z'}
         final_string = ''
         Hamiltonian_block = ''
         if len(self.st[0][0].upper) == 2:
@@ -1028,7 +1029,8 @@ class term(object):
         # put everything in ijab format!, rename R22 to R2
         # now I want them in p_q_a/A_b/B format! 
         for i, items in enumerate(self.large_op_list):
-            if items.name == 'R2' or items.name == 'R22':
+            if items.name == 'R2' or items.name == 'R22'\
+            or items.name == 'Ri2' or items.name == 'Ri22':
                 self.large_op_list[i].name = 'R2'
                 # swap (0,1) with (2,3)
                 temp = new_coeff[i][2]
@@ -1039,7 +1041,8 @@ class term(object):
                 new_coeff[i][1] = temp1
         # rename everything to R2
         for i, items in enumerate(self.large_op_list):
-            if items.name == 'R2D' or items.name == 'R22D':
+            if items.name == 'R2D' or items.name == 'R22D'\
+            or items.name == 'Ri2D' or items.name == 'Ri22D':
                 self.large_op_list[i].name = 'R2'
         # Need to work on this a little more for excited states!
         # here I want to convert R2, V2_CABS to a fixed layout!
@@ -1053,7 +1056,7 @@ class term(object):
             if items.name == 'V2':
                 cabs_ind = 0
                 for j in range(4):
-                    if 'w' <= new_coeff[i][j][0] < 'z':
+                    if 'w' <= new_coeff[i][j][0] <= 'z':
                         flag = 1
                         i_star = i
                         j_star.append(j)
@@ -1215,7 +1218,24 @@ class term(object):
                 oper_list += tmp_str
             elif self.large_op_list[i].name == 'R2':
                  if len(cabs_count_R2[i]) == 1: 
-                     oper_list += 'R2_gg_vc'
+                    flag_occ = False
+                    for j in range(4):
+                        if 'i' <= new_coeff[i][j][0] <= 'n':
+                            flag_occ = True
+                    if flag_occ:
+                        tmp_str = 'R2_gg_oc['
+                        for j in range(3):
+                            if 'p' <= new_coeff[i][j][0] <= 'u':
+                                tmp_str += ':, '
+                            if 'i' <= new_coeff[i][j][0] <= 'n':
+                                tmp_str += 'slice_o, '
+                            if 'a' <= new_coeff[i][j][0] <= 'h':
+                                tmp_str += 'slice_v, '
+                        tmp_str = tmp_str[0:len(tmp_str)-2]
+                        tmp_str += ', :]'
+                        oper_list += tmp_str
+                    else:
+                        oper_list += 'R2_gg_vc'
                  else: 
                      oper_list += 'R2_gg_cc'
             elif self.large_op_list[i].name in ['R1', 'R1D', 'R11', 'R11D']:
@@ -1292,7 +1312,10 @@ class term(object):
             prefactor *= 0.5
         # for elements in test_terms:
         #    if elements in oper_list:
-        f.write('    {} += {} * np.einsum(\'{}\', {})\n'.format(Hamiltonian_block, prefactor, final_string, oper_list))
+        if 'R2_gg_vc' in oper_list:
+            f.write('    {} += {} * np.einsum(\'{}\', {}, {})\n'.format(Hamiltonian_block, prefactor, final_string, oper_list, 'optimize=True'))
+        else:
+            f.write('    {} += {} * np.einsum(\'{}\', {}, {})\n'.format(Hamiltonian_block, prefactor, final_string, oper_list, 'optimize=True'))
 
 
 def get_parameters(f):
@@ -1328,6 +1351,8 @@ def get_parameters(f):
     f.write(B)
     R1 = '    R1 = info[15]\n'
     f.write(R1)
+    R2 = '    R2_gg_oc = info[16]\n'
+    f.write(R2)
     # R2_abxy = '    R2_abxy = info[15]\n'
     # f.write(R2_abxy)
     # R2_aixy = '    R2_aixy = info[16]\n'
