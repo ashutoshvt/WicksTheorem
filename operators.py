@@ -102,6 +102,7 @@ def simplify_for_HF(list_terms):
     # --------------------------------------------------------
     # if any F12 amplitude contains all obs indices, remove that term!
     # --------------------------------------------------------
+    print('removing amplitudes containing all obs indices')
     remove_amplitudes_all_obs(list_terms)
     pt.print_terms(list_terms)
     # --------------------------------------------------------
@@ -121,8 +122,14 @@ def simplify_for_HF(list_terms):
 
     # --------------------------------------------------------
     # converting CABS plus to pure CABS finally! 
+    # Need to double check on this!
     # --------------------------------------------------------
+    print('converting CABS plus to pure CABS')
+    print('before')
+    pt.print_terms(list_terms)
     cabs_plus_to_pure_cabs(list_terms)
+    print('after')
+    pt.print_terms(list_terms)
     # --------------------------------------------------------
     # I need to experiment a bit with EBC and GBC
     # Disabled the gbc_ebc function for now!
@@ -157,6 +164,7 @@ def allocate_memory(file=None):
         # file.write('H_2body = np.zeros((ngen, ngen, ngen, ngen))\n')
         file.write('    slice_o = slice(0, nocc)\n')
         file.write('    slice_v = slice(nocc, ngen)\n')
+        file.write('    slice_act = slice(0, nocc+1)\n')
 
 
 def normal_order_two(list_terms):
@@ -479,7 +487,7 @@ def cabs_plus_to_pure_cabs(list_terms):
         if size == 3:
             if 'F1' in large_op_list_names:
                 F1_index = large_op_list_names.index('F1')
-                print('F1_index: ', F1_index)
+                #print('F1_index: ', F1_index)
                 size_arr.pop(F1_index)
                 H_index.append(F1_index)
         else:
@@ -493,7 +501,7 @@ def cabs_plus_to_pure_cabs(list_terms):
                 H_index.append(V2_index)
         for indices in size_arr:
             for i, elements in enumerate(terms.coeff_list[indices]):
-                print('elements[0]: ', elements[0])
+                #print('elements[0]: ', elements[0])
                 if 'A' <=  elements[0] <= 'H':
                     terms.coeff_list[indices][i] = cabs_vir_map[elements]
                     if elements in terms.coeff_list[H_index[0]]:
@@ -610,7 +618,7 @@ def convert_cabs_plus_to_vir_ABpq(list_terms, cabs_range=['w','z']):
             if size_ == 4 and 'D' in large_op_list_names[indices]:
                 for i, elements in enumerate(terms.coeff_list[indices][:2]):
                     if cabs_range[0] <=  elements[0] <= cabs_range[1]:
-                        print('elements: ', elements)
+                        #print('elements: ', elements)
                         terms.coeff_list[indices][i] = elements.lower()    
                         replace_cabs_plus_to_vir_coeff_sum(elements, terms.coeff_list, terms.sum_list, H_index, size_arr, indices)
             if size_ == 4 and 'D' not in large_op_list_names[indices]:
@@ -629,7 +637,7 @@ def remove_amplitudes_all_obs(list_terms):
         size_arr = [i for i in range(size)]
         large_op_list_names = [terms.large_op_list[i].name for i in range(size)]
         for i, ops in enumerate(large_op_list_names):
-            if 'R' in ops:
+            if 'R' in ops: # R1 indices seem to contain all obs indices as well
                 cabs_pure = 0
                 for elements in terms.coeff_list[i]:
                     if 'A' <= elements[0] <= 'H':

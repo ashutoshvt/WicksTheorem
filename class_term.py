@@ -1177,9 +1177,11 @@ class term(object):
                     # F_x_x
                     Fock_block += '_cc'
                 oper_list += Fock_block
+            # F12 intermediate V
             elif self.large_op_list[i].name == 'A':
-                # make sure V_F12 is in the format V^ij_pq
-                if 'i' <= new_coeff[i][2][0] <= 'n' and 'i' <= new_coeff[i][3][0] <= 'n':
+                '''
+                # make sure the indices from Hamiltonian appears last!
+                if 'p' <= new_coeff[i][0][0] <= 's' and 'p' <= new_coeff[i][1][0] <= 's':
                     # swap 0,1 withn 2,3
                     tmp_0 = new_coeff[i][0]
                     tmp_1 = new_coeff[i][1]
@@ -1189,7 +1191,11 @@ class term(object):
                     new_coeff[i][1] = tmp_3
                     new_coeff[i][2] = tmp_0
                     new_coeff[i][3] = tmp_1
-                tmp_str = 'V_F12_gg_gg[:, :, '
+                '''
+                tmp_str = 'V_F12_gg_gg'
+                oper_list += tmp_str
+                '''
+                tmp_str = 'V_F12_gg_gg[slice_act, slice_act,'
                 for j in range(2, 4):
                     if 'p' <= new_coeff[i][j][0] <= 'u':
                         tmp_str += ':, '
@@ -1200,9 +1206,28 @@ class term(object):
                 tmp_str = tmp_str[0:len(tmp_str)-2]
                 tmp_str += ']'
                 oper_list += tmp_str
+                Hamiltonian_block = 'H_2body['
+                for item in self.st[0][0].upper:
+                    if 'p' <= item[0] <= 's':
+                        Hamiltonian_block += ':, '
+                    else:
+                        Hamiltonian_block += 'slice_act, '
+                for item in self.st[0][0].lower:
+                    if 'p' <= item[0] <= 's':
+                        Hamiltonian_block += ':, '
+                    else:
+                        Hamiltonian_block += 'slice_act, '
+                Hamiltonian_block = Hamiltonian_block[0:len(Hamiltonian_block)-2]
+                Hamiltonian_block += ']'
+                '''
+            # F12 intermediate B
             elif self.large_op_list[i].name == 'B':
                 oper_list += 'B_F12_gg_gg'
+                #oper_list += 'B_F12_gg_gg[slice_act, slice_act, slice_act, slice_act]'
+                #Hamiltonian_block = 'H_2body[slice_act, slice_act, slice_act, slice_act]'
+            # F12 intermediate X
             elif self.large_op_list[i].name == 'C':
+                #oper_list += 'X_F12_gg_gg[slice_act, slice_act, slice_act, slice_act]'
                 oper_list += 'X_F12_gg_gg'
             elif self.large_op_list[i].name == 'V2_gg_gc':
                 tmp_str = 'V2_gg_gc['
@@ -1235,15 +1260,43 @@ class term(object):
                         tmp_str += ', :]'
                         oper_list += tmp_str
                     else:
-                        oper_list += 'R2_gg_vc'
+                        tmp = 'R2_gg_vc['
+                        for j in range(2):
+                            if 'w' <= new_coeff[i][j][0]  <= 'z':
+                                tmp += 'slice_cabs, '
+                            if 'a' <= new_coeff[i][j][0] <= 'h':
+                                tmp += 'slice_v, '
+                            if 'p' <= new_coeff[i][j][0] <= 'u':
+                                tmp += ':, '
+                        tmp = tmp[0:len(tmp)-2]
+                        tmp += ', :, :]'
+                        oper_list += tmp
                  else: 
                      oper_list += 'R2_gg_cc'
             elif self.large_op_list[i].name in ['R1', 'R1D', 'R11', 'R11D']:
-                 oper_list += 'R1'
-                 if self.large_op_list[i].name in ['R1', 'R11']:
-                     temp = new_coeff[i][0]
-                     new_coeff[i][0] = new_coeff[i][1] 
-                     new_coeff[i][1] = temp 
+                if self.large_op_list[i].name in ['R1', 'R11']:
+                    temp = new_coeff[i][0]
+                    new_coeff[i][0] = new_coeff[i][1] 
+                    new_coeff[i][1] = temp 
+                tmp = 'R1['
+                for j in range(2):
+                    if 'w' <= new_coeff[i][j][0]  <= 'z':
+                        tmp += 'slice_cabs, '
+                    if 'a' <= new_coeff[i][j][0] <= 'h':
+                        tmp += 'slice_vir, '
+                    if 'p' <= new_coeff[i][j][0] <= 'u':
+                        tmp += ':, '
+                tmp = tmp[0:len(tmp)-2]
+                tmp += ']'
+                oper_list += tmp
+                #if self.large_op_list[i].name == 'R11' or self.large_op_list[i].name == 'R1':
+                #    oper_list += 'R1'
+                #if self.large_op_list[i].name == 'R11D' or self.large_op_list[i].name == 'R1D':
+                #    oper_list += 'R1D'
+                #if self.large_op_list[i].name in ['R1', 'R11']:
+                #    temp = new_coeff[i][0]
+                #    new_coeff[i][0] = new_coeff[i][1] 
+                #    new_coeff[i][1] = temp 
             else:
                 oper_list += self.large_op_list[i].name
             '''
